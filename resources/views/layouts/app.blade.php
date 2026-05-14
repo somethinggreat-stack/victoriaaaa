@@ -2008,7 +2008,7 @@ section { position: relative; padding: 110px 0; z-index: 2; }
 
 /* ===== FOOTER ===== */
 footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(--line); position: relative; z-index: 2; }
-.footer-top { display: grid; grid-template-columns: 1.6fr repeat(3, 1fr); gap: 50px; margin-bottom: 50px; }
+.footer-top { display: grid; grid-template-columns: 1.4fr repeat(4, 1fr); gap: 50px; margin-bottom: 50px; }
 .footer-brand img { height: 48px; width: auto; margin-bottom: 18px; }
 .footer-brand p { font-size: 14.5px; max-width: 320px; }
 .footer-col h5 { font-size: 12px; letter-spacing: 0.18em; text-transform: uppercase; color: var(--ink); margin-bottom: 18px; font-weight: 700; }
@@ -4327,6 +4327,12 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
         <a href="mailto:info@victoriousopportunities.com">Email</a>
         <a href="https://instagram.com/iamvictoria.love" target="_blank">Instagram · @iamvictoria.love</a>
         <a href="https://tiktok.com/@iam.victorialove" target="_blank">TikTok · @iam.victorialove</a>
+      </div>
+      <div class="footer-col">
+        <h5>Legal</h5>
+        <a href="{{ route('legal.privacy-policy') }}">Privacy Policy</a>
+        <a href="{{ route('legal.terms-of-service') }}">Terms of Service</a>
+        <a href="{{ route('legal.disclaimer') }}">Disclaimer</a>
       </div>
     </div>
     <div class="footer-bottom">

@@ -304,7 +304,7 @@
           <span class="ob-submit-spinner" aria-hidden="true"></span>
           <span class="arr">→</span>
         </button>
-        <p class="ob-submit-fine">By submitting, you agree to our <a href="#">Privacy Policy</a> and <a href="#">Terms of Service</a>.</p>
+        <p class="ob-submit-fine">By submitting, you agree to our <a href="{{ route('legal.privacy-policy') }}" target="_blank" rel="noopener">Privacy Policy</a>, <a href="{{ route('legal.terms-of-service') }}" target="_blank" rel="noopener">Terms of Service</a>, and <a href="{{ route('legal.disclaimer') }}" target="_blank" rel="noopener">Disclaimer</a>.</p>
       </div>
 
       <div class="ob-badges">

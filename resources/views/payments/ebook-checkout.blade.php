@@ -439,12 +439,12 @@
 
             <label class="co-agree">
               <input type="checkbox" name="agree_terms" value="1" required />
-              <span>I have read and agree to the <a href="#" target="_blank">Terms of Service</a> and authorize Victorious Opportunities to charge my card for this digital download.</span>
+              <span>I have read and agree to the <a href="{{ route('legal.terms-of-service') }}" target="_blank" rel="noopener">Terms of Service</a> and <a href="{{ route('legal.disclaimer') }}" target="_blank" rel="noopener">Disclaimer</a>, and authorize Victorious Opportunities to charge my card for this digital download.</span>
             </label>
 
             <label class="co-agree">
               <input type="checkbox" name="agree_privacy" value="1" required />
-              <span>I have read the <a href="#" target="_blank">Privacy Policy</a> and consent to my data being used to deliver this product.</span>
+              <span>I have read the <a href="{{ route('legal.privacy-policy') }}" target="_blank" rel="noopener">Privacy Policy</a> and consent to my data being used to deliver this product.</span>
             </label>
 
             <label class="co-agree">

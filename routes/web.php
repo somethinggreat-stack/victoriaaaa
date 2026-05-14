@@ -24,6 +24,14 @@ Route::prefix('services')->name('services.')->group(function () {
     Route::view('/credit-consultations',       'services.credit-consultations')->name('credit-consultations');
 });
 
+// Legal pages — required for production. Linked from the sitewide footer and
+// from the agreement checkboxes on every checkout / onboarding form.
+Route::prefix('legal')->name('legal.')->group(function () {
+    Route::view('/privacy-policy',    'legal.privacy-policy')->name('privacy-policy');
+    Route::view('/terms-of-service',  'legal.terms-of-service')->name('terms-of-service');
+    Route::view('/disclaimer',        'legal.disclaimer')->name('disclaimer');
+});
+
 // Mentorship — dedicated landing page for the 1:1 program
 Route::view('/mentorship', 'mentorship')->name('mentorship');
 Route::post('/mentorship-application', [MentorshipController::class, 'submit'])->name('mentorship.submit');
