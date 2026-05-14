@@ -19,7 +19,7 @@
       @csrf
       <label>
         <span>Email address</span>
-        <input type="email" name="email" required autofocus value="{{ old('email') }}" placeholder="victoria@creditrepair.com" autocomplete="username">
+        <input type="email" name="email" required autofocus value="{{ old('email') }}" autocomplete="username">
       </label>
       <label>
         <span>Password</span>
