@@ -442,6 +442,28 @@
             <span class="m-sub">In just 12 weeks.</span>
           </div>
         </div>
+        <div class="auth-tile m2">
+          <img src="{{ asset('images/founderimage1.jpeg') }}" alt="Funding approval" loading="lazy" />
+          <div class="m-cap">
+            <span class="m-tag">Approved</span>
+            <span class="m-ttl">$127K funding secured.</span>
+          </div>
+        </div>
+        <div class="auth-tile m3">
+          <img src="{{ asset('images/founderimage5.jpeg') }}" alt="Negative items removed" loading="lazy" />
+          <div class="m-cap">
+            <span class="m-tag">Removed</span>
+            <span class="m-ttl">120+ items deleted.</span>
+          </div>
+        </div>
+        <div class="auth-tile m4">
+          <img src="{{ asset('images/founderimage3.jpeg') }}" alt="Closing day approval" loading="lazy" />
+          <div class="m-cap">
+            <span class="m-tag">Closing Day</span>
+            <span class="m-ttl">Keys in her hand.</span>
+          </div>
+        </div>
+
         <div class="auth-floater">
           <div class="fl-stars">★★★★★</div>
           <div class="fl-quote">"From denied to approved in 90 days."</div>
