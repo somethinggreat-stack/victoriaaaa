@@ -328,14 +328,13 @@
 
 
 
-
 <!-- ============ EBOOKS LIBRARY ============ -->
 <section id="ebooks" class="ebooks-section">
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">Digital library</span>
       <h2>Take a <em class="serif gradient-text">shortcut.</em></h2>
-      <p>Self-paced playbooks built from real client wins. Read them tonight, win this week.</p>
+      <p>Self-paced playbooks built from real client wins.</p>
     </div>
 
     <div class="ebooks-grid">
@@ -343,7 +342,7 @@
         <div class="ebook-cover">
           <img src="{{ asset('images/100kinfundingebookcover.png') }}" alt="Easy Steps to Get $100K+ in 90 Days — ebook cover" loading="lazy" />
         </div>
-        <h4>Steps to Get $100K+ in 90 Days</h4>
+        <h4>7 Easy Steps to Get $100K+ in 90 Days</h4>
         <div class="meta">
           <div class="ep">$47<small>.00</small></div>
           <a href="{{ route('ebooks.checkout', '100k-funding-in-90-days') }}" class="buy">Get it →</a>
@@ -443,28 +442,6 @@
             <span class="m-sub">In just 12 weeks.</span>
           </div>
         </div>
-        <div class="auth-tile m2">
-          <img src="{{ asset('images/founderimage1.jpeg') }}" alt="Funding approval" loading="lazy" />
-          <div class="m-cap">
-            <span class="m-tag">Approved</span>
-            <span class="m-ttl">$127K funding secured.</span>
-          </div>
-        </div>
-        <div class="auth-tile m3">
-          <img src="{{ asset('images/founderimage5.jpeg') }}" alt="Negative items removed" loading="lazy" />
-          <div class="m-cap">
-            <span class="m-tag">Removed</span>
-            <span class="m-ttl">120+ items deleted.</span>
-          </div>
-        </div>
-        <div class="auth-tile m4">
-          <img src="{{ asset('images/founderimage3.jpeg') }}" alt="Closing day approval" loading="lazy" />
-          <div class="m-cap">
-            <span class="m-tag">Closing Day</span>
-            <span class="m-ttl">Keys in her hand.</span>
-          </div>
-        </div>
-
         <div class="auth-floater">
           <div class="fl-stars">★★★★★</div>
           <div class="fl-quote">"From denied to approved in 90 days."</div>

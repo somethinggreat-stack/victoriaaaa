@@ -1764,7 +1764,7 @@ section { position: relative; padding: 110px 0; z-index: 2; }
   position: relative;
   display: grid;
   grid-template-columns: repeat(4, 1fr);
-  grid-auto-rows: 84px;
+  grid-auto-rows: auto;
   gap: 12px;
 }
 .auth-tile {
@@ -1786,14 +1786,9 @@ section { position: relative; padding: 110px 0; z-index: 2; }
 .auth-tile:hover img { transform: scale(1.06); }
 
 .auth-tile.m1 img { object-position: center 22%; }
-.auth-tile.m2 img { object-position: center 25%; }
-.auth-tile.m3 img { object-position: center 20%; }
-.auth-tile.m4 img { object-position: center 22%; }
 
-.auth-tile.m1 { grid-column: span 2; grid-row: span 5; }
-.auth-tile.m2 { grid-column: span 2; grid-row: span 3; }
-.auth-tile.m3 { grid-column: span 1; grid-row: span 2; }
-.auth-tile.m4 { grid-column: span 1; grid-row: span 2; }
+/* Single large feature image on the right */
+.auth-tile.m1 { grid-column: 1 / -1; aspect-ratio: 4 / 5; }
 
 .m-cap {
   position: absolute; left: 14px; right: 14px; bottom: 14px; z-index: 2;
@@ -1841,7 +1836,6 @@ section { position: relative; padding: 110px 0; z-index: 2; }
   .auth-meta { grid-template-columns: 1fr 1fr; }
   .auth-trust { grid-template-columns: 1fr; }
   .meta-num { font-size: 24px; }
-  .auth-mosaic { grid-auto-rows: 72px; }
   .m-ttl { font-size: 18px; }
   .auth-floater { left: 12px; right: 12px; bottom: -16px; max-width: none; }
 }
