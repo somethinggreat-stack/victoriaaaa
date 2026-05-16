@@ -4191,17 +4191,19 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
   .auth-meta { max-width: 480px; margin: 28px auto; }
   /* Trust ticks: keep left-aligned ticks but center the block */
   .auth-trust {
-    display: inline-flex;
+    display: flex;
     flex-direction: column;
     align-items: flex-start;
-    gap: 8px;
+    gap: 10px;
     text-align: left;
-    margin: 0 auto;
+    width: fit-content;
+    margin: 0 auto 28px;
   }
   .auth-ctas {
     justify-content: center;
     flex-wrap: wrap;
     gap: 10px;
+    margin-top: 28px;
   }
   .auth-ctas .btn { flex: 1 1 240px; max-width: 360px; justify-content: center; }
 
