@@ -435,7 +435,7 @@
       <!-- RIGHT — proof mosaic with financial captions -->
       <div class="auth-mosaic reveal reveal-d2">
         <div class="auth-tile m1">
-          <img src="{{ asset('images/founderimage7.jpeg') }}" alt="Client celebrating credit transformation" loading="lazy" />
+          <img src="{{ asset('images/newimageforluxurycreditsection1.jpeg') }}" alt="Client celebrating credit transformation" loading="lazy" />
           <div class="m-cap">
             <span class="m-tag">Real Result</span>
             <span class="m-ttl">From 520 → 720.</span>
@@ -443,21 +443,21 @@
           </div>
         </div>
         <div class="auth-tile m2">
-          <img src="{{ asset('images/founderimage1.jpeg') }}" alt="Funding approval" loading="lazy" />
+          <img src="{{ asset('images/newimageforluxurycreditsection2.jpeg') }}" alt="Funding approval" loading="lazy" />
           <div class="m-cap">
             <span class="m-tag">Approved</span>
             <span class="m-ttl">$127K funding secured.</span>
           </div>
         </div>
         <div class="auth-tile m3">
-          <img src="{{ asset('images/founderimage5.jpeg') }}" alt="Negative items removed" loading="lazy" />
+          <img src="{{ asset('images/newimageforluxurycreditsection3.jpeg') }}" alt="Negative items removed" loading="lazy" />
           <div class="m-cap">
             <span class="m-tag">Removed</span>
             <span class="m-ttl">120+ items deleted.</span>
           </div>
         </div>
         <div class="auth-tile m4">
-          <img src="{{ asset('images/founderimage3.jpeg') }}" alt="Closing day approval" loading="lazy" />
+          <img src="{{ asset('images/newimageforluxurycreditsection4.jpeg') }}" alt="Closing day approval" loading="lazy" />
           <div class="m-cap">
             <span class="m-tag">Closing Day</span>
             <span class="m-ttl">Keys in her hand.</span>
