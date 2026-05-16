@@ -572,86 +572,58 @@ section { position: relative; padding: 110px 0; z-index: 2; }
 .pain {
   position: relative;
   padding: 28px 24px 24px;
-  background: #fff;
-  border: 1px solid var(--line);
+  background: linear-gradient(155deg, #ff4d92 0%, var(--pink) 52%, #c41763 100%);
+  border: 1px solid transparent;
   border-radius: var(--r-md);
   display: flex; flex-direction: column;
   overflow: hidden;
   isolation: isolate;
+  box-shadow: 0 14px 30px -16px rgba(230,49,121,0.45);
   transition: transform .5s cubic-bezier(.2,.7,.2,1),
-              box-shadow .55s cubic-bezier(.2,.7,.2,1),
-              border-color .45s ease;
+              box-shadow .55s cubic-bezier(.2,.7,.2,1);
 }
 .pain > * { position: relative; z-index: 1; }
-.pain::before {
-  content: "";
-  position: absolute;
-  top: 28px; left: 24px;
-  width: 60px; height: 60px;
-  border-radius: 50%;
-  background: radial-gradient(circle at center, #ff4d92 0%, var(--pink) 55%, #c41763 100%);
-  transform: scale(0);
-  transform-origin: center;
-  transition: transform .9s cubic-bezier(.22,.85,.28,1);
-  z-index: 0;
-  pointer-events: none;
-}
 .pain:hover {
   transform: translateY(-8px);
   box-shadow: 0 30px 60px -18px rgba(230,49,121,0.55),
               0 12px 28px -12px rgba(20,16,14,0.18);
-  border-color: var(--pink);
 }
-.pain:hover::before { transform: scale(22); }
 
 .pain-ico {
   width: 52px; height: 52px; border-radius: 14px;
-  background: var(--pink-soft); color: var(--pink);
+  background: rgba(255,255,255,0.18); color: #fff;
   display: grid; place-items: center;
   font-size: 26px; margin-bottom: 18px;
   transition: transform .45s cubic-bezier(.2,.7,.2,1),
-              background .5s ease,
-              color .5s ease,
               box-shadow .5s ease;
 }
-.pain:nth-child(2n) .pain-ico { background: var(--gold-soft); color: var(--gold); }
 .pain:hover .pain-ico {
   transform: rotate(-8deg) scale(1.1);
-  background: rgba(255,255,255,0.18);
-  color: #fff;
   box-shadow: 0 8px 22px -6px rgba(0,0,0,0.25), inset 0 0 0 1px rgba(255,255,255,0.25);
 }
 
 .pain h3 {
   font-size: 19px; font-weight: 600; letter-spacing: -0.02em;
-  color: var(--ink); margin-bottom: 10px;
-  transition: color .5s ease;
+  color: #fff; margin-bottom: 10px;
 }
 .pain p {
-  font-size: 14.5px; line-height: 1.6; color: var(--ink-2);
+  font-size: 14.5px; line-height: 1.6; color: rgba(255,255,255,0.92);
   margin-bottom: 18px; flex: 1;
-  transition: color .5s ease;
 }
-.pain:hover h3,
-.pain:hover p { color: #fff; }
 
 .pain-chip {
   display: inline-flex; align-items: center; gap: 6px;
   align-self: flex-start;
   font-size: 11px; font-weight: 700; letter-spacing: 0.1em; text-transform: uppercase;
   padding: 7px 12px; border-radius: 100px;
-  background: var(--pink-soft); color: var(--pink);
-  transition: background .5s ease, color .5s ease;
+  background: rgba(255,255,255,0.2); color: #fff;
 }
-.pain:hover .pain-chip { background: rgba(255,255,255,0.2); color: #fff; }
 .pain-chip .ck {
   width: 14px; height: 14px; border-radius: 50%;
-  background: var(--pink); color: #fff;
+  background: #fff; color: var(--pink);
   display: grid; place-items: center;
   font-size: 9px; font-weight: 700;
-  transition: background .5s ease, color .5s ease;
 }
-.pain:hover .pain-chip .ck { background: #fff; color: var(--pink); }
 .pain-foot {
   text-align: center;
   margin-top: 50px;
@@ -659,7 +631,17 @@ section { position: relative; padding: 110px 0; z-index: 2; }
 }
 .pain-foot strong { color: var(--ink); }
 @media (max-width: 1100px) { .pain-grid { grid-template-columns: repeat(2, 1fr); } }
-@media (max-width: 600px)  { .pain-grid { grid-template-columns: 1fr; } }
+@media (max-width: 600px) {
+  /* Mobile: 2 small pink cards per row */
+  .pain-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .pain { padding: 16px 14px 14px; border-radius: 14px; }
+  .pain-ico {
+    width: 38px; height: 38px; border-radius: 10px;
+    font-size: 19px; margin-bottom: 11px;
+  }
+  .pain h3 { font-size: 15px; margin-bottom: 6px; }
+  .pain p { font-size: 12.5px; line-height: 1.5; margin-bottom: 0; }
+}
 
 /* ===== ABOUT — light story with portrait ===== */
 .about-section { padding: 110px 0; background: var(--bg-2); border-block: 1px solid var(--line); }
