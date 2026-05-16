@@ -1052,25 +1052,17 @@ section { position: relative; padding: 110px 0; z-index: 2; }
 @media (max-width: 1100px) { .scores-grid { grid-template-columns: repeat(2, 1fr); gap: 18px; } }
 @media (max-width: 600px) {
   .scores-block { margin-top: 70px; }
-  /* Mobile: one-at-a-time swipe carousel, only the first 4 reports */
+  /* Mobile: single vertical column, only the first 4 reports stacked one below the other */
   .scores-grid {
-    display: flex;
-    grid-template-columns: none;
-    gap: 14px;
-    overflow-x: auto;
-    scroll-snap-type: x mandatory;
-    -webkit-overflow-scrolling: touch;
-    padding-bottom: 6px;
-    scrollbar-width: none;
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 16px;
   }
-  .scores-grid::-webkit-scrollbar { display: none; }
   .scores-grid .score-card:nth-child(n+5) { display: none; }
   .score-card {
-    flex: 0 0 100%;
     width: 100%;
     max-width: 100%;
     margin: 0;
-    scroll-snap-align: center;
   }
 }
 
