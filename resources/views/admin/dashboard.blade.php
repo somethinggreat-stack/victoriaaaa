@@ -2,17 +2,25 @@
 @section('title', 'Dashboard')
 
 @section('content')
+@php $reviewMode = (bool) session('review_mode'); @endphp
 <div class="adm-hero">
   <div class="adm-hero-portrait">
     <img src="{{ asset('images/founderimage1.jpeg') }}" alt="Victoria Love" />
     <span class="adm-hero-online"></span>
   </div>
   <div class="adm-hero-text">
-    <span class="adm-hero-eye">Welcome back · {{ now()->format('l, M j, Y') }}</span>
-    <h1>{{ auth()->user()->name }} <em class="serif">Love.</em></h1>
+    <span class="adm-hero-eye">{{ $reviewMode ? 'Reviewer access' : 'Welcome back' }} · {{ now()->format('l, M j, Y') }}</span>
+    <h1>{{ $reviewMode ? 'Victorious Opportunities' : auth()->user()->name }} <em class="serif">{{ $reviewMode ? 'Admin.' : 'Love.' }}</em></h1>
     <p>Texas Realtor &amp; Credit Coach · Founder, Victorious Opportunities.</p>
-    <p class="sub">Everything that came through your four forms — paid clients, funding leads, contact us, popup — lives below.</p>
+    <p class="sub">
+      @if ($reviewMode)
+        Read-only reviewer account. Customer records, payment activity, and lead data are not displayed in this view. Live customer files are accessed by Victoria from the owner admin login.
+      @else
+        Everything that came through your four forms — paid clients, funding leads, contact us, popup — lives below.
+      @endif
+    </p>
   </div>
+  @unless ($reviewMode)
   <div class="adm-hero-summary">
     <div class="adm-hero-stat">
       <strong>{{ number_format($counts['onboarding'] + $counts['funding'] + $counts['contacts'] + $counts['leads']) }}</strong>
@@ -23,7 +31,48 @@
       <span>Today</span>
     </div>
   </div>
+  @endunless
 </div>
+
+@if ($reviewMode)
+  <div class="adm-card" style="margin-bottom:20px">
+    <div class="adm-card-head"><h2>About this admin area</h2></div>
+    <p style="margin:0 0 10px;color:var(--ink-2);font-size:13.5px;line-height:1.6">
+      This dashboard is the merchant's internal back-office for the website
+      <a href="{{ url('/') }}" target="_blank" style="color:var(--pink);font-weight:600">victorialovecredit.com</a>.
+      It manages site form submissions and payment records for Victorious Opportunities.
+    </p>
+    <p style="margin:0 0 10px;color:var(--ink-2);font-size:13.5px;line-height:1.6">
+      <strong>Customers do not log in here.</strong> Paid customers receive their own client portal
+      through Credit Repair Cloud (the case-management software used to deliver the credit-repair
+      service). Their secure portal is hosted at
+      <code style="background:var(--bg-2);padding:2px 6px;border-radius:6px">secureportal</code>
+      and is completely separate from this site.
+    </p>
+    <p style="margin:0;color:var(--ink-2);font-size:13.5px;line-height:1.6">
+      This reviewer account is read-only and intentionally limits what is visible — customer PII,
+      payment ledgers, and lead data are not displayed.
+    </p>
+  </div>
+
+  <div class="adm-stats" style="grid-template-columns: repeat(3, 1fr);">
+    <div class="adm-stat">
+      <div class="lab">Site</div>
+      <div class="val" style="font-size:18px">victorialovecredit.com</div>
+      <div class="delta">Public marketing site</div>
+    </div>
+    <div class="adm-stat">
+      <div class="lab">Payment processor</div>
+      <div class="val" style="font-size:18px">Authorize.Net</div>
+      <div class="delta">Accept.js · tokenized cards</div>
+    </div>
+    <div class="adm-stat">
+      <div class="lab">Customer portal</div>
+      <div class="val" style="font-size:18px">Credit Repair Cloud</div>
+      <div class="delta">Issued separately per client</div>
+    </div>
+  </div>
+@else
 
 <!-- ════════ REVENUE ROW ════════ -->
 <div class="adm-stats" style="grid-template-columns: repeat(6, 1fr);">
@@ -229,4 +278,5 @@
   </div>
 
 </div>
+@endif
 @endsection

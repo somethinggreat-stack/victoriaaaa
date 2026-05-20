@@ -3,6 +3,7 @@
 namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
+use App\Models\User;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use Illuminate\Support\Facades\RateLimiter;
@@ -32,8 +33,30 @@ class AuthController extends Controller
             ])->onlyInput('email');
         }
 
+        // Read-only reviewer login (e.g. Authorize.Net underwriting reviews).
+        // Credentials live in .env so they can be rotated without touching code
+        // or the database. The reviewer still needs a row in `users` so Laravel's
+        // session guard can rehydrate the user on every request.
+        $reviewerEmail    = trim((string) env('REVIEWER_EMAIL', ''));
+        $reviewerPassword = (string) env('REVIEWER_PASSWORD', '');
+        if (
+            $reviewerEmail !== '' && $reviewerPassword !== ''
+            && hash_equals(strtolower($reviewerEmail), strtolower($credentials['email']))
+            && hash_equals($reviewerPassword, $credentials['password'])
+        ) {
+            $reviewer = User::where('email', $reviewerEmail)->first();
+            if ($reviewer) {
+                Auth::login($reviewer, $request->boolean('remember'));
+                $request->session()->regenerate();
+                $request->session()->put('review_mode', true);
+                RateLimiter::clear($key);
+                return redirect()->route('admin.dashboard');
+            }
+        }
+
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
             $request->session()->regenerate();
+            $request->session()->forget('review_mode');
             RateLimiter::clear($key);
             return redirect()->intended(route('admin.dashboard'));
         }

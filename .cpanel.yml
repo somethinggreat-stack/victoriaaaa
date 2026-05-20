@@ -1,0 +1,65 @@
+---
+# ============================================================================
+# cPanel Git Version Control — automatic deployment file.
+#
+# cPanel runs these shell commands each time you click "Update from Remote"
+# + "Deploy HEAD Commit" inside Git Version Control. The commands run from
+# the cloned repository directory (typically ~/repositories/<repo-name>/).
+#
+# What it does:
+#   1. Copies the Laravel source into ~/public_html/  (your domain docroot).
+#   2. Skips .env  — the .env on the server is the source of truth and is
+#      NEVER overwritten by a deploy.
+#   3. Skips storage/  — preserves uploaded files, sessions, cached views,
+#      and rotated log files between deploys.
+#   4. Installs PHP dependencies for production (no dev packages).
+#   5. Rebuilds Laravel's config / route / view caches.
+#
+# Pre-flight on first use:
+#   - Confirm $HOME/public_html/.env exists with the production values
+#     (APP_ENV=production, DB creds, Authorize.Net keys, etc.).
+#   - Confirm $HOME/public_html/.htaccess exists  (the root rewrite to /public/).
+#   - Confirm PHP version is 8.2+  in cPanel → MultiPHP Manager.
+# ============================================================================
+deployment:
+  tasks:
+    - export DEPLOYPATH=$HOME/public_html/
+
+    # 1. Make sure the destination + writable dirs exist
+    - /bin/mkdir -p $DEPLOYPATH
+    - /bin/mkdir -p $DEPLOYPATH/storage/app/public
+    - /bin/mkdir -p $DEPLOYPATH/storage/framework/cache/data
+    - /bin/mkdir -p $DEPLOYPATH/storage/framework/sessions
+    - /bin/mkdir -p $DEPLOYPATH/storage/framework/views
+    - /bin/mkdir -p $DEPLOYPATH/storage/logs
+    - /bin/mkdir -p $DEPLOYPATH/bootstrap/cache
+
+    # 2. Copy application source (everything except .env and storage/)
+    - /bin/cp -R app          $DEPLOYPATH
+    - /bin/cp -R bootstrap    $DEPLOYPATH
+    - /bin/cp -R config       $DEPLOYPATH
+    - /bin/cp -R database     $DEPLOYPATH
+    - /bin/cp -R public       $DEPLOYPATH
+    - /bin/cp -R resources    $DEPLOYPATH
+    - /bin/cp -R routes       $DEPLOYPATH
+    - /bin/cp    artisan      $DEPLOYPATH
+    - /bin/cp    composer.json $DEPLOYPATH
+    - /bin/cp    composer.lock $DEPLOYPATH
+    - /bin/cp    .htaccess    $DEPLOYPATH
+
+    # 3. Permissions (Laravel needs writable storage/ and bootstrap/cache)
+    - /bin/chmod -R 755 $DEPLOYPATH
+    - /bin/chmod -R 775 $DEPLOYPATH/storage $DEPLOYPATH/bootstrap/cache
+    - /bin/chmod 600 $DEPLOYPATH/.env 2>/dev/null || true
+
+    # 4. Production composer install (no dev packages, optimised autoloader)
+    - cd $DEPLOYPATH && /usr/local/bin/composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist 2>&1 || composer install --no-dev --optimize-autoloader --no-interaction --prefer-dist
+
+    # 5. Clear stale caches, then warm fresh ones for the new code
+    - cd $DEPLOYPATH && php artisan config:clear
+    - cd $DEPLOYPATH && php artisan view:clear
+    - cd $DEPLOYPATH && php artisan route:clear
+    - cd $DEPLOYPATH && php artisan cache:clear || true
+    - cd $DEPLOYPATH && php artisan config:cache
+    - cd $DEPLOYPATH && php artisan route:cache
+    - cd $DEPLOYPATH && php artisan view:cache

@@ -699,19 +699,24 @@ table.adm-table .actions { white-space: nowrap; }
       </div>
     </div>
 
-    @php $current = optional(request()->route())->getName() ?? ''; @endphp
+    @php
+      $current    = optional(request()->route())->getName() ?? '';
+      $reviewMode = (bool) session('review_mode');
+    @endphp
     <nav class="admin-nav">
       <a href="{{ route('admin.dashboard') }}"      class="@if($current==='admin.dashboard') active @endif"><span class="ic">⬚</span> Dashboard</a>
-      <a href="{{ route('admin.subscriptions') }}"  class="@if(str_starts_with($current,'admin.subscriptions')) active @endif"><span class="ic">◆</span> Subscriptions</a>
-      <a href="{{ route('admin.payments') }}"       class="@if($current==='admin.payments') active @endif"><span class="ic">$</span> Payments</a>
-      <a href="{{ route('admin.webhooks') }}"       class="@if(str_starts_with($current,'admin.webhooks')) active @endif"><span class="ic">⌁</span> Webhooks</a>
-      <a href="{{ route('admin.ebooks') }}"         class="@if(str_starts_with($current,'admin.ebooks')) active @endif"><span class="ic">📖</span> eBooks Catalog</a>
-      <a href="{{ route('admin.ebook-orders') }}"   class="@if(str_starts_with($current,'admin.ebook-orders')) active @endif"><span class="ic">📦</span> eBook Sales</a>
-      <a href="{{ route('admin.onboarding') }}"     class="@if(str_starts_with($current,'admin.onboarding')) active @endif"><span class="ic">⚑</span> Paid Credit Repair Clients</a>
-      <a href="{{ route('admin.funding') }}"        class="@if(str_starts_with($current,'admin.funding')) active @endif"><span class="ic">$</span> Funding Leads</a>
-      <a href="{{ route('admin.mentorship') }}"     class="@if(str_starts_with($current,'admin.mentorship')) active @endif"><span class="ic">★</span> Mentorship Leads</a>
-      <a href="{{ route('admin.contacts') }}"       class="@if(str_starts_with($current,'admin.contacts')) active @endif"><span class="ic">✉</span> Contact Us Submissions</a>
-      <a href="{{ route('admin.leads') }}"          class="@if(str_starts_with($current,'admin.leads')) active @endif"><span class="ic">★</span> Popup Submissions</a>
+      @unless ($reviewMode)
+        <a href="{{ route('admin.subscriptions') }}"  class="@if(str_starts_with($current,'admin.subscriptions')) active @endif"><span class="ic">◆</span> Subscriptions</a>
+        <a href="{{ route('admin.payments') }}"       class="@if($current==='admin.payments') active @endif"><span class="ic">$</span> Payments</a>
+        <a href="{{ route('admin.webhooks') }}"       class="@if(str_starts_with($current,'admin.webhooks')) active @endif"><span class="ic">⌁</span> Webhooks</a>
+        <a href="{{ route('admin.ebooks') }}"         class="@if(str_starts_with($current,'admin.ebooks')) active @endif"><span class="ic">📖</span> eBooks Catalog</a>
+        <a href="{{ route('admin.ebook-orders') }}"   class="@if(str_starts_with($current,'admin.ebook-orders')) active @endif"><span class="ic">📦</span> eBook Sales</a>
+        <a href="{{ route('admin.onboarding') }}"     class="@if(str_starts_with($current,'admin.onboarding')) active @endif"><span class="ic">⚑</span> Paid Credit Repair Clients</a>
+        <a href="{{ route('admin.funding') }}"        class="@if(str_starts_with($current,'admin.funding')) active @endif"><span class="ic">$</span> Funding Leads</a>
+        <a href="{{ route('admin.mentorship') }}"     class="@if(str_starts_with($current,'admin.mentorship')) active @endif"><span class="ic">★</span> Mentorship Leads</a>
+        <a href="{{ route('admin.contacts') }}"       class="@if(str_starts_with($current,'admin.contacts')) active @endif"><span class="ic">✉</span> Contact Us Submissions</a>
+        <a href="{{ route('admin.leads') }}"          class="@if(str_starts_with($current,'admin.leads')) active @endif"><span class="ic">★</span> Popup Submissions</a>
+      @endunless
       <a href="{{ url('/') }}" target="_blank"><span class="ic">↗</span> View site</a>
     </nav>
 
@@ -726,6 +731,7 @@ table.adm-table .actions { white-space: nowrap; }
 
   <main class="admin-main">
 
+    @unless ($reviewMode ?? false)
     <div class="admin-topbar">
       <form class="admin-search" method="GET" action="{{ route('admin.search') }}">
         <span class="admin-search-ico" aria-hidden="true">⌕</span>
@@ -736,6 +742,13 @@ table.adm-table .actions { white-space: nowrap; }
         <button type="submit" class="adm-btn">Search</button>
       </form>
     </div>
+    @else
+    <div class="admin-topbar">
+      <div class="flash" style="background:#fff5f9;border:1px solid #fbd6e6;color:#8b1452;margin:0">
+        <strong>Read-only reviewer session.</strong> Customer records, payment details and lead data are hidden in this account. Live customer data is accessed by Victoria from a separate admin login.
+      </div>
+    </div>
+    @endunless
 
     @if (session('success'))<div class="flash success">{{ session('success') }}</div>@endif
     @if (session('error'))  <div class="flash error">{{ session('error') }}</div>@endif

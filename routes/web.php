@@ -72,7 +72,7 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
     Route::post('/login', [AuthController::class, 'login'])->name('login');
     Route::post('/logout', [AuthController::class, 'logout'])->middleware('admin')->name('logout');
 
-    Route::middleware('admin')->group(function () {
+    Route::middleware(['admin', 'reviewer'])->group(function () {
         Route::get('/',          [DashboardController::class, 'index'])->name('dashboard');
         Route::get('/search',    [DashboardController::class, 'search'])->name('search');
 

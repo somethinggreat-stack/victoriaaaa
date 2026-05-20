@@ -12,7 +12,8 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'admin' => \App\Http\Middleware\AdminAuth::class,
+            'admin'    => \App\Http\Middleware\AdminAuth::class,
+            'reviewer' => \App\Http\Middleware\ReviewerGuard::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'authorize-net/webhook',
