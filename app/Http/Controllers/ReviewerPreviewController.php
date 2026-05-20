@@ -22,8 +22,10 @@ class ReviewerPreviewController extends Controller
 {
     public function show(Request $request)
     {
-        $email    = trim((string) env('REVIEWER_EMAIL', ''));
-        $password = (string) env('REVIEWER_PASSWORD', '');
+        // Read via config(), not env(), so values survive `config:cache`
+        // (env() returns null inside controllers once config has been cached).
+        $email    = trim((string) config('auth_reviewer.email', ''));
+        $password = (string) config('auth_reviewer.password', '');
 
         $submittedEmail    = (string) $request->input('email', '');
         $submittedPassword = (string) $request->input('password', '');

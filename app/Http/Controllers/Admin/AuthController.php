@@ -34,14 +34,15 @@ class AuthController extends Controller
         }
 
         // Read-only reviewer login (e.g. Authorize.Net underwriting reviews).
-        // Credentials live in .env so they can be rotated without touching code
-        // or the database. The reviewer still needs a row in `users` so Laravel's
-        // session guard can rehydrate the user on every request.
-        $reviewerEmail    = trim((string) env('REVIEWER_EMAIL', ''));
-        $reviewerPassword = (string) env('REVIEWER_PASSWORD', '');
+        // Credentials live in .env, but are read via config() so they survive
+        // `php artisan config:cache` (env() returns null in cached production).
+        $reviewerEmail    = trim((string) config('auth_reviewer.email', ''));
+        $reviewerPassword = (string) config('auth_reviewer.password', '');
+        $isReviewerEmail  = $reviewerEmail !== ''
+            && strtolower($reviewerEmail) === strtolower($credentials['email']);
+
         if (
-            $reviewerEmail !== '' && $reviewerPassword !== ''
-            && hash_equals(strtolower($reviewerEmail), strtolower($credentials['email']))
+            $isReviewerEmail && $reviewerPassword !== ''
             && hash_equals($reviewerPassword, $credentials['password'])
         ) {
             $reviewer = User::where('email', $reviewerEmail)->first();
@@ -52,6 +53,16 @@ class AuthController extends Controller
                 RateLimiter::clear($key);
                 return redirect()->route('admin.dashboard');
             }
+        }
+
+        // Reviewer email was used but password didn't match — never let this
+        // fall through to Auth::attempt(), because the reviewer's stored hash
+        // is intentionally a placeholder (not real bcrypt) and would throw.
+        if ($isReviewerEmail) {
+            RateLimiter::hit($key, 60);
+            return back()->withErrors([
+                'email' => 'Invalid email or password.',
+            ])->onlyInput('email');
         }
 
         if (Auth::attempt($credentials, $request->boolean('remember'))) {
