@@ -177,7 +177,7 @@
     <ul>
       <li>An <strong>initial payment</strong> is charged today.</li>
       <li>The <strong>recurring monthly charge</strong> begins thirty (30) days after your initial purchase and continues each month thereafter until you cancel.</li>
-      <li>You may cancel after the 90-day program completes by emailing <a href="mailto:info@victoriousopportunities.com">info@victoriousopportunities.com</a>.</li>
+      <li>You may cancel after the 90-day program completes by emailing <a href="mailto:support@victorialovecredit.com">support@victorialovecredit.com</a>.</li>
       <li>By providing your card and checking the agreement box at checkout, you authorize Victorious Opportunities to charge your card on a recurring basis until you cancel.</li>
     </ul>
 
@@ -193,7 +193,7 @@
       <p>You have the right to dispute inaccurate information in your credit report by contacting the credit bureau directly. You also have the right to obtain a copy of your credit report from the bureau, and your file disclosure is free if you request it within 60 days of being denied credit. <strong>You have a right to cancel your contract with any credit-repair organization for any reason within three (3) business days from the date you signed it.</strong> Credit-repair companies are not allowed to charge you until the services have been performed, make untrue or misleading statements about your credit, or perform any services until they have your written agreement and have given you the federal Consumer Credit File Rights notice.</p>
       <p>You have a right to sue a credit-repair organization that violates the Credit Repair Organizations Act (CROA). The Federal Trade Commission and the Consumer Financial Protection Bureau enforce CROA.</p>
     </div>
-    <p>If you wish to cancel your credit-repair contract within the three-business-day cancellation period, send written notice to <a href="mailto:info@victoriousopportunities.com">info@victoriousopportunities.com</a>.</p>
+    <p>If you wish to cancel your credit-repair contract within the three-business-day cancellation period, send written notice to <a href="mailto:support@victorialovecredit.com">support@victorialovecredit.com</a>.</p>
 
     <h2 id="no-guarantee">7. No guarantee of results</h2>
     <p>While we work diligently on your behalf, <strong>we do not guarantee any specific outcome</strong>. We cannot promise that any item on your credit report will be removed, that your credit score will increase by any specific amount, that you will be approved for any specific funding amount, or that you will close on any specific timeline. Results depend on your individual credit profile, financial situation, and other factors outside our control. See our <a href="{{ route('legal.disclaimer') }}">Disclaimer</a> for more.</p>
@@ -233,7 +233,8 @@
     <h2 id="contact">16. Contact us</h2>
     <div class="legal-contact-card">
       <p><strong>Victorious Opportunities</strong></p>
-      <p>Email: <a href="mailto:info@victoriousopportunities.com">info@victoriousopportunities.com</a></p>
+      <p>Address: 18034 Ventura Blvd, Encino, CA 91316</p>
+      <p>Email: <a href="mailto:support@victorialovecredit.com">support@victorialovecredit.com</a></p>
       <p>Website: <a href="https://victorialovecredit.com">victorialovecredit.com</a></p>
       <p>Or use our <a href="{{ route('contact.show') }}">contact form</a>.</p>
     </div>

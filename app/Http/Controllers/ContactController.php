@@ -48,7 +48,7 @@ class ContactController extends Controller
                 . "Source:    " . ($validated['source']   ?? '—') . "\n\n"
                 . "Message:\n{$validated['message']}\n",
                 function ($mail) use ($validated) {
-                    $mail->to('info@victoriousopportunities.com')
+                    $mail->to('support@victorialovecredit.com')
                          ->replyTo($validated['email'], $validated['name'])
                          ->subject('New contact form — ' . $validated['name']);
                 }

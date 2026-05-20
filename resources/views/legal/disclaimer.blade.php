@@ -144,7 +144,8 @@
     <h2>Contact</h2>
     <div class="legal-contact-card">
       <p><strong>Victorious Opportunities</strong></p>
-      <p>Email: <a href="mailto:info@victoriousopportunities.com">info@victoriousopportunities.com</a></p>
+      <p>Address: 18034 Ventura Blvd, Encino, CA 91316</p>
+      <p>Email: <a href="mailto:support@victorialovecredit.com">support@victorialovecredit.com</a></p>
       <p>Website: <a href="https://victorialovecredit.com">victorialovecredit.com</a></p>
       <p>Or use our <a href="{{ route('contact.show') }}">contact form</a>.</p>
     </div>

@@ -26,6 +26,10 @@
         <li><span>💬</span>No card · no pressure</li>
         <li><span>🏆</span>1,000+ clients served</li>
       </ul>
+      <ul class="ct-hero-trust" style="margin-top:14px">
+        <li><span>✉️</span><a href="mailto:support@victorialovecredit.com" style="color:inherit;text-decoration:none">support@victorialovecredit.com</a></li>
+        <li><span>📍</span>18034 Ventura Blvd, Encino, CA 91316</li>
+      </ul>
     </div>
   </div>
 </section>
@@ -160,7 +164,7 @@
             <div class="ct-cal-ico">📅</div>
             <strong>Calendar embed coming soon</strong>
             <p>Set <code>CALENDLY_URL</code> in your <code>.env</code> file to embed your scheduling page here.</p>
-            <a href="mailto:info@victoriousopportunities.com" class="btn btn-pink">Email me instead <span class="arr">→</span></a>
+            <a href="mailto:support@victorialovecredit.com" class="btn btn-pink">Email me instead <span class="arr">→</span></a>
           </div>
         @endif
 

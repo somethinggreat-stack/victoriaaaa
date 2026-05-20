@@ -74,7 +74,7 @@ class OnboardingController extends Controller
             $submission->update(['crc_status' => 'pending', 'crc_response' => 'CRC not configured']);
             return back()
                 ->withInput()
-                ->with('error', 'Our system is temporarily unavailable. Please email info@victoriousopportunities.com and we will onboard you manually.');
+                ->with('error', 'Our system is temporarily unavailable. Please email support@victorialovecredit.com and we will onboard you manually.');
         }
 
         // CRC's ssno field only accepts last 4 digits; keep the full SSN in memo for the team.

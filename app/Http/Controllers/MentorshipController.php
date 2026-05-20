@@ -54,7 +54,7 @@ class MentorshipController extends Controller
                 . "Weekly hrs:  " . ($validated['hours']      ?? '—') . "\n"
                 . "Investment:  " . ($validated['investment'] ?? '—') . "\n",
                 function ($mail) use ($validated) {
-                    $mail->to('info@victoriousopportunities.com')
+                    $mail->to('support@victorialovecredit.com')
                          ->replyTo($validated['email'], "{$validated['first_name']} {$validated['last_name']}")
                          ->subject("New mentorship application — {$validated['first_name']} {$validated['last_name']}");
                 }

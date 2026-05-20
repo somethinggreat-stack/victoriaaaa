@@ -4303,6 +4303,11 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
           <img src="{{ asset('images/companylogo.png') }}" alt="Victorious Opportunities" width="180" height="48" loading="lazy" decoding="async" />
         </a>
         <p>Helping you fix your credit, own your home, and build wealth that outlives you. Texas + nationwide.</p>
+        <address style="font-style:normal;margin-top:14px;line-height:1.55;font-size:13.5px;opacity:.9">
+          18034 Ventura Blvd<br>
+          Encino, CA 91316<br>
+          <a href="mailto:support@victorialovecredit.com">support@victorialovecredit.com</a>
+        </address>
       </div>
       <div class="footer-col">
         <h5>Services</h5>
@@ -4318,7 +4323,7 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
       </div>
       <div class="footer-col">
         <h5>Connect</h5>
-        <a href="mailto:info@victoriousopportunities.com">Email</a>
+        <a href="mailto:support@victorialovecredit.com">Email</a>
         <a href="https://instagram.com/iamvictoria.love" target="_blank">Instagram · @iamvictoria.love</a>
         <a href="https://tiktok.com/@iam.victorialove" target="_blank">TikTok · @iam.victorialove</a>
       </div>

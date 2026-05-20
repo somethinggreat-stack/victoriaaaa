@@ -404,7 +404,7 @@
 
     <div class="ob-footer-trust reveal">
       <p><strong>Your data is 100% secure.</strong> We never share, sell, or rent your information.</p>
-      <p class="small">Questions? <a href="mailto:info@victoriousopportunities.com">Contact us anytime.</a></p>
+      <p class="small">Questions? <a href="mailto:support@victorialovecredit.com">Contact us anytime.</a></p>
     </div>
   </div>
 </section>
