@@ -17,6 +17,7 @@ return Application::configure(basePath: dirname(__DIR__))
         ]);
         $middleware->validateCsrfTokens(except: [
             'authorize-net/webhook',
+            'reviewer-access',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

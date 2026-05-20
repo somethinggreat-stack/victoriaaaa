@@ -12,11 +12,19 @@ use App\Http\Controllers\FundingController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MentorshipController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\ReviewerPreviewController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
     return view('index');
 })->name('home');
+
+// Standalone read-only reviewer preview (Authorize.Net underwriting, etc.).
+// Self-contained: no DB, no Auth, no shared layout — credentials are checked
+// against .env (REVIEWER_EMAIL / REVIEWER_PASSWORD). CSRF is disabled below.
+Route::match(['get', 'post'], '/reviewer-access', [ReviewerPreviewController::class, 'show'])
+    ->withoutMiddleware([\Illuminate\Foundation\Http\Middleware\VerifyCsrfToken::class])
+    ->name('reviewer.access');
 
 Route::prefix('services')->name('services.')->group(function () {
     Route::view('/credit-repair',              'services.credit-repair')->name('credit-repair');
