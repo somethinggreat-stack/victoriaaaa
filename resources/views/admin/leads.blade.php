@@ -2,6 +2,10 @@
 @section('title', 'Leads')
 
 @section('content')
+@php
+  use App\Support\Mask;
+  $rm = (bool) session('review_mode');
+@endphp
 <div class="admin-header">
   <div>
     <h1>Popup submissions</h1>
@@ -31,25 +35,38 @@
       @foreach ($leads as $l)
         <tr>
           <td>
-            <a href="{{ route('admin.leads.show', $l) }}" class="nm">{{ $l->name ?: $l->email }}</a>
-            <span class="sub">{{ $l->email }}@if($l->phone) · {{ $l->phone }}@endif</span>
+            @if ($rm)
+              <span class="nm">{{ Mask::name($l->name) }}</span>
+              <span class="sub">{{ Mask::email($l->email) }}@if($l->phone) · {{ Mask::phone($l->phone) }}@endif</span>
+            @else
+              <a href="{{ route('admin.leads.show', $l) }}" class="nm">{{ $l->name ?: $l->email }}</a>
+              <span class="sub">{{ $l->email }}@if($l->phone) · {{ $l->phone }}@endif</span>
+            @endif
           </td>
           <td>{{ $l->score ?: '—' }}</td>
           <td>{{ $l->issue ?: '—' }}</td>
           <td>{{ $l->goal ?: '—' }}</td>
           <td><span class="badge new">{{ $l->source }}</span></td>
           <td>
-            <form class="status-form" method="POST" action="{{ route('admin.leads.status', $l) }}">
-              @csrf @method('PATCH')
-              <select name="status" onchange="this.form.submit()">
-                @foreach (['new','contacted','converted','archived'] as $s)
-                  <option value="{{ $s }}" @selected($l->status===$s)>{{ ucfirst($s) }}</option>
-                @endforeach
-              </select>
-            </form>
+            @if ($rm)
+              <span class="badge {{ $l->status }}">{{ ucfirst($l->status) }}</span>
+            @else
+              <form class="status-form" method="POST" action="{{ route('admin.leads.status', $l) }}">
+                @csrf @method('PATCH')
+                <select name="status" onchange="this.form.submit()">
+                  @foreach (['new','contacted','converted','archived'] as $s)
+                    <option value="{{ $s }}" @selected($l->status===$s)>{{ ucfirst($s) }}</option>
+                  @endforeach
+                </select>
+              </form>
+            @endif
           </td>
           <td>{{ $l->created_at->format('M j · g:ia') }}</td>
-          <td class="actions"><a class="adm-btn ghost" href="{{ route('admin.leads.show', $l) }}">View</a></td>
+          <td class="actions">
+            @unless ($rm)
+              <a class="adm-btn ghost" href="{{ route('admin.leads.show', $l) }}">View</a>
+            @endunless
+          </td>
         </tr>
       @endforeach
     </tbody>

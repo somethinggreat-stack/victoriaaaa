@@ -17,20 +17,31 @@ class DashboardController extends Controller
 {
     public function index()
     {
-        // Read-only reviewer (Authorize.Net etc.): skip every DB query.
-        // The reviewer view shows only static merchant info, so we don't need
-        // counts, payments, or recent activity — and skipping them keeps the
-        // dashboard rendering even if a model/table is unavailable.
+        // Read-only reviewer (Authorize.Net etc.): fetch counts only.
+        // No customer detail (names/emails) — reviewer dashboard shows volume
+        // metrics and routes the reviewer to the masked list pages.
         if (request()->session()->get('review_mode')) {
+            $today  = today();
+            $counts = [
+                'onboarding'        => OnboardingSubmission::count(),
+                'onboarding_today'  => OnboardingSubmission::whereDate('created_at', $today)->count(),
+                'new_onboarding'    => OnboardingSubmission::where('status', 'new')->count(),
+                'funding'           => FundingApplication::count(),
+                'funding_today'     => FundingApplication::whereDate('created_at', $today)->count(),
+                'new_funding'       => FundingApplication::where('status', 'new')->count(),
+                'mentorship'        => MentorshipLead::count(),
+                'mentorship_today'  => MentorshipLead::whereDate('created_at', $today)->count(),
+                'new_mentorship'    => MentorshipLead::where('status', 'new')->count(),
+                'contacts'          => Contact::count(),
+                'contacts_today'    => Contact::whereDate('created_at', $today)->count(),
+                'new_contacts'      => Contact::where('status', 'new')->count(),
+                'leads'             => Lead::count(),
+                'leads_today'       => Lead::whereDate('created_at', $today)->count(),
+                'new_leads'         => Lead::where('status', 'new')->count(),
+            ];
             $empty = collect();
             return view('admin.dashboard', [
-                'counts'   => array_fill_keys([
-                    'onboarding','onboarding_today','new_onboarding',
-                    'funding','funding_today','new_funding',
-                    'mentorship','mentorship_today','new_mentorship',
-                    'contacts','contacts_today','new_contacts',
-                    'leads','leads_today','new_leads',
-                ], 0),
+                'counts'   => $counts,
                 'payments' => array_fill_keys([
                     'gross_lifetime','refunded_lifetime','gross_today','gross_mtd',
                     'subs_total','subs_active','subs_past_due','mrr',

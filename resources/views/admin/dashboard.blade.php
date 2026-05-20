@@ -72,6 +72,30 @@
       <div class="delta">Issued separately per client</div>
     </div>
   </div>
+
+  <h2 style="font-size:14px;font-weight:700;color:var(--ink-2);letter-spacing:.08em;text-transform:uppercase;margin:30px 0 12px">Lead activity (volume only — personal details redacted on detail pages)</h2>
+  <div class="adm-stats">
+    <a class="adm-stat link" href="{{ route('admin.funding') }}">
+      <div class="lab">Funding Leads</div>
+      <div class="val">{{ number_format($counts['funding']) }}</div>
+      <div class="delta"><strong>+{{ $counts['funding_today'] }}</strong> today · {{ $counts['new_funding'] }} new</div>
+    </a>
+    <a class="adm-stat link" href="{{ route('admin.mentorship') }}">
+      <div class="lab">Mentorship Leads</div>
+      <div class="val">{{ number_format($counts['mentorship']) }}</div>
+      <div class="delta"><strong>+{{ $counts['mentorship_today'] }}</strong> today · {{ $counts['new_mentorship'] }} new</div>
+    </a>
+    <a class="adm-stat link" href="{{ route('admin.contacts') }}">
+      <div class="lab">Contact Us Submissions</div>
+      <div class="val">{{ number_format($counts['contacts']) }}</div>
+      <div class="delta"><strong>+{{ $counts['contacts_today'] }}</strong> today · {{ $counts['new_contacts'] }} new</div>
+    </a>
+    <a class="adm-stat link" href="{{ route('admin.leads') }}">
+      <div class="lab">Popup Submissions</div>
+      <div class="val">{{ number_format($counts['leads']) }}</div>
+      <div class="delta"><strong>+{{ $counts['leads_today'] }}</strong> today · {{ $counts['new_leads'] }} new</div>
+    </a>
+  </div>
 @else
 
 <!-- ════════ REVENUE ROW ════════ -->

@@ -2,6 +2,10 @@
 @section('title', 'Contacts')
 
 @section('content')
+@php
+  use App\Support\Mask;
+  $rm = (bool) session('review_mode');
+@endphp
 <div class="admin-header">
   <div>
     <h1>Contact Us page submissions</h1>
@@ -31,27 +35,40 @@
       @foreach ($contacts as $c)
         <tr>
           <td>
-            <a href="{{ route('admin.contacts.show', $c) }}" class="nm">{{ $c->name }}</a>
-            <span class="sub">{{ $c->email }}</span>
+            @if ($rm)
+              <span class="nm">{{ Mask::name($c->name) }}</span>
+              <span class="sub">{{ Mask::email($c->email) }}</span>
+            @else
+              <a href="{{ route('admin.contacts.show', $c) }}" class="nm">{{ $c->name }}</a>
+              <span class="sub">{{ $c->email }}</span>
+            @endif
           </td>
           <td>{{ $c->topic ?: '—' }}</td>
           <td>
             <span class="nm">{{ $c->score ?: '—' }}</span>
             <span class="sub">{{ $c->timeline ?: '' }}</span>
           </td>
-          <td style="max-width: 320px;">{{ Str::limit($c->message, 80) }}</td>
+          <td style="max-width: 320px;">{{ $rm ? Mask::snippet($c->message) : Str::limit($c->message, 80) }}</td>
           <td>
-            <form class="status-form" method="POST" action="{{ route('admin.contacts.status', $c) }}">
-              @csrf @method('PATCH')
-              <select name="status" onchange="this.form.submit()">
-                @foreach (['new','replied','archived'] as $s)
-                  <option value="{{ $s }}" @selected($c->status===$s)>{{ ucfirst($s) }}</option>
-                @endforeach
-              </select>
-            </form>
+            @if ($rm)
+              <span class="badge {{ $c->status }}">{{ ucfirst($c->status) }}</span>
+            @else
+              <form class="status-form" method="POST" action="{{ route('admin.contacts.status', $c) }}">
+                @csrf @method('PATCH')
+                <select name="status" onchange="this.form.submit()">
+                  @foreach (['new','replied','archived'] as $s)
+                    <option value="{{ $s }}" @selected($c->status===$s)>{{ ucfirst($s) }}</option>
+                  @endforeach
+                </select>
+              </form>
+            @endif
           </td>
           <td>{{ $c->created_at->format('M j · g:ia') }}</td>
-          <td class="actions"><a class="adm-btn ghost" href="{{ route('admin.contacts.show', $c) }}">Open</a></td>
+          <td class="actions">
+            @unless ($rm)
+              <a class="adm-btn ghost" href="{{ route('admin.contacts.show', $c) }}">Open</a>
+            @endunless
+          </td>
         </tr>
       @endforeach
     </tbody>

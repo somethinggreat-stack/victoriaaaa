@@ -2,6 +2,10 @@
 @section('title', 'Mentorship leads')
 
 @section('content')
+@php
+  use App\Support\Mask;
+  $rm = (bool) session('review_mode');
+@endphp
 <div class="admin-header">
   <div>
     <h1>Mentorship leads</h1>
@@ -43,29 +47,47 @@
       @foreach ($rows as $m)
         <tr>
           <td>
-            <a href="{{ route('admin.mentorship.show', $m) }}" class="nm">{{ $m->first_name }} {{ $m->last_name }}</a>
-            <span class="sub">#{{ str_pad($m->id, 4, '0', STR_PAD_LEFT) }}</span>
+            @if ($rm)
+              <span class="nm">{{ Mask::name($m->first_name, $m->last_name) }}</span>
+              <span class="sub">#{{ str_pad($m->id, 4, '0', STR_PAD_LEFT) }}</span>
+            @else
+              <a href="{{ route('admin.mentorship.show', $m) }}" class="nm">{{ $m->first_name }} {{ $m->last_name }}</a>
+              <span class="sub">#{{ str_pad($m->id, 4, '0', STR_PAD_LEFT) }}</span>
+            @endif
           </td>
           <td>
-            <span class="nm">{{ $m->email }}</span>
-            <span class="sub">{{ $m->phone }}</span>
+            @if ($rm)
+              <span class="nm">{{ Mask::email($m->email) }}</span>
+              <span class="sub">{{ Mask::phone($m->phone) }}</span>
+            @else
+              <span class="nm">{{ $m->email }}</span>
+              <span class="sub">{{ $m->phone }}</span>
+            @endif
           </td>
           <td>{{ $m->situation ?: '—' }}</td>
           <td>{{ $m->timeline ?: '—' }}</td>
           <td>{{ $m->hours ?: '—' }}</td>
           <td>{{ $m->investment ?: '—' }}</td>
           <td>
-            <form class="status-form" method="POST" action="{{ route('admin.mentorship.status', $m) }}">
-              @csrf @method('PATCH')
-              <select name="status" onchange="this.form.submit()">
-                @foreach (['new','contacted','qualified','enrolled','archived'] as $s)
-                  <option value="{{ $s }}" @selected($m->status===$s)>{{ ucfirst($s) }}</option>
-                @endforeach
-              </select>
-            </form>
+            @if ($rm)
+              <span class="badge {{ $m->status }}">{{ ucfirst($m->status) }}</span>
+            @else
+              <form class="status-form" method="POST" action="{{ route('admin.mentorship.status', $m) }}">
+                @csrf @method('PATCH')
+                <select name="status" onchange="this.form.submit()">
+                  @foreach (['new','contacted','qualified','enrolled','archived'] as $s)
+                    <option value="{{ $s }}" @selected($m->status===$s)>{{ ucfirst($s) }}</option>
+                  @endforeach
+                </select>
+              </form>
+            @endif
           </td>
           <td>{{ $m->created_at->format('M j · g:ia') }}</td>
-          <td class="actions"><a class="adm-btn ghost" href="{{ route('admin.mentorship.show', $m) }}">View</a></td>
+          <td class="actions">
+            @unless ($rm)
+              <a class="adm-btn ghost" href="{{ route('admin.mentorship.show', $m) }}">View</a>
+            @endunless
+          </td>
         </tr>
       @endforeach
     </tbody>

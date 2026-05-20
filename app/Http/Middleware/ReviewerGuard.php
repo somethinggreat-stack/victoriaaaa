@@ -10,14 +10,19 @@ use Symfony\Component\HttpFoundation\Response;
 class ReviewerGuard
 {
     /**
-     * When the active session was opened by the read-only reviewer login,
-     * only let it reach the dashboard + logout. Everything else (customer
-     * lists, payment records, lead detail pages) redirects back to the
-     * dashboard with a notice. PII never reaches the reviewer.
+     * Routes the read-only reviewer session may reach. The four lead-list
+     * pages are exposed so reviewers can see column shape + activity volume;
+     * each view masks PII (see App\Support\Mask). Detail pages, status
+     * mutations, paid-client onboarding (SSN/DOB), payment ledgers, and the
+     * global search route stay blocked.
      */
     protected array $allowed = [
         'admin.dashboard',
         'admin.logout',
+        'admin.leads',
+        'admin.contacts',
+        'admin.funding',
+        'admin.mentorship',
     ];
 
     public function handle(Request $request, Closure $next): Response

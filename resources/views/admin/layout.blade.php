@@ -712,11 +712,11 @@ table.adm-table .actions { white-space: nowrap; }
         <a href="{{ route('admin.ebooks') }}"         class="@if(str_starts_with($current,'admin.ebooks')) active @endif"><span class="ic">📖</span> eBooks Catalog</a>
         <a href="{{ route('admin.ebook-orders') }}"   class="@if(str_starts_with($current,'admin.ebook-orders')) active @endif"><span class="ic">📦</span> eBook Sales</a>
         <a href="{{ route('admin.onboarding') }}"     class="@if(str_starts_with($current,'admin.onboarding')) active @endif"><span class="ic">⚑</span> Paid Credit Repair Clients</a>
-        <a href="{{ route('admin.funding') }}"        class="@if(str_starts_with($current,'admin.funding')) active @endif"><span class="ic">$</span> Funding Leads</a>
-        <a href="{{ route('admin.mentorship') }}"     class="@if(str_starts_with($current,'admin.mentorship')) active @endif"><span class="ic">★</span> Mentorship Leads</a>
-        <a href="{{ route('admin.contacts') }}"       class="@if(str_starts_with($current,'admin.contacts')) active @endif"><span class="ic">✉</span> Contact Us Submissions</a>
-        <a href="{{ route('admin.leads') }}"          class="@if(str_starts_with($current,'admin.leads')) active @endif"><span class="ic">★</span> Popup Submissions</a>
       @endunless
+      <a href="{{ route('admin.funding') }}"        class="@if(str_starts_with($current,'admin.funding')) active @endif"><span class="ic">$</span> Funding Leads</a>
+      <a href="{{ route('admin.mentorship') }}"     class="@if(str_starts_with($current,'admin.mentorship')) active @endif"><span class="ic">★</span> Mentorship Leads</a>
+      <a href="{{ route('admin.contacts') }}"       class="@if(str_starts_with($current,'admin.contacts')) active @endif"><span class="ic">✉</span> Contact Us Submissions</a>
+      <a href="{{ route('admin.leads') }}"          class="@if(str_starts_with($current,'admin.leads')) active @endif"><span class="ic">★</span> Popup Submissions</a>
       <a href="{{ url('/') }}" target="_blank"><span class="ic">↗</span> View site</a>
     </nav>
 
