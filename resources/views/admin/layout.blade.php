@@ -731,7 +731,13 @@ table.adm-table .actions { white-space: nowrap; }
 
   <main class="admin-main">
 
-    @unless ($reviewMode ?? false)
+    @if ($reviewMode ?? false)
+    <div class="admin-topbar">
+      <div class="flash" style="background:#fff5f9;border:1px solid #fbd6e6;color:#8b1452;margin:0">
+        <strong>Read-only reviewer session.</strong> Customer records, payment details and lead data are hidden in this account. Live customer data is accessed by Victoria from a separate admin login.
+      </div>
+    </div>
+    @else
     <div class="admin-topbar">
       <form class="admin-search" method="GET" action="{{ route('admin.search') }}">
         <span class="admin-search-ico" aria-hidden="true">⌕</span>
@@ -742,13 +748,7 @@ table.adm-table .actions { white-space: nowrap; }
         <button type="submit" class="adm-btn">Search</button>
       </form>
     </div>
-    @else
-    <div class="admin-topbar">
-      <div class="flash" style="background:#fff5f9;border:1px solid #fbd6e6;color:#8b1452;margin:0">
-        <strong>Read-only reviewer session.</strong> Customer records, payment details and lead data are hidden in this account. Live customer data is accessed by Victoria from a separate admin login.
-      </div>
-    </div>
-    @endunless
+    @endif
 
     @if (session('success'))<div class="flash success">{{ session('success') }}</div>@endif
     @if (session('error'))  <div class="flash error">{{ session('error') }}</div>@endif
