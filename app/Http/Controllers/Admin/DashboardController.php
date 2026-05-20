@@ -17,6 +17,36 @@ class DashboardController extends Controller
 {
     public function index()
     {
+        // Read-only reviewer (Authorize.Net etc.): skip every DB query.
+        // The reviewer view shows only static merchant info, so we don't need
+        // counts, payments, or recent activity — and skipping them keeps the
+        // dashboard rendering even if a model/table is unavailable.
+        if (request()->session()->get('review_mode')) {
+            $empty = collect();
+            return view('admin.dashboard', [
+                'counts'   => array_fill_keys([
+                    'onboarding','onboarding_today','new_onboarding',
+                    'funding','funding_today','new_funding',
+                    'mentorship','mentorship_today','new_mentorship',
+                    'contacts','contacts_today','new_contacts',
+                    'leads','leads_today','new_leads',
+                ], 0),
+                'payments' => array_fill_keys([
+                    'gross_lifetime','refunded_lifetime','gross_today','gross_mtd',
+                    'subs_total','subs_active','subs_past_due','mrr',
+                    'webhooks_total','webhooks_today','webhooks_invalid',
+                ], 0),
+                'recentOnboarding'    => $empty,
+                'recentFunding'       => $empty,
+                'recentMentorship'    => $empty,
+                'recentContacts'      => $empty,
+                'recentLeads'         => $empty,
+                'recentSubscriptions' => $empty,
+                'recentPayments'      => $empty,
+                'recentWebhooks'      => $empty,
+            ]);
+        }
+
         $today = today();
 
         $payments = [
