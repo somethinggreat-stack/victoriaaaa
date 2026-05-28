@@ -12,6 +12,8 @@ use App\Models\Payment;
 use App\Models\Subscription;
 use App\Models\WebhookEvent;
 use Illuminate\Http\Request;
+use Illuminate\Pagination\LengthAwarePaginator;
+use Illuminate\Support\Collection;
 
 class DashboardController extends Controller
 {
@@ -266,6 +268,136 @@ class DashboardController extends Controller
         $request->validate(['status' => 'required|in:new,contacted,qualified,enrolled,archived']);
         $mentorship->update(['status' => $request->status]);
         return back()->with('success', 'Mentorship status updated.');
+    }
+
+    public function allLeads(Request $request)
+    {
+        $q       = trim((string) $request->query('q', ''));
+        $type    = (string) $request->query('type', '');
+        $status  = (string) $request->query('status', '');
+        $perPage = 30;
+        $page    = max(1, (int) $request->query('page', 1));
+
+        $counts = [
+            'popup'      => Lead::count(),
+            'contact'    => Contact::count(),
+            'funding'    => FundingApplication::count(),
+            'mentorship' => MentorshipLead::count(),
+        ];
+        $counts['total'] = $counts['popup'] + $counts['contact'] + $counts['funding'] + $counts['mentorship'];
+
+        $rows = new Collection();
+
+        $like = $q !== '' ? "%{$q}%" : null;
+
+        if ($type === '' || $type === 'popup') {
+            $sq = Lead::query();
+            if ($like) {
+                $sq->where(function ($w) use ($like) {
+                    $w->where('name','like',$like)->orWhere('email','like',$like)->orWhere('phone','like',$like);
+                });
+            }
+            if ($status !== '') $sq->where('status', $status);
+            foreach ($sq->latest()->get() as $l) {
+                $rows->push([
+                    'type'       => 'popup',
+                    'type_label' => 'Popup',
+                    'name'       => $l->name,
+                    'email'      => $l->email,
+                    'phone'      => $l->phone,
+                    'summary'    => trim(collect([$l->score, $l->goal, $l->issue])->filter()->join(' · ')),
+                    'status'     => $l->status,
+                    'created_at' => $l->created_at,
+                    'view_url'   => route('admin.leads.show', $l),
+                ]);
+            }
+        }
+
+        if ($type === '' || $type === 'contact') {
+            $sq = Contact::query();
+            if ($like) {
+                $sq->where(function ($w) use ($like) {
+                    $w->where('name','like',$like)->orWhere('email','like',$like)
+                      ->orWhere('phone','like',$like)->orWhere('message','like',$like);
+                });
+            }
+            if ($status !== '') $sq->where('status', $status);
+            foreach ($sq->latest()->get() as $c) {
+                $rows->push([
+                    'type'       => 'contact',
+                    'type_label' => 'Contact',
+                    'name'       => $c->name,
+                    'email'      => $c->email,
+                    'phone'      => $c->phone,
+                    'summary'    => trim(collect([$c->topic, $c->timeline])->filter()->join(' · ')),
+                    'status'     => $c->status,
+                    'created_at' => $c->created_at,
+                    'view_url'   => route('admin.contacts.show', $c),
+                ]);
+            }
+        }
+
+        if ($type === '' || $type === 'funding') {
+            $sq = FundingApplication::query();
+            if ($like) {
+                $sq->where(function ($w) use ($like) {
+                    $w->where('first_name','like',$like)->orWhere('last_name','like',$like)
+                      ->orWhere('email','like',$like)->orWhere('phone','like',$like);
+                });
+            }
+            if ($status !== '') $sq->where('status', $status);
+            foreach ($sq->latest()->get() as $f) {
+                $rows->push([
+                    'type'       => 'funding',
+                    'type_label' => 'Funding',
+                    'name'       => trim("{$f->first_name} {$f->last_name}"),
+                    'email'      => $f->email,
+                    'phone'      => $f->phone,
+                    'summary'    => trim(collect([$f->amount, $f->fico])->filter()->join(' · ')),
+                    'status'     => $f->status,
+                    'created_at' => $f->created_at,
+                    'view_url'   => route('admin.funding.show', $f),
+                ]);
+            }
+        }
+
+        if ($type === '' || $type === 'mentorship') {
+            $sq = MentorshipLead::query();
+            if ($like) {
+                $sq->where(function ($w) use ($like) {
+                    $w->where('first_name','like',$like)->orWhere('last_name','like',$like)
+                      ->orWhere('email','like',$like)->orWhere('phone','like',$like);
+                });
+            }
+            if ($status !== '') $sq->where('status', $status);
+            foreach ($sq->latest()->get() as $m) {
+                $rows->push([
+                    'type'       => 'mentorship',
+                    'type_label' => 'Mentorship',
+                    'name'       => trim("{$m->first_name} {$m->last_name}"),
+                    'email'      => $m->email,
+                    'phone'      => $m->phone,
+                    'summary'    => trim(collect([$m->timeline, $m->investment])->filter()->join(' · ')),
+                    'status'     => $m->status,
+                    'created_at' => $m->created_at,
+                    'view_url'   => route('admin.mentorship.show', $m),
+                ]);
+            }
+        }
+
+        $sorted = $rows->sortByDesc(fn ($r) => optional($r['created_at'])->timestamp ?? 0)->values();
+        $paginator = new LengthAwarePaginator(
+            $sorted->forPage($page, $perPage)->values(),
+            $sorted->count(),
+            $perPage,
+            $page,
+            ['path' => $request->url(), 'query' => $request->query()]
+        );
+
+        return view('admin.all-leads', [
+            'rows'   => $paginator,
+            'counts' => $counts,
+        ]);
     }
 
     public function search(Request $request)

@@ -82,6 +82,7 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
 
     Route::middleware(['admin', 'reviewer'])->group(function () {
         Route::get('/',          [DashboardController::class, 'index'])->name('dashboard');
+        Route::get('/all-leads', [DashboardController::class, 'allLeads'])->name('all-leads');
         Route::get('/search',    [DashboardController::class, 'search'])->name('search');
 
         Route::get('/funding',   [DashboardController::class, 'funding'])->name('funding');

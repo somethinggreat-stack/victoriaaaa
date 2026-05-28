@@ -19,6 +19,7 @@ class ReviewerGuard
     protected array $allowed = [
         'admin.dashboard',
         'admin.logout',
+        'admin.all-leads',
         'admin.leads',
         'admin.contacts',
         'admin.funding',
