@@ -705,7 +705,9 @@ table.adm-table .actions { white-space: nowrap; }
     @endphp
     <nav class="admin-nav">
       <a href="{{ route('admin.dashboard') }}"      class="@if($current==='admin.dashboard') active @endif"><span class="ic">⬚</span> Dashboard</a>
-      <a href="{{ route('admin.all-leads') }}"      class="@if($current==='admin.all-leads') active @endif"><span class="ic">≡</span> All Leads</a>
+      @if (\Illuminate\Support\Facades\Route::has('admin.all-leads'))
+        <a href="{{ route('admin.all-leads') }}"    class="@if($current==='admin.all-leads') active @endif"><span class="ic">≡</span> All Leads</a>
+      @endif
       @unless ($reviewMode)
         <a href="{{ route('admin.subscriptions') }}"  class="@if(str_starts_with($current,'admin.subscriptions')) active @endif"><span class="ic">◆</span> Subscriptions</a>
         <a href="{{ route('admin.payments') }}"       class="@if($current==='admin.payments') active @endif"><span class="ic">$</span> Payments</a>
