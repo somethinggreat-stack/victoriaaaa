@@ -20,6 +20,7 @@
 
   $typeOptions = [
     ''           => 'All sources',
+    'strategy'   => 'Strategy calls',
     'popup'      => 'Popup submissions',
     'contact'    => 'Contact form',
     'funding'    => 'Funding leads',
@@ -27,6 +28,7 @@
   ];
 
   $typeBadge = [
+    'strategy'   => 'active',
     'popup'      => 'new',
     'contact'    => 'replied',
     'funding'    => 'pending',
@@ -37,11 +39,17 @@
 <div class="admin-header">
   <div>
     <h1>All leads</h1>
-    <div class="sub">{{ number_format($counts['total']) }} total across popup, contact, funding, and mentorship submissions</div>
+    <div class="sub">{{ number_format($counts['total']) }} total across strategy-call, popup, contact, funding, and mentorship submissions</div>
   </div>
 </div>
 
 <div class="adm-stats">
+  @if (\Illuminate\Support\Facades\Route::has('admin.strategy-calls'))
+    <a class="adm-stat link" href="{{ route('admin.strategy-calls') }}">
+      <div class="lab">Strategy calls</div>
+      <div class="val">{{ number_format($counts['strategy'] ?? 0) }}</div>
+    </a>
+  @endif
   <a class="adm-stat link" href="{{ route('admin.leads') }}">
     <div class="lab">Popup submissions</div>
     <div class="val">{{ number_format($counts['popup']) }}</div>

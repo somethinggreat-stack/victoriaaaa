@@ -342,7 +342,7 @@
         <p>Limited spots each quarter. Free 15-min fit call. No card, no pressure — just a real conversation about whether this is right for you.</p>
         <div class="ctas">
           <a href="#mentor-pricing" class="btn btn-pink">Apply for mentorship <span class="arr">→</span></a>
-          <a href="{{ route('contact.show') }}" class="btn btn-ghost-light">Book a free fit call</a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost-light">Book a free fit call</a>
         </div>
         <div class="stamp">
           <img src="{{ asset('images/founderimage7.jpeg') }}" alt="Victoria Love" width="48" height="48" loading="lazy" decoding="async" />

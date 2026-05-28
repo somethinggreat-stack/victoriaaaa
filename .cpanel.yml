@@ -60,6 +60,13 @@ deployment:
     - cd $DEPLOYPATH && php artisan view:clear
     - cd $DEPLOYPATH && php artisan route:clear
     - cd $DEPLOYPATH && php artisan cache:clear || true
+
+    # 6. Apply pending database migrations (--force = skip "are you sure?" prompt)
+    - cd $DEPLOYPATH && php artisan migrate --force || true
+
+    # 7. Warm fresh caches for the new code (after migrations so route/view cache
+    #    references the latest models). Route cache especially must run last so
+    #    newly-added routes are picked up.
     - cd $DEPLOYPATH && php artisan config:cache
     - cd $DEPLOYPATH && php artisan route:cache
     - cd $DEPLOYPATH && php artisan view:cache

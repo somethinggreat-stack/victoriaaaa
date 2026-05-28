@@ -20,6 +20,7 @@ class ReviewerGuard
         'admin.dashboard',
         'admin.logout',
         'admin.all-leads',
+        'admin.strategy-calls',
         'admin.leads',
         'admin.contacts',
         'admin.funding',

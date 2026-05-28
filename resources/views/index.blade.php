@@ -17,7 +17,7 @@
         I'm Victoria — a Texas Realtor &amp; Credit Coach. In <strong>90 days</strong> I'll raise your score, unlock funding, and walk you to closing. <strong>1,000+ clients</strong> already did it.
       </p>
       <div class="hero-ctas">
-        <a href="{{ route('contact.show') }}" class="btn btn-pink">Book my free call <span class="arr">→</span></a>
+        <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book my free call <span class="arr">→</span></a>
         <a href="#pricing" class="btn btn-ghost">Get started</a>
       </div>
       <div class="hero-meta">
@@ -110,7 +110,7 @@
     </div>
 
     <div class="pain-foot reveal">
-      <strong>Recognize even one of these?</strong> You're already in the right place. <a href="{{ route('contact.show') }}" style="color:var(--pink); font-weight:600; text-decoration:underline; text-underline-offset:3px">Book your free 15-min call →</a>
+      <strong>Recognize even one of these?</strong> You're already in the right place. <a href="{{ route('strategy-call.show') }}" style="color:var(--pink); font-weight:600; text-decoration:underline; text-underline-offset:3px">Book your free 15-min call →</a>
     </div>
   </div>
 </section>
@@ -152,7 +152,7 @@
       <div class="signature">— Victoria.</div>
 
       <div class="about-cta">
-        <a href="{{ route('contact.show') }}" class="btn btn-primary">Work with me <span class="arr">→</span></a>
+        <a href="{{ route('strategy-call.show') }}" class="btn btn-primary">Work with me <span class="arr">→</span></a>
         <a href="#results" class="btn btn-ghost">Read client stories</a>
       </div>
     </div>
@@ -427,8 +427,8 @@
 
 
         <div class="auth-ctas">
-          <a href="#contact" class="btn btn-pink">Start your credit review <span class="arr">→</span></a>
-          <a href="{{ route('contact.show') }}" class="btn btn-ghost">Book free consultation</a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Start your credit review <span class="arr">→</span></a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost">Book free consultation</a>
         </div>
       </div>
 
@@ -483,7 +483,7 @@
       <h2>Got <em class="serif gradient-text">questions?</em></h2>
       <p>Everything you need to know about working with me. Don't see your question? Just ask on the call.</p>
       <div class="ctas">
-        <a href="{{ route('contact.show') }}" class="btn btn-primary">Book free call <span class="arr">→</span></a>
+        <a href="{{ route('strategy-call.show') }}" class="btn btn-primary">Book free call <span class="arr">→</span></a>
         <a href="{{ route('contact.show') }}" class="btn btn-ghost">Ask a question</a>
       </div>
     </div>
@@ -532,7 +532,7 @@
         <p>Simple monthly pricing built around real credit transformation — pick the plan that gets you to your dream score, your dream home, your next chapter.</p>
         <div class="ctas">
           <a href="#pricing" class="btn btn-pink">View pricing <span class="arr">→</span></a>
-          <a href="{{ route('contact.show') }}" class="btn btn-ghost-light">Book free call</a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost-light">Book free call</a>
         </div>
         <div class="stamp">
           <img src="{{ asset('images/founderimage4.jpeg') }}" alt="Victoria Love" width="48" height="48" loading="lazy" decoding="async" />

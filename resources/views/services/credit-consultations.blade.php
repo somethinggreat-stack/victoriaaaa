@@ -166,8 +166,8 @@
         <h2>Lock in <em class="serif">an hour with me.</em></h2>
         <p>Sixty minutes is usually all it takes to know exactly what move to make next. Free 15-min strategy call first if you want to test fit.</p>
         <div class="ctas">
-          <a href="{{ url('/') }}#contact" class="btn btn-pink">Book my consult <span class="arr">→</span></a>
-          <a href="{{ route('contact.show') }}" class="btn btn-ghost-light">Free 15-min first</a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book my consult <span class="arr">→</span></a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost-light">Free 15-min first</a>
         </div>
         <div class="stamp">
           <img src="{{ asset('images/founderimage7.jpeg') }}" alt="Victoria Love" width="48" height="48" loading="lazy" decoding="async" />

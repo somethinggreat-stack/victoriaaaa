@@ -13,6 +13,7 @@ use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MentorshipController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\ReviewerPreviewController;
+use App\Http\Controllers\StrategyCallController;
 use Illuminate\Support\Facades\Route;
 
 Route::get('/', function () {
@@ -51,6 +52,11 @@ Route::post('/onboarding', [OnboardingController::class, 'submit'])->name('onboa
 // Contact form + Calendly booking page
 Route::get('/contact',  [ContactController::class, 'show'])->name('contact.show');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
+
+// Strategy-call qualification gate (every "Free Strategy Call" CTA flows through this)
+Route::get('/strategy-call',         [StrategyCallController::class, 'show'])->name('strategy-call.show');
+Route::post('/strategy-call',        [StrategyCallController::class, 'submit'])->name('strategy-call.submit');
+Route::get('/strategy-call/booked',  [StrategyCallController::class, 'booked'])->name('strategy-call.booked');
 
 // Funding qualification application (embedded on the DIY funding service page)
 Route::post('/funding-application', [FundingController::class, 'submit'])->name('funding.submit');
@@ -92,6 +98,10 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
         Route::get('/mentorship', [DashboardController::class, 'mentorship'])->name('mentorship');
         Route::get('/mentorship/{mentorship}', [DashboardController::class, 'mentorshipShow'])->name('mentorship.show');
         Route::patch('/mentorship/{mentorship}/status', [DashboardController::class, 'mentorshipStatus'])->name('mentorship.status');
+
+        Route::get('/strategy-calls', [DashboardController::class, 'strategyCalls'])->name('strategy-calls');
+        Route::get('/strategy-calls/{strategy}', [DashboardController::class, 'strategyCallShow'])->name('strategy-calls.show');
+        Route::patch('/strategy-calls/{strategy}/status', [DashboardController::class, 'strategyCallStatus'])->name('strategy-calls.status');
 
         Route::get('/leads',     [DashboardController::class, 'leads'])->name('leads');
         Route::get('/leads/{lead}', [DashboardController::class, 'leadShow'])->name('leads.show');

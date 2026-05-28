@@ -716,6 +716,9 @@ table.adm-table .actions { white-space: nowrap; }
         <a href="{{ route('admin.ebook-orders') }}"   class="@if(str_starts_with($current,'admin.ebook-orders')) active @endif"><span class="ic">📦</span> eBook Sales</a>
         <a href="{{ route('admin.onboarding') }}"     class="@if(str_starts_with($current,'admin.onboarding')) active @endif"><span class="ic">⚑</span> Paid Credit Repair Clients</a>
       @endunless
+      @if (\Illuminate\Support\Facades\Route::has('admin.strategy-calls'))
+        <a href="{{ route('admin.strategy-calls') }}" class="@if(str_starts_with($current,'admin.strategy-calls')) active @endif"><span class="ic">☎</span> Strategy Calls</a>
+      @endif
       <a href="{{ route('admin.funding') }}"        class="@if(str_starts_with($current,'admin.funding')) active @endif"><span class="ic">$</span> Funding Leads</a>
       <a href="{{ route('admin.mentorship') }}"     class="@if(str_starts_with($current,'admin.mentorship')) active @endif"><span class="ic">★</span> Mentorship Leads</a>
       <a href="{{ route('admin.contacts') }}"       class="@if(str_starts_with($current,'admin.contacts')) active @endif"><span class="ic">✉</span> Contact Us Submissions</a>

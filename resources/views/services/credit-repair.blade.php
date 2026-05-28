@@ -17,7 +17,7 @@
           <strong>thousands of files</strong>. Most clients see <strong>+100 points in 90 days</strong>.
         </p>
         <div class="svc-hero-ctas">
-          <a href="{{ route('contact.show') }}" class="btn btn-pink">Book my free call <span class="arr">→</span></a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book my free call <span class="arr">→</span></a>
           <a href="{{ url('/') }}#pricing" class="btn btn-ghost">See pricing</a>
         </div>
 
@@ -145,7 +145,7 @@
         <h2>Questions, <em class="serif gradient-text">answered.</em></h2>
         <p>The questions clients actually ask before they sign on.</p>
         <div class="ctas">
-          <a href="{{ route('contact.show') }}" class="btn btn-pink">Book free strategy call <span class="arr">→</span></a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book free strategy call <span class="arr">→</span></a>
         </div>
       </div>
       <div class="faq-list reveal reveal-d2">
@@ -167,7 +167,7 @@
         <h2>Let's clean the file <em class="serif">this quarter.</em></h2>
         <p>Free 15-min call. I'll pull the file with you, point at the wins, and tell you exactly what 90 days looks like.</p>
         <div class="ctas">
-          <a href="{{ route('contact.show') }}" class="btn btn-pink">Book my free call <span class="arr">→</span></a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book my free call <span class="arr">→</span></a>
           <a href="{{ url('/') }}#pricing" class="btn btn-ghost-light">See pricing</a>
         </div>
         <div class="stamp">

@@ -9,6 +9,7 @@ use App\Models\Lead;
 use App\Models\MentorshipLead;
 use App\Models\OnboardingSubmission;
 use App\Models\Payment;
+use App\Models\StrategyCallRequest;
 use App\Models\Subscription;
 use App\Models\WebhookEvent;
 use Illuminate\Http\Request;
@@ -270,6 +271,37 @@ class DashboardController extends Controller
         return back()->with('success', 'Mentorship status updated.');
     }
 
+    public function strategyCalls(Request $request)
+    {
+        $q = StrategyCallRequest::query();
+        if ($search = $request->query('q')) {
+            $q->where(function ($w) use ($search) {
+                $w->where('name','like',"%{$search}%")
+                  ->orWhere('email','like',"%{$search}%")
+                  ->orWhere('phone','like',"%{$search}%")
+                  ->orWhere('goal','like',"%{$search}%");
+            });
+        }
+        if ($status = $request->query('status')) {
+            $q->where('status', $status);
+        }
+        return view('admin.strategy-calls', [
+            'rows' => $q->latest()->paginate(25)->withQueryString(),
+        ]);
+    }
+
+    public function strategyCallShow(StrategyCallRequest $strategy)
+    {
+        return view('admin.strategy-call-show', ['row' => $strategy]);
+    }
+
+    public function strategyCallStatus(StrategyCallRequest $strategy, Request $request)
+    {
+        $request->validate(['status' => 'required|in:new,booked,showed,no_show,converted,archived']);
+        $strategy->update(['status' => $request->status]);
+        return back()->with('success', 'Strategy call status updated.');
+    }
+
     public function allLeads(Request $request)
     {
         $q       = trim((string) $request->query('q', ''));
@@ -279,16 +311,41 @@ class DashboardController extends Controller
         $page    = max(1, (int) $request->query('page', 1));
 
         $counts = [
+            'strategy'   => StrategyCallRequest::count(),
             'popup'      => Lead::count(),
             'contact'    => Contact::count(),
             'funding'    => FundingApplication::count(),
             'mentorship' => MentorshipLead::count(),
         ];
-        $counts['total'] = $counts['popup'] + $counts['contact'] + $counts['funding'] + $counts['mentorship'];
+        $counts['total'] = $counts['strategy'] + $counts['popup'] + $counts['contact'] + $counts['funding'] + $counts['mentorship'];
 
         $rows = new Collection();
 
         $like = $q !== '' ? "%{$q}%" : null;
+
+        if ($type === '' || $type === 'strategy') {
+            $sq = StrategyCallRequest::query();
+            if ($like) {
+                $sq->where(function ($w) use ($like) {
+                    $w->where('name','like',$like)->orWhere('email','like',$like)
+                      ->orWhere('phone','like',$like)->orWhere('goal','like',$like);
+                });
+            }
+            if ($status !== '') $sq->where('status', $status);
+            foreach ($sq->latest()->get() as $s) {
+                $rows->push([
+                    'type'       => 'strategy',
+                    'type_label' => 'Strategy Call',
+                    'name'       => $s->name,
+                    'email'      => $s->email,
+                    'phone'      => $s->phone,
+                    'summary'    => trim(collect([$s->situation, $s->score, $s->timeline, $s->investment_range])->filter()->join(' · ')),
+                    'status'     => $s->status,
+                    'created_at' => $s->created_at,
+                    'view_url'   => route('admin.strategy-calls.show', $s),
+                ]);
+            }
+        }
 
         if ($type === '' || $type === 'popup') {
             $sq = Lead::query();

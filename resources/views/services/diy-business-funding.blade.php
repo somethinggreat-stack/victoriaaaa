@@ -17,7 +17,7 @@
           and still walk into capital their friends only dream about.
         </p>
         <div class="svc-hero-ctas">
-          <a href="{{ route('contact.show') }}" class="btn btn-pink">Book my free call <span class="arr">→</span></a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book my free call <span class="arr">→</span></a>
           <a href="{{ url('/') }}#ebooks" class="btn btn-ghost">Get the playbook</a>
         </div>
 
@@ -320,7 +320,7 @@
         <h2>Questions, <em class="serif gradient-text">answered.</em></h2>
         <p>What founders ask before they buy in.</p>
         <div class="ctas">
-          <a href="{{ route('contact.show') }}" class="btn btn-pink">Book free strategy call <span class="arr">→</span></a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book free strategy call <span class="arr">→</span></a>
         </div>
       </div>
       <div class="faq-list reveal reveal-d2">
@@ -342,7 +342,7 @@
         <h2>Let's get you <em class="serif">fundable.</em></h2>
         <p>Free 15-min call. I'll map your file, your business, and the next 90 days — with real numbers attached.</p>
         <div class="ctas">
-          <a href="{{ route('contact.show') }}" class="btn btn-pink">Book my free call <span class="arr">→</span></a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book my free call <span class="arr">→</span></a>
           <a href="{{ url('/') }}#ebooks" class="btn btn-ghost-light">Get the playbook</a>
         </div>
         <div class="stamp">
