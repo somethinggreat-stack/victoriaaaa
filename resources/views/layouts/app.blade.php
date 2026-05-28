@@ -1111,8 +1111,10 @@ section { position: relative; padding: 110px 0; z-index: 2; }
 .pricing-section { padding: 110px 0; background: var(--bg-2); border-block: 1px solid var(--line); }
 .pricing-section .container { max-width: 1480px; }
 .pricing-grid {
-  display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+  display: grid; grid-template-columns: repeat(3, 1fr); gap: 22px;
   align-items: stretch;
+  max-width: 1140px;
+  margin: 0 auto;
 }
 .pricing-grid-5 { grid-template-columns: repeat(5, 1fr); gap: 16px; }
 .price {
