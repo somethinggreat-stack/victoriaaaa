@@ -87,6 +87,22 @@ class StrategyCallController extends Controller
             Log::error('Strategy call mail failed', ['error' => $e->getMessage()]);
         }
 
+        $calendlyUrl = (string) config('services.calendly.url');
+        $isConfigured = $calendlyUrl !== ''
+            && $calendlyUrl !== 'https://calendly.com/your-handle/15min'
+            && filter_var($calendlyUrl, FILTER_VALIDATE_URL);
+
+        if ($isConfigured) {
+            $url = $calendlyUrl
+                . (str_contains($calendlyUrl, '?') ? '&' : '?')
+                . http_build_query([
+                    'name'          => $row->name,
+                    'email'         => $row->email,
+                    'a1'            => $row->phone,
+                ]);
+            return redirect()->away($url);
+        }
+
         return redirect()
             ->route('strategy-call.booked')
             ->with('booked_strategy_call', true)
