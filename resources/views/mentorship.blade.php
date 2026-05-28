@@ -283,7 +283,7 @@
         <li><span class="ck">✓</span> Lifetime updates as the business evolves</li>
       </ul>
 
-      <a href="{{ route('contact.show') }}" class="btn btn-pink-glow mentor-price-btn">Apply for mentorship <span class="arr">→</span></a>
+      <a href="{{ route('strategy-call.show') }}" class="btn btn-pink-glow mentor-price-btn">Apply for mentorship <span class="arr">→</span></a>
       <p class="mentor-price-fine">Application required · We only accept committed people · Free 15-min fit call before any payment</p>
     </div>
   </div>

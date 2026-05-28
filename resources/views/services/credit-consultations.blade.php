@@ -17,7 +17,7 @@
           and hand you a plan you can run <strong>this week</strong>.
         </p>
         <div class="svc-hero-ctas">
-          <a href="{{ url('/') }}#contact" class="btn btn-pink">Book my consult <span class="arr">→</span></a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book my consult <span class="arr">→</span></a>
           <a href="{{ url('/') }}#pricing" class="btn btn-ghost">See pricing</a>
         </div>
 
@@ -144,7 +144,7 @@
         <h2>Questions, <em class="serif gradient-text">answered.</em></h2>
         <p>What clients want to know before they pick a time.</p>
         <div class="ctas">
-          <a href="{{ url('/') }}#contact" class="btn btn-pink">Book your consult <span class="arr">→</span></a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book your consult <span class="arr">→</span></a>
         </div>
       </div>
       <div class="faq-list reveal reveal-d2">
