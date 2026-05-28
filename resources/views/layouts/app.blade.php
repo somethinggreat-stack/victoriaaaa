@@ -2488,9 +2488,9 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
 }
 
 .ct-submit {
-  margin-top: 10px;
-  align-self: stretch;
-  padding: 15px 28px;
+  margin-top: 14px;
+  align-self: flex-end;
+  padding: 13px 32px;
   background: var(--pink); color: #fff;
   border: none; border-radius: 100px;
   font-family: inherit;
@@ -2499,6 +2499,9 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   box-shadow: 0 16px 30px -12px rgba(230,49,121,0.55);
   transition: background .2s, transform .2s, box-shadow .2s;
+}
+@media (max-width: 640px) {
+  .ct-submit { align-self: stretch; }
 }
 .ct-submit:hover {
   background: var(--ink); transform: translateY(-2px);
