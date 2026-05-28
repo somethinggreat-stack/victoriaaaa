@@ -116,6 +116,69 @@
 </section>
 
 
+<!-- ============ PRICING ============ -->
+<section id="pricing" class="pricing-section">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Choose your plan</span>
+      <h2>Simple pricing. <em class="serif gradient-text">Real outcomes.</em></h2>
+      <p>Three ways in. Same destination — a score that opens every door. Free 15-min consult included with every plan.</p>
+    </div>
+
+    <div class="pricing-grid">
+      <!-- Card 1 · Monthly -->
+      <div class="price reveal">
+        <div class="name">Monthly</div>
+        <div class="amt">$197 <span class="p">+ $100/mo</span></div>
+        <div class="strike">was $297</div>
+        <p class="desc">Full 90-day credit transformation. Cancel after 90.</p>
+        <ul>
+          <li>Full 90-day credit plan</li>
+          <li>Aggressive 3-bureau disputes</li>
+          <li>Monthly progress updates</li>
+          <li>Cancel after 90 days</li>
+        </ul>
+        <a href="{{ route('checkout.show', ['plan' => 'monthly']) }}" class="btn btn-ghost">Get started</a>
+      </div>
+
+      <!-- Card 2 · One-time (FEATURED) -->
+      <div class="price feat reveal reveal-d2">
+        <span class="price-tag">Most Popular</span>
+        <div class="name">One-time</div>
+        <div class="amt">$497</div>
+        <div class="strike">save $197</div>
+        <p class="desc">Single payment. Priority dispute filing + ongoing support.</p>
+        <ul>
+          <li>One-time, zero recurring</li>
+          <li>Priority dispute filing</li>
+          <li>Results in 30–45 days</li>
+          <li>Ongoing support</li>
+          <li>Lifetime credit guidance</li>
+        </ul>
+        <a href="{{ route('checkout.show', ['plan' => 'onetime']) }}" class="btn btn-pink">Pay once, done <span class="arr">→</span></a>
+      </div>
+
+      <!-- Card 3 · Couple -->
+      <div class="price reveal reveal-d3">
+        <div class="name">Couple</div>
+        <div class="amt">$900</div>
+        <div class="strike">2 plans, 1 price</div>
+        <p class="desc">For two. Coordinated attack so you and your partner buy together.</p>
+        <ul>
+          <li>Program for both partners</li>
+          <li>Dual credit restoration</li>
+          <li>Coordinated bureau attacks</li>
+          <li>Joint funding prep</li>
+        </ul>
+        <a href="{{ route('checkout.show', ['plan' => 'couple']) }}" class="btn btn-ghost">Apply as couple</a>
+      </div>
+    </div>
+
+    <div class="price-meta reveal">
+      <strong>Not sure?</strong> Book a free 15-min call — I'll point you to the right plan, no pressure.
+    </div>
+  </div>
+</section>
 
 
 <!-- ============ ABOUT ============ -->
@@ -229,104 +292,6 @@
     </div>
   </div>
 </section>
-
-<!-- ============ PRICING ============ -->
-<section id="pricing" class="pricing-section">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow">Choose your plan</span>
-      <h2>Simple pricing. <em class="serif gradient-text">Real outcomes.</em></h2>
-      <p>Five ways in. Same destination — a score that opens every door. Free 15-min consult included with every plan.</p>
-    </div>
-
-    <div class="pricing-grid pricing-grid-5">
-      <!-- Card 1 · Audit (entry) -->
-      <div class="price reveal">
-        <div class="name">Audit</div>
-        <div class="amt">$97</div>
-        <div class="strike">single session</div>
-        <p class="desc">One focused 1:1 audit call. Walk away with a custom plan you can run this week.</p>
-        <ul>
-          <li>60-min call with Victoria</li>
-          <li>Full 3-bureau report audit</li>
-          <li>Custom dispute plan</li>
-          <li>Pre-approval prep</li>
-        </ul>
-        <a href="{{ route('checkout.show', ['plan' => 'audit']) }}" class="btn btn-ghost">Book my audit</a>
-      </div>
-
-      <!-- Card 2 · Monthly -->
-      <div class="price reveal reveal-d2">
-        <div class="name">Monthly</div>
-        <div class="amt">$197 <span class="p">+ $100/mo</span></div>
-        <div class="strike">was $297</div>
-        <p class="desc">Full 90-day credit transformation. Cancel after 90.</p>
-        <ul>
-          <li>Full 90-day credit plan</li>
-          <li>Aggressive 3-bureau disputes</li>
-          <li>Monthly progress updates</li>
-          <li>Cancel after 90 days</li>
-        </ul>
-        <a href="{{ route('checkout.show', ['plan' => 'monthly']) }}" class="btn btn-ghost">Get started</a>
-      </div>
-
-      <!-- Card 3 · One-time (FEATURED) -->
-      <div class="price feat reveal reveal-d3">
-        <span class="price-tag">Most Popular</span>
-        <div class="name">One-time</div>
-        <div class="amt">$497</div>
-        <div class="strike">save $197</div>
-        <p class="desc">Single payment. Priority dispute filing + ongoing support.</p>
-        <ul>
-          <li>One-time, zero recurring</li>
-          <li>Priority dispute filing</li>
-          <li>Results in 30–45 days</li>
-          <li>Ongoing support</li>
-          <li>Lifetime credit guidance</li>
-        </ul>
-        <a href="{{ route('checkout.show', ['plan' => 'onetime']) }}" class="btn btn-pink">Pay once, done <span class="arr">→</span></a>
-      </div>
-
-      <!-- Card 4 · Couple -->
-      <div class="price reveal reveal-d4">
-        <div class="name">Couple</div>
-        <div class="amt">$900</div>
-        <div class="strike">2 plans, 1 price</div>
-        <p class="desc">For two. Coordinated attack so you and your partner buy together.</p>
-        <ul>
-          <li>Program for both partners</li>
-          <li>Dual credit restoration</li>
-          <li>Coordinated bureau attacks</li>
-          <li>Joint funding prep</li>
-        </ul>
-        <a href="{{ route('checkout.show', ['plan' => 'couple']) }}" class="btn btn-ghost">Apply as couple</a>
-      </div>
-
-      <!-- Card 5 · VIP (premium) -->
-      <div class="price reveal">
-        <span class="price-tag price-tag-gold">★ VIP</span>
-        <div class="name">VIP</div>
-        <div class="amt">$1,997</div>
-        <div class="strike">white-glove</div>
-        <p class="desc">Done-with-you. Priority everything. Direct text line to Victoria.</p>
-        <ul>
-          <li>Priority dispute filing</li>
-          <li>Direct text line to Victoria</li>
-          <li>Weekly progress calls</li>
-          <li>Lender + funding intros</li>
-          <li>Lifetime credit guidance</li>
-        </ul>
-        <a href="{{ route('checkout.show', ['plan' => 'vip']) }}" class="btn btn-ghost">Apply for VIP</a>
-      </div>
-    </div>
-
-    <div class="price-meta reveal">
-      <strong>Not sure?</strong> Book a free 15-min call — I'll point you to the right plan, no pressure.
-    </div>
-  </div>
-</section>
-
-
 
 <!-- ============ EBOOKS LIBRARY ============ -->
 <section id="ebooks" class="ebooks-section">
