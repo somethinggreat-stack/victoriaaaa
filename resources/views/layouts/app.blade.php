@@ -2415,6 +2415,54 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
 .ct-cal-card .ct-cal-embed { flex: 1; min-height: 700px; display: flex; }
 .ct-cal-card .ct-cal-embed > .calendly-inline-widget,
 .ct-cal-card .ct-cal-embed > iframe { flex: 1; width: 100%; }
+
+/* Portrait card paired with the form */
+.ct-image-card {
+  position: relative;
+  border-radius: var(--r-lg);
+  overflow: hidden;
+  border: 1px solid var(--line);
+  background: var(--bg-2);
+  box-shadow:
+    0 30px 60px -30px rgba(20,16,14,0.18),
+    0 0 0 1px rgba(20,16,14,0.02);
+  min-height: 100%;
+}
+.ct-image-card img {
+  position: absolute;
+  inset: 0;
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center 18%;
+}
+.ct-image-card::after {
+  content: "";
+  position: absolute; left: 0; right: 0; bottom: 0; height: 45%;
+  background: linear-gradient(180deg, rgba(20,16,14,0) 0%, rgba(20,16,14,0.55) 100%);
+  pointer-events: none;
+}
+.ct-image-card .ct-image-caption {
+  position: absolute; left: 24px; right: 24px; bottom: 22px;
+  color: #fff; z-index: 1;
+}
+.ct-image-card .ct-image-caption .ct-image-eyebrow {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-size: 10.5px; font-weight: 700; letter-spacing: 0.16em; text-transform: uppercase;
+  background: rgba(255,255,255,0.18);
+  backdrop-filter: blur(6px);
+  padding: 6px 10px; border-radius: 100px;
+  margin-bottom: 10px;
+}
+.ct-image-card .ct-image-caption h3 {
+  margin: 0 0 4px;
+  font-size: 22px; font-weight: 600; letter-spacing: -0.02em;
+  color: #fff;
+}
+.ct-image-card .ct-image-caption p {
+  margin: 0;
+  font-size: 13px; color: rgba(255,255,255,0.85); line-height: 1.5;
+}
 .ct-form-head { margin-bottom: 20px; }
 .ct-card-tag {
   display: inline-block;
@@ -2489,8 +2537,8 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
 
 .ct-submit {
   margin-top: 14px;
-  align-self: flex-end;
-  padding: 13px 32px;
+  align-self: stretch;
+  padding: 14px 28px;
   background: var(--pink); color: #fff;
   border: none; border-radius: 100px;
   font-family: inherit;
@@ -2499,9 +2547,6 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
   display: inline-flex; align-items: center; justify-content: center; gap: 8px;
   box-shadow: 0 16px 30px -12px rgba(230,49,121,0.55);
   transition: background .2s, transform .2s, box-shadow .2s;
-}
-@media (max-width: 640px) {
-  .ct-submit { align-self: stretch; }
 }
 .ct-submit:hover {
   background: var(--ink); transform: translateY(-2px);
@@ -2602,6 +2647,7 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
 @media (max-width: 1000px) {
   .ct-grid { grid-template-columns: 1fr; }
   .ct-direct { grid-template-columns: 1fr; }
+  .ct-image-card { min-height: 420px; }
 }
 @media (max-width: 600px) {
   .ct-card { padding: 26px 22px 22px; }

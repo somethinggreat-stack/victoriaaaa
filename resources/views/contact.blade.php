@@ -38,6 +38,18 @@
       </div>
     @endif
 
+    <div class="ct-grid">
+
+      <!-- Victoria portrait -->
+      <div class="ct-image-card reveal" aria-hidden="true">
+        <img src="{{ asset('images/founderimage7.jpeg') }}" alt="" loading="lazy" decoding="async" />
+        <div class="ct-image-caption">
+          <span class="ct-image-eyebrow"><span>✦</span> Personally read</span>
+          <h3>Victoria Love</h3>
+          <p>Texas Realtor &amp; Credit Coach — every message lands directly with me.</p>
+        </div>
+      </div>
+
     <!-- Contact form -->
     <div class="ct-card ct-form-card reveal">
       <header class="ct-form-head">
@@ -132,6 +144,8 @@
         <p class="ct-fine">By submitting, you agree to be contacted by email or phone. Your info stays private.</p>
       </form>
     </div>
+
+    </div><!-- /.ct-grid -->
 
   </div>
 </section>
