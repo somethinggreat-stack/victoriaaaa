@@ -2559,38 +2559,6 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
   margin: 8px 0 0;
 }
 
-/* Inline callout used inside the strategy-call qualification form */
-.ct-callout {
-  background: var(--pink-tint);
-  border: 1px solid var(--pink-soft);
-  border-left: 3px solid var(--pink);
-  border-radius: 12px;
-  padding: 14px 16px;
-  font-size: 13px; color: var(--ink-2);
-  line-height: 1.55;
-}
-.ct-callout strong { color: var(--ink); display: block; margin-bottom: 4px; }
-.ct-callout em { font-style: italic; color: var(--pink); font-weight: 600; }
-
-/* Commitment checkboxes on the strategy-call form */
-.ct-check {
-  display: flex; gap: 12px; align-items: flex-start;
-  padding: 12px 14px;
-  border: 1.5px solid var(--line);
-  border-radius: 12px;
-  cursor: pointer;
-  transition: border-color .15s, background .15s;
-}
-.ct-check:hover { border-color: var(--line-2); background: #fff; }
-.ct-check input[type="checkbox"] {
-  margin-top: 3px;
-  width: 18px; height: 18px;
-  accent-color: var(--pink);
-  flex-shrink: 0;
-}
-.ct-check span { font-size: 13px; color: var(--ink-2); line-height: 1.5; }
-.ct-check span strong { color: var(--ink); font-weight: 700; }
-
 /* Calendar */
 .ct-cal-embed {
   border-radius: 14px;
