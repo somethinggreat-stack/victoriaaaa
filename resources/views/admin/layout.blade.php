@@ -40,8 +40,7 @@ a { color: inherit; text-decoration: none; }
 
 /* ============ ADMIN SHELL ============ */
 .admin-shell {
-  display: grid;
-  grid-template-columns: 240px 1fr;
+  display: block;
   min-height: 100vh;
   width: 100%; max-width: 100%;
   overflow-x: hidden;
@@ -50,9 +49,11 @@ a { color: inherit; text-decoration: none; }
   background: var(--ink);
   color: rgba(255,255,255,0.85);
   padding: 22px 18px;
-  position: sticky; top: 0;
+  position: fixed; top: 0; left: 0;
+  width: 240px;
   height: 100vh; overflow-y: auto;
   display: flex; flex-direction: column;
+  z-index: 40;
 }
 .admin-brand {
   display: flex; align-items: center; gap: 10px;
@@ -93,8 +94,6 @@ a { color: inherit; text-decoration: none; }
   border-top: 1px solid rgba(255,255,255,0.08);
   font-size: 12px;
 }
-.admin-foot .user { color: #fff; font-weight: 600; margin-bottom: 4px; }
-.admin-foot .role { color: rgba(255,255,255,0.5); font-size: 11px; letter-spacing: 0.08em; text-transform: uppercase; margin-bottom: 14px; }
 .admin-logout {
   width: 100%;
   background: rgba(255,255,255,0.06);
@@ -109,7 +108,7 @@ a { color: inherit; text-decoration: none; }
 }
 .admin-logout:hover { background: var(--pink); color: #fff; border-color: var(--pink); }
 
-.admin-main { padding: 0 38px 50px; min-width: 0; width: 100%; max-width: 100%; overflow-x: hidden; }
+.admin-main { margin-left: 240px; padding: 0 38px 50px; min-width: 0; max-width: calc(100% - 240px); overflow-x: hidden; }
 
 .admin-topbar {
   position: sticky; top: 0; z-index: 30;
@@ -472,16 +471,16 @@ table.adm-table .actions { white-space: nowrap; }
 }
 
 @media (max-width: 1000px) {
-  .admin-main { padding: 0 20px 50px; }
+  .admin-main { padding: 0 20px 50px; max-width: calc(100% - 240px); }
   .adm-stats { grid-template-columns: 1fr 1fr; }
 }
 
 /* ============ TABLET — under 900px sidebar becomes top app bar ============ */
 @media (max-width: 900px) {
-  .admin-shell { grid-template-columns: 1fr; min-width: 0; }
+  .admin-shell { min-width: 0; }
 
   .admin-sidebar {
-    position: sticky; top: 0; z-index: 60;
+    position: sticky; top: 0; left: auto; z-index: 60;
     height: auto;
     width: 100%; max-width: 100%;
     padding: 12px 16px;
@@ -520,7 +519,6 @@ table.adm-table .actions { white-space: nowrap; }
   }
 
   .admin-foot { grid-area: foot; margin: 0; padding: 0; border: 0; }
-  .admin-foot .user, .admin-foot .role { display: none; }
   .admin-foot form { margin: 0; }
   .admin-foot .admin-logout {
     width: auto; padding: 8px 14px; font-size: 12px;
@@ -528,7 +526,7 @@ table.adm-table .actions { white-space: nowrap; }
     white-space: nowrap;
   }
 
-  .admin-main { padding: 0 18px 50px; }
+  .admin-main { margin-left: 0; max-width: 100%; padding: 0 18px 50px; }
 
   /* Topbar / search */
   .admin-topbar { padding: 14px 0 10px; margin-bottom: 12px; }
@@ -727,8 +725,6 @@ table.adm-table .actions { white-space: nowrap; }
     </nav>
 
     <div class="admin-foot">
-      <div class="user">{{ auth()->user()->name }}</div>
-      <div class="role">{{ auth()->user()->email }}</div>
       <form method="POST" action="{{ route('admin.logout') }}">@csrf
         <button class="admin-logout" type="submit">Sign out</button>
       </form>
