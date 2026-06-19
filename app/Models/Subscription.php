@@ -3,6 +3,7 @@
 namespace App\Models;
 
 use Illuminate\Database\Eloquent\Model;
+use Illuminate\Database\Eloquent\Relations\BelongsTo;
 use Illuminate\Database\Eloquent\Relations\HasMany;
 
 class Subscription extends Model
@@ -27,6 +28,7 @@ class Subscription extends Model
         'customer_profile_id',
         'customer_payment_profile_id',
         'referral_code',
+        'payment_agreement_id',
         'status',
         'failed_payment_count',
         'first_failed_at',
@@ -55,6 +57,11 @@ class Subscription extends Model
     public function events(): HasMany
     {
         return $this->hasMany(SubscriptionEvent::class);
+    }
+
+    public function agreement(): BelongsTo
+    {
+        return $this->belongsTo(PaymentAgreement::class, 'payment_agreement_id');
     }
 
     public function lifetimeRevenue(): float

@@ -120,6 +120,57 @@
   </div>
 </div>
 
+@if ($subscription->agreement)
+@php $agr = $subscription->agreement; @endphp
+<!-- ════════ SIGNED PAYMENT AGREEMENT ════════ -->
+<div class="adm-card" style="margin-top:16px">
+  <div class="adm-card-head">
+    <h2>Signed payment agreement <span class="badge active" style="margin-left:8px">signed</span></h2>
+  </div>
+  <div class="adm-grid-2" style="align-items:start">
+    <div class="detail-grid" style="grid-template-columns: 200px 1fr">
+      <div class="lab">Signed by (legal name)</div>
+      <div class="val"><strong>{{ $agr->full_name }}</strong></div>
+
+      <div class="lab">Signed at</div>
+      <div class="val">{{ $agr->signed_at?->format('M j, Y · g:ia') ?? $agr->created_at->format('M j, Y · g:ia') }}</div>
+
+      <div class="lab">Plan</div>
+      <div class="val">{{ $agr->plan_label }}</div>
+
+      <div class="lab">Terms</div>
+      <div class="val">
+        ${{ number_format((float) $agr->deposit_amount, 2) }} deposit
+        @if($agr->installment_count) + {{ $agr->installment_count }} × ${{ number_format((float) $agr->installment_amount, 2) }}/mo @endif
+        · total <strong>${{ number_format((float) $agr->total_amount, 2) }}</strong>
+      </div>
+
+      <div class="lab">Agreement ID / version</div>
+      <div class="val mono">#{{ $agr->id }} · {{ $agr->terms_version }}</div>
+
+      <div class="lab">IP address</div>
+      <div class="val mono">{{ $agr->ip_address ?: '—' }}</div>
+    </div>
+
+    <div>
+      <div class="lab" style="font-size:11.5px;letter-spacing:0.08em;text-transform:uppercase;font-weight:700;color:var(--ink-3);margin-bottom:8px">Signature</div>
+      @if($agr->signature_data)
+        <img src="{{ $agr->signature_data }}" alt="Client signature" style="max-width:100%;border:1px solid var(--line);border-radius:10px;background:#fff;padding:8px">
+      @else
+        <div class="val">—</div>
+      @endif
+    </div>
+  </div>
+
+  @if($agr->contract_text)
+  <details style="margin-top:16px">
+    <summary style="cursor:pointer;font-weight:600;color:var(--pink)">View full signed contract text</summary>
+    <pre style="white-space:pre-wrap;font-family:inherit;font-size:13px;line-height:1.6;color:var(--ink-2);background:var(--bg-2);border:1px solid var(--line);border-radius:10px;padding:16px;margin-top:10px">{{ $agr->contract_text }}</pre>
+  </details>
+  @endif
+</div>
+@endif
+
 <!-- ════════ PAYMENT HISTORY ════════ -->
 <div class="adm-card" style="margin-top:16px">
   <div class="adm-card-head">

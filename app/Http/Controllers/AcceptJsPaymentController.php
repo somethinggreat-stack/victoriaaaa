@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\PaymentAgreement;
 use App\Models\Subscription;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
@@ -139,16 +140,16 @@ class AcceptJsPaymentController extends Controller
             ],
         ],
         'mentorship-full' => [
-            'amount'    => '1997.00',
+            'amount'    => '1697.00',
             'recurring' => null,
             'label'     => 'Mentorship — Pay in Full',
-            'tagline'   => 'One-time payment of $1,997 — best value, save instantly.',
+            'tagline'   => 'One-time payment of $1,697 — best value, save instantly.',
             'features'  => [
                 'Private 1:1 weekly calls with Victoria',
                 'Full SOP & client-template library',
                 'Software, CRM & dispute tech stack',
                 'Lifetime Skool community + lender intros',
-                'Single payment of $1,997 — zero recurring',
+                'Single payment of $1,697 — zero recurring',
             ],
         ],
     ];
@@ -156,6 +157,12 @@ class AcceptJsPaymentController extends Controller
     public function showCheckout(string $plan = 'monthly')
     {
         $planKey = array_key_exists($plan, self::PLANS) ? $plan : 'monthly';
+
+        // Instalment mentorship plans require a signed payment agreement first.
+        if (in_array($planKey, PaymentAgreementController::AGREEMENT_PLANS, true)
+            && (session('signed_agreement_plan') !== $planKey || ! session('signed_agreement_id'))) {
+            return redirect()->route('mentorship-agreement.show', $planKey);
+        }
 
         Log::info('Secure checkout opened', [
             'plan_requested' => $plan,
@@ -217,6 +224,21 @@ class AcceptJsPaymentController extends Controller
         $planLabel       = $planMeta['label'];
         $recurringAmt    = $planMeta['recurring'];
         $recurringCount  = $planMeta['recurring_occurrences'] ?? null; // null → open-ended monthly
+
+        // Instalment mentorship plans must have a signed payment agreement in session.
+        $agreementId = null;
+        if (in_array($planKey, PaymentAgreementController::AGREEMENT_PLANS, true)) {
+            if (session('signed_agreement_plan') === $planKey) {
+                $agreementId = session('signed_agreement_id');
+            }
+            if (! $agreementId) {
+                return response()->json([
+                    'success'  => false,
+                    'message'  => 'Please sign your payment agreement before completing checkout.',
+                    'redirect' => route('mentorship-agreement.show', $planKey),
+                ], 422);
+            }
+        }
 
         $invoiceNumber = 'INV-' . time() . '-' . strtoupper(Str::random(4));
 
@@ -379,7 +401,11 @@ class AcceptJsPaymentController extends Controller
                 if ($arbError !== null) {
                     // Payment captured but sub failed — still save the customer + transaction
                     // so support has the data to recover manually.
-                    $this->persistSubscriptionRow($validated, $planKey, $planLabel, $amount, null, $invoiceNumber, $transId, $authCode, null, null, null, $referralCode);
+                    $failedSub = $this->persistSubscriptionRow($validated, $planKey, $planLabel, $amount, null, $invoiceNumber, $transId, $authCode, null, null, null, $referralCode, $agreementId);
+                    if ($agreementId && $failedSub) {
+                        $this->linkAgreement($failedSub, $agreementId, $validated['email'], $invoiceNumber);
+                    }
+                    session()->forget(['signed_agreement_id', 'signed_agreement_plan']);
 
                     return response()->json([
                         'success' => false,
@@ -389,7 +415,7 @@ class AcceptJsPaymentController extends Controller
             }
 
             // ────────── Persist subscription ──────────
-            $this->persistSubscriptionRow(
+            $subscription = $this->persistSubscriptionRow(
                 $validated,
                 $planKey,
                 $planLabel,
@@ -401,8 +427,15 @@ class AcceptJsPaymentController extends Controller
                 $subscriptionId,
                 $customerProfileId,
                 $customerPaymentProfileId,
-                $referralCode
+                $referralCode,
+                $agreementId
             );
+
+            // ────────── Attach the signed payment agreement (instalment plans) ──────────
+            if ($agreementId && $subscription) {
+                $this->linkAgreement($subscription, $agreementId, $validated['email'], $invoiceNumber);
+            }
+            session()->forget(['signed_agreement_id', 'signed_agreement_plan']);
 
             // ────────── Session + cache for onboarding handoff ──────────
             session([
@@ -641,10 +674,11 @@ class AcceptJsPaymentController extends Controller
         ?string $arbSubscriptionId,
         ?string $customerProfileId,
         ?string $customerPaymentProfileId,
-        ?string $referralCode
-    ): void {
+        ?string $referralCode,
+        ?int $paymentAgreementId = null
+    ): ?Subscription {
         try {
-            Subscription::create([
+            return Subscription::create([
                 'first_name'                  => $validated['first_name'],
                 'last_name'                   => $validated['last_name'],
                 'email'                       => $validated['email'],
@@ -664,6 +698,7 @@ class AcceptJsPaymentController extends Controller
                 'customer_profile_id'         => $customerProfileId,
                 'customer_payment_profile_id' => $customerPaymentProfileId,
                 'referral_code'               => $referralCode,
+                'payment_agreement_id'        => $paymentAgreementId,
                 'status'                      => 'active',
                 'subscribed_at'               => now(),
                 'next_billing_date'           => $recurringAmt !== null ? now()->addMonth() : null,
@@ -672,6 +707,31 @@ class AcceptJsPaymentController extends Controller
             Log::error('Failed to save subscription to database', [
                 'invoice' => $invoiceNumber,
                 'error'   => $dbEx->getMessage(),
+            ]);
+            return null;
+        }
+    }
+
+    /**
+     * Cross-reference the pre-checkout signed agreement with the now-created
+     * subscription (and stamp the customer email + invoice onto the agreement).
+     */
+    private function linkAgreement(Subscription $subscription, int $agreementId, string $email, string $invoiceNumber): void
+    {
+        try {
+            $agreement = PaymentAgreement::find($agreementId);
+            if ($agreement) {
+                $agreement->update([
+                    'subscription_id' => $subscription->id,
+                    'email'           => $email,
+                    'invoice_number'  => $invoiceNumber,
+                ]);
+            }
+        } catch (\Throwable $e) {
+            Log::error('Failed to link payment agreement to subscription', [
+                'agreement_id'    => $agreementId,
+                'subscription_id' => $subscription->id,
+                'error'           => $e->getMessage(),
             ]);
         }
     }

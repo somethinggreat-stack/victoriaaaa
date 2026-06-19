@@ -64,6 +64,7 @@ class PaymentsController extends Controller
         $subscription->load([
             'payments' => fn ($q) => $q->latest('charged_at'),
             'events'   => fn ($q) => $q->latest(),
+            'agreement',
         ]);
 
         // Related webhook rows (by invoice OR arb id OR txn id on any payment)
@@ -162,7 +163,7 @@ class PaymentsController extends Controller
         ];
 
         return view('admin.payments.mentorship-clients', [
-            'rows' => $q->latest()->paginate(25)->withQueryString(),
+            'rows' => $q->with('agreement')->latest()->paginate(25)->withQueryString(),
             'kpis' => $kpis,
         ]);
     }

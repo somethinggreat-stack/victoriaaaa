@@ -12,6 +12,7 @@ use App\Http\Controllers\FundingController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MentorshipController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\PaymentAgreementController;
 use App\Http\Controllers\ReviewerPreviewController;
 use App\Http\Controllers\StrategyCallController;
 use Illuminate\Support\Facades\Route;
@@ -44,6 +45,13 @@ Route::prefix('legal')->name('legal.')->group(function () {
 // Mentorship — dedicated landing page for the 1:1 program
 Route::view('/mentorship', 'mentorship')->name('mentorship');
 Route::post('/mentorship-application', [MentorshipController::class, 'submit'])->name('mentorship.submit');
+
+// Mentorship payment-plan contract — signed before checkout (instalment plans only)
+Route::get('/mentorship-agreement/{plan}', [PaymentAgreementController::class, 'show'])
+    ->where('plan', 'mentorship-2pay|mentorship-3pay|mentorship-5pay')
+    ->name('mentorship-agreement.show');
+Route::post('/mentorship-agreement', [PaymentAgreementController::class, 'sign'])
+    ->name('mentorship-agreement.sign');
 
 // Post-payment onboarding form — submits new clients to Credit Repair Cloud
 Route::get('/onboarding',  [OnboardingController::class, 'show'])->name('onboarding.show');

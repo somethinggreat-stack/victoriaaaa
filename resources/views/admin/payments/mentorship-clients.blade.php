@@ -72,6 +72,7 @@
         <th>Plan</th>
         <th>Deposit</th>
         <th>Installments</th>
+        <th>Contract</th>
         <th>Status</th>
         <th>Subscribed</th>
         <th></th>
@@ -104,6 +105,15 @@
               @if($s->arb_subscription_id)<span class="sub">ARB {{ $s->arb_subscription_id }}</span>@endif
             @else
               <span class="sub">— paid in full</span>
+            @endif
+          </td>
+          <td>
+            @if($s->agreement)
+              <span class="badge active">signed</span>
+            @elseif($s->plan_key === 'mentorship-full')
+              <span class="sub">n/a</span>
+            @else
+              <span class="badge failed">missing</span>
             @endif
           </td>
           <td>

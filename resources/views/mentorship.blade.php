@@ -198,7 +198,7 @@
           <li>Full 1:1 mentorship access</li>
         </ul>
         <div class="mplan-total">Total <strong>$2,000</strong></div>
-        <a href="{{ route('checkout.show', 'mentorship-2pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
+        <a href="{{ route('mentorship-agreement.show', 'mentorship-2pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
       </div>
 
       <!-- Plan 2 — Deposit + 3 -->
@@ -216,7 +216,7 @@
           <li>Full 1:1 mentorship access</li>
         </ul>
         <div class="mplan-total">Total <strong>$2,000</strong></div>
-        <a href="{{ route('checkout.show', 'mentorship-3pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
+        <a href="{{ route('mentorship-agreement.show', 'mentorship-3pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
       </div>
 
       <!-- Plan 3 — Deposit + 5 -->
@@ -234,25 +234,25 @@
           <li>Full 1:1 mentorship access</li>
         </ul>
         <div class="mplan-total">Total <strong>$2,000</strong></div>
-        <a href="{{ route('checkout.show', 'mentorship-5pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
+        <a href="{{ route('mentorship-agreement.show', 'mentorship-5pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
       </div>
 
       <!-- Plan 4 — Pay in full (featured) -->
       <div class="mplan is-featured">
-        <div class="mplan-flag">★ Best value · Save $3</div>
+        <div class="mplan-flag">★ Best value · Save $303</div>
         <div class="mplan-head">
           <span class="mplan-name">Pay in Full</span>
-          <div class="mplan-deposit"><span class="amt">$1,997</span><span class="lab">one-time</span></div>
+          <div class="mplan-deposit"><span class="amt">$1,697</span><span class="lab">one-time</span></div>
         </div>
         <div class="mplan-then">
           <strong>Single payment</strong><span>zero recurring</span>
         </div>
         <ul class="mplan-list">
-          <li>One payment of $1,997</li>
+          <li>One payment of $1,697</li>
           <li>No monthly billing</li>
           <li>Full 1:1 mentorship access</li>
         </ul>
-        <div class="mplan-total">Total <strong>$1,997</strong></div>
+        <div class="mplan-total">Total <strong>$1,697</strong></div>
         <a href="{{ route('checkout.show', 'mentorship-full') }}" class="btn btn-pink mplan-btn">Pay in full <span class="arr">→</span></a>
       </div>
 
