@@ -123,6 +123,51 @@ class PaymentsController extends Controller
     }
 
     // ════════════════════════════════════════════════════════════════
+    // Paid mentorship clients (any 1:1 mentorship plan)
+    // ════════════════════════════════════════════════════════════════
+    public function mentorshipClients(Request $request)
+    {
+        // Every mentorship plan key is prefixed "mentorship-" in the checkout catalogue.
+        $base = fn () => Subscription::query()->where('plan_key', 'like', 'mentorship-%');
+
+        $q = $base();
+
+        if ($search = $request->query('q')) {
+            $q->where(function ($w) use ($search) {
+                $w->where('email',            'like', "%{$search}%")
+                  ->orWhere('first_name',     'like', "%{$search}%")
+                  ->orWhere('last_name',      'like', "%{$search}%")
+                  ->orWhere('phone',          'like', "%{$search}%")
+                  ->orWhere('address',        'like', "%{$search}%")
+                  ->orWhere('city',           'like', "%{$search}%")
+                  ->orWhere('invoice_number', 'like', "%{$search}%")
+                  ->orWhere('plan_label',     'like', "%{$search}%");
+            });
+        }
+
+        if ($status = $request->query('status')) {
+            $q->where('status', $status);
+        }
+
+        if ($plan = $request->query('plan')) {
+            $q->where('plan_key', $plan);
+        }
+
+        $kpis = [
+            'total'           => $base()->count(),
+            'active'          => $base()->where('status', 'active')->count(),
+            'past_due'        => $base()->where('status', 'past_due')->count(),
+            'deposits'        => (float) $base()->sum('amount'),
+            'plan_installments' => (float) $base()->whereNotNull('recurring_amount')->sum('recurring_amount'),
+        ];
+
+        return view('admin.payments.mentorship-clients', [
+            'rows' => $q->latest()->paginate(25)->withQueryString(),
+            'kpis' => $kpis,
+        ]);
+    }
+
+    // ════════════════════════════════════════════════════════════════
     // Payments
     // ════════════════════════════════════════════════════════════════
     public function payments(Request $request)

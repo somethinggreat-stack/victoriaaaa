@@ -66,7 +66,7 @@ Route::post('/lead', [LeadController::class, 'submit'])->name('lead.submit');
 
 // ============ SECURE CHECKOUT (Authorize.Net Accept.js) ============
 Route::get('/checkout/{plan?}', [AcceptJsPaymentController::class, 'showCheckout'])
-    ->where('plan', 'audit|monthly|onetime|couple|vip')
+    ->where('plan', 'starter|audit|monthly|onetime|couple|vip|mentorship-2pay|mentorship-3pay|mentorship-5pay|mentorship-full')
     ->name('checkout.show');
 Route::post('/checkout/process', [AcceptJsPaymentController::class, 'processPayment'])
     ->name('checkout.process');
@@ -119,6 +119,9 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
         Route::get('/subscriptions',                [PaymentsController::class, 'subscriptions'])->name('subscriptions');
         Route::get('/subscriptions/{subscription}', [PaymentsController::class, 'subscriptionShow'])->name('subscriptions.show');
         Route::patch('/subscriptions/{subscription}/status', [PaymentsController::class, 'subscriptionStatus'])->name('subscriptions.status');
+
+        // Paid mentorship clients — everyone who bought any 1:1 mentorship plan
+        Route::get('/mentorship-clients', [PaymentsController::class, 'mentorshipClients'])->name('mentorship-clients');
 
         Route::get('/payments', [PaymentsController::class, 'payments'])->name('payments');
 

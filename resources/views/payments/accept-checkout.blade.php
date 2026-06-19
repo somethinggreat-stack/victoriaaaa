@@ -405,7 +405,7 @@
     <div class="checkout-hero-head reveal">
       <span class="eyebrow">Secure checkout · 256-bit encrypted</span>
       <h1>You're <em class="serif gradient-text">one step</em> from changing your credit.</h1>
-      <p>Your details stay encrypted. Your card never touches our servers — Authorize.Net tokenizes it on the page.</p>
+      <p>Your details stay encrypted. Payments are processed securely over an encrypted connection through Authorize.Net.</p>
       <div class="checkout-trust-row">
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><rect x="3" y="11" width="18" height="11" rx="2"/><path d="M7 11V7a5 5 0 0 1 10 0v4"/></svg>256-BIT SSL</span>
         <span><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.5"><path d="M12 2L4 6v6c0 5 3.5 9 8 10 4.5-1 8-5 8-10V6z"/></svg>PCI COMPLIANT</span>
@@ -440,8 +440,6 @@
           @csrf
 
           <input type="hidden" name="selected_plan" id="selectedPlanInput" value="{{ $planKey }}" />
-          <input type="hidden" name="dataDescriptor" id="dataDescriptor" />
-          <input type="hidden" name="dataValue"      id="dataValue" />
 
           <!-- Plan switcher (only on small screens) -->
           <div class="plan-switcher">
@@ -587,8 +585,20 @@
           @endforeach
         </ul>
 
+        @php
+          $occ        = $plan['recurring_occurrences'] ?? null;
+          $recShort   = rtrim(rtrim($plan['recurring'] ?? '0', '0'), '.');
+          $depShort   = rtrim(rtrim($plan['amount'], '0'), '.');
+          $planTotal  = $occ
+              ? number_format((float) $plan['amount'] + ((float) $plan['recurring'] * $occ), 2)
+              : null;
+        @endphp
         <div class="checkout-summary-recurring" id="summaryRecurring" @if(!$plan['recurring']) style="display:none" @endif>
-          <strong>Monthly billing:</strong> After today's payment, you'll be billed <strong>${{ rtrim(rtrim($plan['recurring'] ?? '0', '0'), '.') }}/month</strong> starting in 30 days. Cancel anytime.
+          @if($occ)
+            <strong>Payment plan:</strong> After today's <strong>${{ $depShort }}</strong> deposit, you'll be billed <strong>${{ $recShort }}/month</strong> for <strong>{{ $occ }} {{ \Illuminate\Support\Str::plural('month', $occ) }}</strong> starting in 30 days. Total program cost: <strong>${{ $planTotal }}</strong>.
+          @else
+            <strong>Monthly billing:</strong> After today's payment, you'll be billed <strong>${{ $recShort }}/month</strong> starting in 30 days. Cancel anytime.
+          @endif
         </div>
 
         <div class="checkout-totals">
@@ -617,23 +627,18 @@
   </div>
 </section>
 
-<!-- ============ ACCEPT.JS ============ -->
-@php
-  $acceptJsUrl = $environment === 'sandbox'
-    ? 'https://jstest.authorize.net/v1/Accept.js'
-    : 'https://js.authorize.net/v1/Accept.js';
-@endphp
-<script src="{{ $acceptJsUrl }}" charset="utf-8"></script>
+<!-- Card data collected server-side (direct card API) — Accept.js not used -->
 
 @php
   $plansForJs = [];
   foreach ($allPlans as $key => $p) {
       $plansForJs[$key] = [
-          'label'     => $p['label'],
-          'amount'    => $p['amount'],
-          'recurring' => $p['recurring'],
-          'tagline'   => $p['tagline'],
-          'features'  => $p['features'],
+          'label'                 => $p['label'],
+          'amount'                => $p['amount'],
+          'recurring'             => $p['recurring'],
+          'recurring_occurrences' => $p['recurring_occurrences'] ?? null,
+          'tagline'               => $p['tagline'],
+          'features'              => $p['features'],
       ];
   }
 @endphp
@@ -688,7 +693,13 @@
 
     if (p.recurring) {
       summaryRec.style.display = '';
-      summaryRec.innerHTML = `<strong>Monthly billing:</strong> After today's payment, you'll be billed <strong>${moneyShort(p.recurring)}/month</strong> starting in 30 days. Cancel anytime.`;
+      const occ = p.recurring_occurrences;
+      if (occ) {
+        const total = Number(p.amount) + (Number(p.recurring) * occ);
+        summaryRec.innerHTML = `<strong>Payment plan:</strong> After today's <strong>${moneyShort(p.amount)}</strong> deposit, you'll be billed <strong>${moneyShort(p.recurring)}/month</strong> for <strong>${occ} ${occ === 1 ? 'month' : 'months'}</strong> starting in 30 days. Total program cost: <strong>${money(total)}</strong>.`;
+      } else {
+        summaryRec.innerHTML = `<strong>Monthly billing:</strong> After today's payment, you'll be billed <strong>${moneyShort(p.recurring)}/month</strong> starting in 30 days. Cancel anytime.`;
+      }
     } else {
       summaryRec.style.display = 'none';
     }
@@ -814,74 +825,49 @@
       return;
     }
 
-    if (!AUTH.apiLoginID || !AUTH.clientKey) {
-      showAlert('Payment system is not yet configured. Please contact support.');
-      return;
-    }
-
-    if (typeof Accept === 'undefined' || typeof Accept.dispatchData !== 'function') {
-      showAlert('Payment library failed to load. Refresh the page and try again.');
-      return;
-    }
-
     payBtn.classList.add('is-loading');
     payBtn.disabled = true;
 
-    const [mm, yy] = cardExpEl.value.split('/');
+    // Direct card API — split MM/YY and send raw card fields to the server,
+    // which charges Authorize.Net with the creditCard payload.
+    const [mm, yy] = cardExpEl.value.split('/').map(s => (s || '').trim());
+    const expMonth = mm.padStart(2, '0');
+    const expYear  = yy.length === 2 ? '20' + yy : yy;
 
-    Accept.dispatchData({
-      authData: AUTH,
-      cardData: {
-        cardNumber: cardNumRaw,
-        month:      mm,
-        year:       yy,
-        cardCode:   cardCvcEl.value,
-        zip:        form.querySelector('input[name="zip"]').value,
-        fullName:   form.querySelector('input[name="cardName"]').value,
-      }
-    }, function (resp) {
-      if (resp.messages.resultCode !== 'Ok') {
-        const msg = (resp.messages.message[0] && resp.messages.message[0].text) || 'Your card could not be tokenized.';
-        showAlert(msg);
-        payBtn.classList.remove('is-loading');
-        payBtn.disabled = false;
+    const fd = new FormData(form);
+    fd.set('cardNumber', cardNumRaw);
+    fd.set('expMonth', expMonth);
+    fd.set('expYear', expYear);
+    fd.set('cardCode', cardCvcEl.value.trim());
+    // Ensure unchecked checkboxes still send a value (Laravel needs them present for `required|accepted`)
+    ['agree_terms','agree_privacy','marketing_opt_in'].forEach(name => {
+      const el = form.querySelector(`input[name="${name}"]`);
+      if (el && !el.checked) fd.set(name, '0');
+    });
+
+    fetch('{{ route('checkout.process') }}', {
+      method: 'POST',
+      headers: {
+        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+        'X-Requested-With': 'XMLHttpRequest',
+        'Accept': 'application/json',
+      },
+      body: fd,
+    })
+    .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, body: j })))
+    .then(({ ok, body }) => {
+      if (ok && body.success && body.redirect) {
+        window.location.href = body.redirect;
         return;
       }
-
-      document.getElementById('dataDescriptor').value = resp.opaqueData.dataDescriptor;
-      document.getElementById('dataValue').value      = resp.opaqueData.dataValue;
-
-      const fd = new FormData(form);
-      // Ensure unchecked checkboxes still send a value (Laravel needs them present for `required|accepted`)
-      ['agree_terms','agree_privacy','marketing_opt_in'].forEach(name => {
-        const el = form.querySelector(`input[name="${name}"]`);
-        if (el && !el.checked) fd.set(name, '0');
-      });
-
-      fetch('{{ route('checkout.process') }}', {
-        method: 'POST',
-        headers: {
-          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-          'X-Requested-With': 'XMLHttpRequest',
-          'Accept': 'application/json',
-        },
-        body: fd,
-      })
-      .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, body: j })))
-      .then(({ ok, body }) => {
-        if (ok && body.success && body.redirect) {
-          window.location.href = body.redirect;
-          return;
-        }
-        showAlert(body.message || 'Payment could not be completed. Please try a different card or contact support.');
-        payBtn.classList.remove('is-loading');
-        payBtn.disabled = false;
-      })
-      .catch(() => {
-        showAlert('A network error stopped your payment. Please try again.');
-        payBtn.classList.remove('is-loading');
-        payBtn.disabled = false;
-      });
+      showAlert(body.message || 'Payment could not be completed. Please try a different card or contact support.');
+      payBtn.classList.remove('is-loading');
+      payBtn.disabled = false;
+    })
+    .catch(() => {
+      showAlert('A network error stopped your payment. Please try again.');
+      payBtn.classList.remove('is-loading');
+      payBtn.disabled = false;
     });
   });
 })();

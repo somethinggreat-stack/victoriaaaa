@@ -172,6 +172,167 @@
   </div>
 </section>
 
+<!-- ============ MENTORSHIP PAYMENT PLANS ============ -->
+<section id="mentor-pricing" class="mentor-plans">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">Flexible payment plans</span>
+      <h2>Choose how you <em class="serif gradient-text">invest in yourself.</em></h2>
+      <p>Same full 1:1 mentorship — pick the plan that fits your cash flow. Every plan unlocks the complete program. Secure checkout via Authorize.Net.</p>
+    </div>
+
+    <div class="mentor-plans-grid reveal">
+
+      <!-- Plan 1 — Deposit + 2 -->
+      <div class="mplan">
+        <div class="mplan-head">
+          <span class="mplan-name">Deposit + 2 Payments</span>
+          <div class="mplan-deposit"><span class="amt">$500</span><span class="lab">deposit today</span></div>
+        </div>
+        <div class="mplan-then">
+          then <strong>2 payments of $750</strong><span>billed monthly</span>
+        </div>
+        <ul class="mplan-list">
+          <li>$500 deposit charged today</li>
+          <li>2 × $750 monthly thereafter</li>
+          <li>Full 1:1 mentorship access</li>
+        </ul>
+        <div class="mplan-total">Total <strong>$2,000</strong></div>
+        <a href="{{ route('checkout.show', 'mentorship-2pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
+      </div>
+
+      <!-- Plan 2 — Deposit + 3 -->
+      <div class="mplan">
+        <div class="mplan-head">
+          <span class="mplan-name">Deposit + 3 Payments</span>
+          <div class="mplan-deposit"><span class="amt">$500</span><span class="lab">deposit today</span></div>
+        </div>
+        <div class="mplan-then">
+          then <strong>3 payments of $500</strong><span>billed monthly</span>
+        </div>
+        <ul class="mplan-list">
+          <li>$500 deposit charged today</li>
+          <li>3 × $500 monthly thereafter</li>
+          <li>Full 1:1 mentorship access</li>
+        </ul>
+        <div class="mplan-total">Total <strong>$2,000</strong></div>
+        <a href="{{ route('checkout.show', 'mentorship-3pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
+      </div>
+
+      <!-- Plan 3 — Deposit + 5 -->
+      <div class="mplan">
+        <div class="mplan-head">
+          <span class="mplan-name">Deposit + 5 Payments</span>
+          <div class="mplan-deposit"><span class="amt">$500</span><span class="lab">deposit today</span></div>
+        </div>
+        <div class="mplan-then">
+          then <strong>5 payments of $300</strong><span>billed monthly</span>
+        </div>
+        <ul class="mplan-list">
+          <li>$500 deposit charged today</li>
+          <li>5 × $300 monthly thereafter</li>
+          <li>Full 1:1 mentorship access</li>
+        </ul>
+        <div class="mplan-total">Total <strong>$2,000</strong></div>
+        <a href="{{ route('checkout.show', 'mentorship-5pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
+      </div>
+
+      <!-- Plan 4 — Pay in full (featured) -->
+      <div class="mplan is-featured">
+        <div class="mplan-flag">★ Best value · Save $3</div>
+        <div class="mplan-head">
+          <span class="mplan-name">Pay in Full</span>
+          <div class="mplan-deposit"><span class="amt">$1,997</span><span class="lab">one-time</span></div>
+        </div>
+        <div class="mplan-then">
+          <strong>Single payment</strong><span>zero recurring</span>
+        </div>
+        <ul class="mplan-list">
+          <li>One payment of $1,997</li>
+          <li>No monthly billing</li>
+          <li>Full 1:1 mentorship access</li>
+        </ul>
+        <div class="mplan-total">Total <strong>$1,997</strong></div>
+        <a href="{{ route('checkout.show', 'mentorship-full') }}" class="btn btn-pink-glow mplan-btn">Pay in full <span class="arr">→</span></a>
+      </div>
+
+    </div>
+
+    <p class="mentor-plans-fine">
+      🔒 256-bit encrypted checkout · Processed securely by Authorize.Net · Instalments billed automatically each month
+    </p>
+  </div>
+</section>
+
+<style>
+.mentor-plans { background: var(--bg); padding: 84px 0; }
+.mentor-plans .section-head { margin-bottom: 44px; }
+.mentor-plans-grid {
+  display: grid;
+  grid-template-columns: repeat(4, 1fr);
+  gap: 20px;
+  align-items: stretch;
+}
+.mplan {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  background: var(--bg-3, #fff);
+  border: 1px solid var(--line);
+  border-radius: var(--r-lg, 20px);
+  padding: 28px 24px;
+  box-shadow: 0 24px 50px -34px rgba(20,16,14,0.18);
+  transition: transform .25s var(--ease, ease), box-shadow .25s, border-color .25s;
+}
+.mplan:hover { transform: translateY(-4px); border-color: rgba(230,49,121,0.35); box-shadow: 0 30px 60px -30px rgba(230,49,121,0.28); }
+.mplan.is-featured {
+  border-color: var(--pink);
+  background: linear-gradient(180deg, #fff 0%, #fff6fa 100%);
+  box-shadow: 0 30px 60px -28px rgba(230,49,121,0.38);
+}
+.mplan-flag {
+  position: absolute;
+  top: -12px; left: 50%; transform: translateX(-50%);
+  background: var(--pink); color: #fff;
+  font-size: 11px; font-weight: 700; letter-spacing: 0.06em;
+  padding: 6px 14px; border-radius: 100px; white-space: nowrap;
+  box-shadow: 0 8px 20px -8px rgba(230,49,121,0.6);
+}
+.mplan-head { padding-bottom: 16px; border-bottom: 1px dashed var(--line-2, #e7e1dd); margin-bottom: 16px; }
+.mplan-name {
+  display: block;
+  font-size: 13px; font-weight: 700; letter-spacing: 0.04em;
+  text-transform: uppercase; color: var(--ink-3, #8a807a); margin-bottom: 12px;
+}
+.mplan-deposit { display: flex; align-items: baseline; gap: 8px; flex-wrap: wrap; }
+.mplan-deposit .amt { font-size: 34px; font-weight: 800; color: var(--ink); letter-spacing: -0.02em; line-height: 1; }
+.mplan-deposit .lab { font-size: 13px; color: var(--ink-3, #8a807a); font-weight: 600; }
+.mplan-then {
+  font-size: 14px; color: var(--ink-2, #5a534e); line-height: 1.5; margin-bottom: 18px;
+}
+.mplan-then strong { color: var(--ink); }
+.mplan-then span { display: block; font-size: 12px; color: var(--ink-3, #8a807a); margin-top: 2px; }
+.mplan-list { list-style: none; padding: 0; margin: 0 0 20px; flex: 1; }
+.mplan-list li {
+  display: flex; gap: 9px; align-items: flex-start;
+  font-size: 13.5px; color: var(--ink-2, #5a534e); padding: 6px 0;
+}
+.mplan-list li::before { content: '✓'; color: #0f8a4a; font-weight: 700; flex: 0 0 auto; }
+.mplan-total {
+  font-size: 14px; color: var(--ink-2, #5a534e);
+  padding: 12px 0; border-top: 1px solid var(--line);
+  display: flex; justify-content: space-between; align-items: baseline; margin-bottom: 18px;
+}
+.mplan-total strong { font-size: 20px; color: var(--ink); font-weight: 800; }
+.mplan-btn { width: 100%; justify-content: center; }
+.mentor-plans-fine {
+  text-align: center; margin-top: 34px;
+  font-size: 12.5px; color: var(--ink-3, #8a807a);
+}
+@media (max-width: 1040px) { .mentor-plans-grid { grid-template-columns: repeat(2, 1fr); } }
+@media (max-width: 560px)  { .mentor-plans-grid { grid-template-columns: 1fr; } .mentor-plans { padding: 60px 0; } }
+</style>
+
 <!-- WHO IT'S FOR -->
 <section class="svc-outcomes">
   <div class="container">
@@ -250,41 +411,6 @@
         </div>
         <div class="step-body"><h3>Book real clients</h3><p>You launch with paying clients, real proof, and a business that runs while you sleep.</p></div>
       </div>
-    </div>
-  </div>
-</section>
-
-<!-- PRICING -->
-<section id="mentor-pricing" class="pricing-section" style="background: var(--bg);">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow">One offer · one price</span>
-      <h2>Mentorship pricing. <em class="serif gradient-text">Save $1,500 right now.</em></h2>
-      <p>One investment. Lifetime tools, lifetime community, lifetime support.</p>
-    </div>
-
-    <div class="mentor-price reveal">
-      <div class="mentor-price-tag">★ Limited spots · Save $1,500</div>
-      <div class="mentor-price-amt">
-        <span class="strike">$2,497</span>
-        <span class="now">$997</span>
-        <small>one-time</small>
-      </div>
-      <p class="mentor-price-desc">Private 1:1 mentorship straight from Victoria. Every system, script, and conversation it takes to launch a profitable credit business.</p>
-
-      <ul class="mentor-price-list">
-        <li><span class="ck">✓</span> Private 1:1 weekly calls with Victoria</li>
-        <li><span class="ck">✓</span> Full SOP &amp; client-template library</li>
-        <li><span class="ck">✓</span> Sales scripts that close calls</li>
-        <li><span class="ck">✓</span> Software, CRM, and dispute tech stack</li>
-        <li><span class="ck">✓</span> Client-acquisition playbook (organic + referral)</li>
-        <li><span class="ck">✓</span> Lifetime Skool community access</li>
-        <li><span class="ck">✓</span> Lender + funding intros</li>
-        <li><span class="ck">✓</span> Lifetime updates as the business evolves</li>
-      </ul>
-
-      <a href="{{ route('strategy-call.show') }}" class="btn btn-pink-glow mentor-price-btn">Apply for mentorship <span class="arr">→</span></a>
-      <p class="mentor-price-fine">Application required · We only accept committed people · Free 15-min fit call before any payment</p>
     </div>
   </div>
 </section>

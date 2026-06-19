@@ -709,7 +709,7 @@ table.adm-table .actions { white-space: nowrap; }
       @unless ($reviewMode)
         <a href="{{ route('admin.subscriptions') }}"  class="@if(str_starts_with($current,'admin.subscriptions')) active @endif"><span class="ic">◆</span> Subscriptions</a>
         <a href="{{ route('admin.payments') }}"       class="@if($current==='admin.payments') active @endif"><span class="ic">$</span> Payments</a>
-        <a href="{{ route('admin.webhooks') }}"       class="@if(str_starts_with($current,'admin.webhooks')) active @endif"><span class="ic">⌁</span> Webhooks</a>
+        <a href="{{ route('admin.mentorship-clients') }}" class="@if(str_starts_with($current,'admin.mentorship-clients')) active @endif"><span class="ic">★</span> Paid Mentorship Clients</a>
         <a href="{{ route('admin.ebooks') }}"         class="@if(str_starts_with($current,'admin.ebooks')) active @endif"><span class="ic">📖</span> eBooks Catalog</a>
         <a href="{{ route('admin.ebook-orders') }}"   class="@if(str_starts_with($current,'admin.ebook-orders')) active @endif"><span class="ic">📦</span> eBook Sales</a>
         <a href="{{ route('admin.onboarding') }}"     class="@if(str_starts_with($current,'admin.onboarding')) active @endif"><span class="ic">⚑</span> Paid Credit Repair Clients</a>
