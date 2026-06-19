@@ -48,7 +48,7 @@ Route::post('/mentorship-application', [MentorshipController::class, 'submit'])-
 
 // Mentorship payment-plan contract — signed before checkout (instalment plans only)
 Route::get('/mentorship-agreement/{plan}', [PaymentAgreementController::class, 'show'])
-    ->where('plan', 'mentorship-2pay|mentorship-3pay|mentorship-5pay')
+    ->where('plan', 'mentorship-3pay|mentorship-5pay')
     ->name('mentorship-agreement.show');
 Route::post('/mentorship-agreement', [PaymentAgreementController::class, 'sign'])
     ->name('mentorship-agreement.sign');
@@ -74,7 +74,7 @@ Route::post('/lead', [LeadController::class, 'submit'])->name('lead.submit');
 
 // ============ SECURE CHECKOUT (Authorize.Net Accept.js) ============
 Route::get('/checkout/{plan?}', [AcceptJsPaymentController::class, 'showCheckout'])
-    ->where('plan', 'starter|audit|monthly|onetime|couple|vip|mentorship-2pay|mentorship-3pay|mentorship-5pay|mentorship-full')
+    ->where('plan', 'starter|audit|monthly|onetime|couple|vip|mentorship-3pay|mentorship-5pay|mentorship-full')
     ->name('checkout.show');
 Route::post('/checkout/process', [AcceptJsPaymentController::class, 'processPayment'])
     ->name('checkout.process');

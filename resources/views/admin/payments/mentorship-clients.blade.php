@@ -46,7 +46,6 @@
     <select class="adm-select" name="plan">
       <option value="">All mentorship plans</option>
       @foreach ([
-        'mentorship-2pay'=>'Deposit + 2 Payments',
         'mentorship-3pay'=>'Deposit + 3 Payments',
         'mentorship-5pay'=>'Deposit + 5 Payments',
         'mentorship-full'=>'Pay in Full',

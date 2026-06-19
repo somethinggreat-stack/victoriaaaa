@@ -97,20 +97,6 @@ class AcceptJsPaymentController extends Controller
         // ───────────── 1:1 Mentorship payment plans ─────────────
         // Each instalment plan: $500 deposit charged today, then a fixed
         // number of monthly instalments via ARB. Totals all land at $2,000.
-        'mentorship-2pay' => [
-            'amount'                => '500.00',  // deposit charged today
-            'recurring'             => '750.00',  // each instalment
-            'recurring_occurrences' => 2,         // 2 instalments
-            'label'                 => 'Mentorship — Deposit + 2 Payments',
-            'tagline'               => '$500 deposit today, then 2 monthly payments of $750 (total $2,000).',
-            'features'  => [
-                'Private 1:1 weekly calls with Victoria',
-                'Full SOP & client-template library',
-                'Software, CRM & dispute tech stack',
-                'Lifetime Skool community + lender intros',
-                '$500 today + 2 × $750/mo — $2,000 total',
-            ],
-        ],
         'mentorship-3pay' => [
             'amount'                => '500.00',
             'recurring'             => '500.00',

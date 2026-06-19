@@ -13,7 +13,6 @@ class PaymentAgreementController extends Controller
      * (The pay-in-full plan has no instalment schedule, so no contract.)
      */
     public const AGREEMENT_PLANS = [
-        'mentorship-2pay',
         'mentorship-3pay',
         'mentorship-5pay',
     ];

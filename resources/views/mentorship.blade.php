@@ -183,25 +183,7 @@
 
     <div class="mentor-plans-grid reveal">
 
-      <!-- Plan 1 — Deposit + 2 -->
-      <div class="mplan">
-        <div class="mplan-head">
-          <span class="mplan-name">Deposit + 2 Payments</span>
-          <div class="mplan-deposit"><span class="amt">$500</span><span class="lab">deposit today</span></div>
-        </div>
-        <div class="mplan-then">
-          then <strong>2 payments of $750</strong><span>billed monthly</span>
-        </div>
-        <ul class="mplan-list">
-          <li>$500 deposit charged today</li>
-          <li>2 × $750 monthly thereafter</li>
-          <li>Full 1:1 mentorship access</li>
-        </ul>
-        <div class="mplan-total">Total <strong>$2,000</strong></div>
-        <a href="{{ route('mentorship-agreement.show', 'mentorship-2pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
-      </div>
-
-      <!-- Plan 2 — Deposit + 3 -->
+      <!-- Plan 1 — Deposit + 3 -->
       <div class="mplan">
         <div class="mplan-head">
           <span class="mplan-name">Deposit + 3 Payments</span>
@@ -269,9 +251,11 @@
 .mentor-plans .section-head { margin-bottom: 44px; }
 .mentor-plans-grid {
   display: grid;
-  grid-template-columns: repeat(4, 1fr);
+  grid-template-columns: repeat(3, 1fr);
   gap: 20px;
   align-items: stretch;
+  max-width: 1080px;
+  margin: 0 auto;
 }
 .mplan {
   position: relative;
