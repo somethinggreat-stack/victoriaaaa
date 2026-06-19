@@ -253,7 +253,7 @@
           <li>Full 1:1 mentorship access</li>
         </ul>
         <div class="mplan-total">Total <strong>$1,997</strong></div>
-        <a href="{{ route('checkout.show', 'mentorship-full') }}" class="btn btn-pink-glow mplan-btn">Pay in full <span class="arr">→</span></a>
+        <a href="{{ route('checkout.show', 'mentorship-full') }}" class="btn btn-pink mplan-btn">Pay in full <span class="arr">→</span></a>
       </div>
 
     </div>
