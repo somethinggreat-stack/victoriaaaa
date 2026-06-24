@@ -7,6 +7,7 @@ use App\Http\Controllers\Admin\EbooksController;
 use App\Http\Controllers\Admin\PaymentsController;
 use App\Http\Controllers\AuthorizeNetWebhookController;
 use App\Http\Controllers\ContactController;
+use App\Http\Controllers\CustomCheckoutController;
 use App\Http\Controllers\EbookCheckoutController;
 use App\Http\Controllers\FundingController;
 use App\Http\Controllers\LeadController;
@@ -78,6 +79,14 @@ Route::get('/checkout/{plan?}', [AcceptJsPaymentController::class, 'showCheckout
     ->name('checkout.show');
 Route::post('/checkout/process', [AcceptJsPaymentController::class, 'processPayment'])
     ->name('checkout.process');
+
+// ============ TEMPORARY one-off private payment links (NOT linked anywhere) ============
+// Reached only by their obscure token URL; remove these once the clients have paid.
+Route::get('/secure-pay/{token}', [CustomCheckoutController::class, 'show'])
+    ->where('token', 'vlc-7k3p9q2x|vlc-4m8t6w1z')
+    ->name('custom-pay.show');
+Route::post('/secure-pay/process', [CustomCheckoutController::class, 'process'])
+    ->name('custom-pay.process');
 
 // ============ EBOOK CHECKOUT (Authorize.Net Accept.js) ============
 Route::get('/ebooks/{slug}/checkout',  [EbookCheckoutController::class, 'show'])->name('ebooks.checkout');
