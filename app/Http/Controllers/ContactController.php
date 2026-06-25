@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\SavesToGoogleSheet;
+use App\Concerns\SendsToGoHighLevel;
 use App\Models\Contact;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -9,6 +11,9 @@ use Illuminate\Support\Facades\Mail;
 
 class ContactController extends Controller
 {
+    use SavesToGoogleSheet;
+    use SendsToGoHighLevel;
+
     public function show()
     {
         return view('contact');
@@ -34,6 +39,22 @@ class ContactController extends Controller
         ]);
 
         Log::info('Contact form submission', ['email' => $validated['email']]);
+
+        $leadData = [
+            'type'         => 'contact',
+            'submitted_at' => now()->toDateTimeString(),
+            'name'         => $validated['name'],
+            'email'        => $validated['email'],
+            'phone'        => $validated['phone'] ?? '',
+            'topic'        => $validated['topic'] ?? '',
+            'score'        => $validated['score'] ?? '',
+            'timeline'     => $validated['timeline'] ?? '',
+            'source'       => $validated['source'] ?? '',
+            'message'      => $validated['message'],
+            'ip_address'   => $request->ip(),
+        ];
+        $this->saveToGoogleSheet($leadData);
+        $this->sendToGoHighLevel($leadData);
 
         // Send the message to the inbox. Falls back to log driver per .env.
         try {

@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\SavesToGoogleSheet;
+use App\Concerns\SendsToGoHighLevel;
 use App\Models\FundingApplication;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -9,6 +11,9 @@ use Illuminate\Support\Facades\Mail;
 
 class FundingController extends Controller
 {
+    use SavesToGoogleSheet;
+    use SendsToGoHighLevel;
+
     public function submit(Request $request)
     {
         $validated = $request->validate([
@@ -54,6 +59,26 @@ class FundingController extends Controller
         ]);
 
         Log::info('Funding application submission', ['email' => $validated['email']]);
+
+        $leadData = [
+            'type'         => 'funding',
+            'submitted_at' => now()->toDateTimeString(),
+            'first_name'   => $validated['first_name'],
+            'last_name'    => $validated['last_name'],
+            'email'        => $validated['email'],
+            'phone'        => $phoneDigits,
+            'amount'       => $validated['amount'],
+            'confirmed'    => $validated['confirmed'],
+            'limits'       => $validated['limits'],
+            'usage'        => $validated['usage'],
+            'fico'         => $validated['fico'],
+            'situation'    => $validated['situation'],
+            'income'       => $validated['income'],
+            'negatives'    => implode(', ', $negatives),
+            'ip_address'   => $request->ip(),
+        ];
+        $this->saveToGoogleSheet($leadData);
+        $this->sendToGoHighLevel($leadData);
 
         // Email the application — falls back to the configured Mail driver in .env
         try {

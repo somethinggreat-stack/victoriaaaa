@@ -2,12 +2,17 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\SavesToGoogleSheet;
+use App\Concerns\SendsToGoHighLevel;
 use App\Models\Lead;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
 class LeadController extends Controller
 {
+    use SavesToGoogleSheet;
+    use SendsToGoHighLevel;
+
     public function submit(Request $request)
     {
         $validated = $request->validate([
@@ -27,6 +32,21 @@ class LeadController extends Controller
         ]);
 
         Log::info('Lead captured', ['id' => $lead->id, 'email' => $lead->email]);
+
+        $leadData = [
+            'type'         => 'lead',
+            'submitted_at' => now()->toDateTimeString(),
+            'name'         => $validated['name'] ?? '',
+            'email'        => $validated['email'],
+            'phone'        => $validated['phone'] ?? '',
+            'score'        => $validated['score'] ?? '',
+            'issue'        => $validated['issue'] ?? '',
+            'goal'         => $validated['goal'] ?? '',
+            'source'       => $lead->source,
+            'ip_address'   => $request->ip(),
+        ];
+        $this->saveToGoogleSheet($leadData);
+        $this->sendToGoHighLevel($leadData);
 
         return response()->json(['ok' => true, 'id' => $lead->id]);
     }
