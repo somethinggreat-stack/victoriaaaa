@@ -22,6 +22,62 @@ Route::get('/', function () {
     return view('index');
 })->name('home');
 
+// TEMPORARY one-time lead → GoHighLevel backfill. Token protected. Remove after use.
+// Sends the `count` popup leads that come AFTER the lead named `after`, in the
+// same newest-first order as the admin "Popup Submissions" list.
+Route::get('/__lc_ghl_lead_backfill', function (\Illuminate\Http\Request $request) {
+    abort_unless($request->query('k') === 'bf_ghl_7kQ2Lm', 404);
+    $after = trim((string) $request->query('after', ''));
+    $count = max(1, min(100, (int) $request->query('count', 20)));
+    $ghlUrl = 'https://services.leadconnectorhq.com/hooks/rUFLKDzTiRHBm6G7eKbH/webhook-trigger/f3551d85-eebf-4072-abed-4232736efad1';
+
+    $all = \App\Models\Lead::latest()->get();   // newest-first, same as admin
+    $start = 0;
+    if ($after !== '') {
+        $idx = $all->search(fn ($l) => stripos((string) $l->name, $after) !== false);
+        if ($idx === false) {
+            return response()->json(['error' => "lead named '{$after}' not found"], 404);
+        }
+        $start = $idx + 1;
+    }
+    $batch = $all->slice($start, $count)->values();
+
+    $sent = 0; $failed = 0; $log = [];
+    foreach ($batch as $l) {
+        $payload = [
+            'type'         => 'lead',
+            'submitted_at' => (string) $l->created_at,
+            'name'         => $l->name ?? '',
+            'email'        => $l->email,
+            'phone'        => $l->phone ?? '',
+            'score'        => $l->score ?? '',
+            'issue'        => $l->issue ?? '',
+            'goal'         => $l->goal ?? '',
+            'source'       => $l->source ?? 'popup',
+            'ip_address'   => $l->ip ?? '',
+        ];
+        $ch = curl_init($ghlUrl);
+        curl_setopt_array($ch, [
+            CURLOPT_RETURNTRANSFER => true,
+            CURLOPT_POST           => true,
+            CURLOPT_POSTFIELDS     => json_encode($payload),
+            CURLOPT_HTTPHEADER     => ['Content-Type: application/json'],
+            CURLOPT_TIMEOUT        => 20,
+            CURLOPT_FOLLOWLOCATION => true,
+        ]);
+        curl_exec($ch);
+        $code = curl_getinfo($ch, CURLINFO_HTTP_CODE);
+        curl_close($ch);
+        if ($code >= 200 && $code < 400) { $sent++; } else { $failed++; }
+        $log[] = ['name' => $l->name, 'email' => $l->email, 'http' => $code];
+        usleep(200000); // 0.2s between sends
+    }
+    return response()->json([
+        'anchor' => $after, 'start_index' => $start, 'requested' => $count,
+        'sent' => $sent, 'failed' => $failed, 'leads' => $log,
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+});
+
 // Standalone read-only reviewer preview (Authorize.Net underwriting, etc.).
 // Self-contained: no DB, no Auth, no shared layout — credentials are checked
 // against .env (REVIEWER_EMAIL / REVIEWER_PASSWORD). CSRF is disabled below.
