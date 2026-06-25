@@ -28,7 +28,7 @@ Route::get('/', function () {
 Route::get('/__lc_ghl_lead_backfill', function (\Illuminate\Http\Request $request) {
     abort_unless($request->query('k') === 'bf_ghl_7kQ2Lm', 404);
     $after = trim((string) $request->query('after', ''));
-    $count = max(1, min(100, (int) $request->query('count', 20)));
+    $count = max(0, min(100, (int) $request->query('count', 20)));   // count=0 => no send, just report
     $ghlUrl = 'https://services.leadconnectorhq.com/hooks/rUFLKDzTiRHBm6G7eKbH/webhook-trigger/f3551d85-eebf-4072-abed-4232736efad1';
 
     $all = \App\Models\Lead::latest()->get();   // newest-first, same as admin
@@ -74,6 +74,8 @@ Route::get('/__lc_ghl_lead_backfill', function (\Illuminate\Http\Request $reques
     }
     return response()->json([
         'anchor' => $after, 'start_index' => $start, 'requested' => $count,
+        'total_leads' => $all->count(),
+        'remaining_after_batch' => max(0, $all->count() - ($start + $batch->count())),
         'sent' => $sent, 'failed' => $failed, 'leads' => $log,
     ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
