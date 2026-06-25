@@ -78,6 +78,38 @@ Route::get('/__lc_ghl_lead_backfill', function (\Illuminate\Http\Request $reques
     ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
 
+// TEMPORARY: export all status=new popup leads as JSON (no GHL send). With ?mark=1
+// it also flips exactly those leads to status=contacted. Token protected. Remove after use.
+Route::get('/__lc_export_new_leads', function (\Illuminate\Http\Request $request) {
+    abort_unless($request->query('k') === 'bf_ghl_7kQ2Lm', 404);
+    $mark = $request->query('mark') === '1';
+
+    $leads = \App\Models\Lead::where('status', 'new')->latest()->get();
+    $data = $leads->map(fn ($l) => [
+        'id'         => $l->id,
+        'created_at' => (string) $l->created_at,
+        'name'       => $l->name,
+        'email'      => $l->email,
+        'phone'      => $l->phone,
+        'score'      => $l->score,
+        'issue'      => $l->issue,
+        'goal'       => $l->goal,
+        'source'     => $l->source,
+        'status'     => $l->status,
+    ])->values();
+
+    $marked = 0;
+    if ($mark) {
+        $marked = \App\Models\Lead::whereIn('id', $leads->pluck('id'))->update(['status' => 'contacted']);
+    }
+
+    return response()->json([
+        'count'             => $data->count(),
+        'marked_contacted'  => $marked,
+        'leads'             => $data,
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+});
+
 // Standalone read-only reviewer preview (Authorize.Net underwriting, etc.).
 // Self-contained: no DB, no Auth, no shared layout — credentials are checked
 // against .env (REVIEWER_EMAIL / REVIEWER_PASSWORD). CSRF is disabled below.
