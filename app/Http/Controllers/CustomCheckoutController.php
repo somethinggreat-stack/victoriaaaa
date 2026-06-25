@@ -27,24 +27,24 @@ class CustomCheckoutController extends Controller
      *           `interval_length` `interval_unit` for `occurrences` times.
      */
     public const LINKS = [
-        // Link 1 — $250 today, then $250 on Jul 10, then $250 on Jul 24 (2026).
+        // Link 1 — $215 today, then $215 on Jul 10, then $215 on Jul 24 (2026).
         'vlc-7k3p9q2x' => [
-            'amount'      => '250.00',
+            'amount'      => '215.00',
             'label'       => 'Victoria Love — Payment Plan',
-            'tagline'     => '$250 today, then two more payments of $250.',
+            'tagline'     => '$215 today, then two more payments of $215.',
             'recurring'   => [
-                'amount'          => '250.00',
+                'amount'          => '215.00',
                 'interval_length' => 14,
                 'interval_unit'   => 'days',
                 'start_date'      => '2026-07-10',
                 'occurrences'     => 2,
                 'next_billing'    => '2026-07-10',
             ],
-            'total'       => '750.00',
+            'total'       => '645.00',
             'schedule'    => [
-                ['label' => 'Today',         'amount' => '$250.00', 'note' => 'Charged now'],
-                ['label' => 'July 10, 2026', 'amount' => '$250.00', 'note' => 'Auto-charged'],
-                ['label' => 'July 24, 2026', 'amount' => '$250.00', 'note' => 'Auto-charged'],
+                ['label' => 'Today',         'amount' => '$215.00', 'note' => 'Charged now'],
+                ['label' => 'July 10, 2026', 'amount' => '$215.00', 'note' => 'Auto-charged'],
+                ['label' => 'July 24, 2026', 'amount' => '$215.00', 'note' => 'Auto-charged'],
             ],
         ],
 
