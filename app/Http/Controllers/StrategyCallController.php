@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\SavesToGoogleSheet;
+use App\Concerns\SendsToGoHighLevel;
 use App\Models\StrategyCallRequest;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -9,6 +11,9 @@ use Illuminate\Support\Facades\Mail;
 
 class StrategyCallController extends Controller
 {
+    use SavesToGoogleSheet;
+    use SendsToGoHighLevel;
+
     public function show()
     {
         return view('strategy-call');
@@ -59,6 +64,27 @@ class StrategyCallController extends Controller
         ]);
 
         Log::info('Strategy call request', ['id' => $row->id, 'email' => $row->email]);
+
+        $leadData = [
+            'type'                => 'strategy_call',
+            'submitted_at'        => now()->toDateTimeString(),
+            'name'                => $row->name,
+            'email'               => $row->email,
+            'phone'               => $row->phone,
+            'best_time'           => $row->best_time ?? '',
+            'situation'           => $row->situation ?? '',
+            'score'               => $row->score ?? '',
+            'timeline'            => $row->timeline ?? '',
+            'investment_range'    => $row->investment_range ?? '',
+            'prior_repair'        => $row->prior_repair ? 'yes' : 'no',
+            'prior_repair_notes'  => $row->prior_repair_notes ?? '',
+            'monitoring_service'  => $row->monitoring_service ?? '',
+            'monitoring_username' => $row->monitoring_username ?? '',
+            'goal'                => $row->goal ?? '',
+            'ip_address'          => $request->ip(),
+        ];
+        $this->saveToGoogleSheet($leadData);
+        $this->sendToGoHighLevel($leadData);
 
         try {
             $body = "New strategy-call qualification — book follow-up\n\n"

@@ -59,6 +59,25 @@ return [
         'webhook_enforce_signature' => env('AUTHORIZE_NET_WEBHOOK_ENFORCE_SIGNATURE', false),
     ],
 
+    'google' => [
+        // Google Apps Script web-app /exec URL that appends each paid order as a sheet row.
+        'sheets_webhook_url' => env('GOOGLE_SHEETS_WEBHOOK_URL'),
+    ],
+
+    'ghl' => [
+        // One GoHighLevel inbound webhook per form (resolved by the payload's `type`).
+        'webhooks' => [
+            'lead'          => env('GHL_WEBHOOK_LEAD'),
+            'contact'       => env('GHL_WEBHOOK_CONTACT'),
+            'funding'       => env('GHL_WEBHOOK_FUNDING'),
+            'mentorship'    => env('GHL_WEBHOOK_MENTORSHIP'),
+            'strategy_call' => env('GHL_WEBHOOK_STRATEGY'),
+            'onboarding'    => env('GHL_WEBHOOK_ONBOARDING'),
+        ],
+        // Optional shared fallback used when a type has no specific webhook.
+        'webhook_url' => env('GHL_WEBHOOK_URL'),
+    ],
+
     'meta' => [
         'pixel_id'   => env('META_PIXEL_ID'),
         'capi_token' => env('META_CAPI_TOKEN'),

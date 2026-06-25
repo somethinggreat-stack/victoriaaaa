@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\SavesToGoogleSheet;
+use App\Concerns\SendsToGoHighLevel;
 use App\Models\MentorshipLead;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
@@ -9,6 +11,9 @@ use Illuminate\Support\Facades\Mail;
 
 class MentorshipController extends Controller
 {
+    use SavesToGoogleSheet;
+    use SendsToGoHighLevel;
+
     public function submit(Request $request)
     {
         $validated = $request->validate([
@@ -42,6 +47,22 @@ class MentorshipController extends Controller
         ]);
 
         Log::info('Mentorship application', ['email' => $validated['email']]);
+
+        $leadData = [
+            'type'         => 'mentorship',
+            'submitted_at' => now()->toDateTimeString(),
+            'first_name'   => $validated['first_name'],
+            'last_name'    => $validated['last_name'],
+            'email'        => $validated['email'],
+            'phone'        => $phoneDigits,
+            'situation'    => $validated['situation'] ?? '',
+            'timeline'     => $validated['timeline'] ?? '',
+            'hours'        => $validated['hours'] ?? '',
+            'investment'   => $validated['investment'] ?? '',
+            'ip_address'   => $request->ip(),
+        ];
+        $this->saveToGoogleSheet($leadData);
+        $this->sendToGoHighLevel($leadData);
 
         try {
             Mail::raw(

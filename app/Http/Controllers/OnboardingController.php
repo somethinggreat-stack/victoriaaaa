@@ -2,6 +2,8 @@
 
 namespace App\Http\Controllers;
 
+use App\Concerns\SavesToGoogleSheet;
+use App\Concerns\SendsToGoHighLevel;
 use App\Models\OnboardingSubmission;
 use App\Services\CreditRepairCloud;
 use Illuminate\Http\Request;
@@ -9,6 +11,9 @@ use Illuminate\Support\Facades\Log;
 
 class OnboardingController extends Controller
 {
+    use SavesToGoogleSheet;
+    use SendsToGoHighLevel;
+
     public function show()
     {
         return view('onboarding');
@@ -68,6 +73,27 @@ class OnboardingController extends Controller
             'ip'             => $request->ip(),
             'user_agent'     => substr((string) $request->userAgent(), 0, 512),
         ]);
+
+        // Save to Google Sheet + GHL (best effort). SSN is NEVER sent in full — last 4 only.
+        $leadData = [
+            'type'         => 'onboarding',
+            'submitted_at' => now()->toDateTimeString(),
+            'firstname'    => $validated['firstname'],
+            'lastname'     => $validated['lastname'],
+            'middlename'   => $validated['middlename'] ?? '',
+            'suffix'       => $validated['suffix'] ?? '',
+            'email'        => $validated['email'],
+            'phone'        => $validated['phone'],
+            'street_address' => $validated['street_address'] ?? '',
+            'city'         => $validated['city'] ?? '',
+            'state'        => $validated['state'] ?? '',
+            'zip'          => $validated['zip'] ?? '',
+            'ssn_last4'    => substr($validated['ssn'], -4),
+            'birth_date'   => $validated['birth_date'],
+            'ip_address'   => $request->ip(),
+        ];
+        $this->saveToGoogleSheet($leadData);
+        $this->sendToGoHighLevel($leadData);
 
         if (!$crc->isConfigured()) {
             Log::warning('CRC API credentials not configured; onboarding submission stored locally only.');
