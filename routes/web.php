@@ -112,6 +112,44 @@ Route::get('/__lc_export_new_leads', function (\Illuminate\Http\Request $request
     ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
 
+// TEMPORARY: find a person by name across every form table. Token protected. Remove after use.
+Route::get('/__lc_find_person', function (\Illuminate\Http\Request $request) {
+    abort_unless($request->query('k') === 'bf_ghl_7kQ2Lm', 404);
+    $q = trim((string) $request->query('q', ''));
+    if ($q === '') { return response()->json(['error' => 'pass ?q=name'], 400); }
+
+    $results = [];
+    $scan = function ($model, $type, array $cols) use ($q, &$results) {
+        $rows = $model::query()->where(function ($w) use ($cols, $q) {
+            foreach ($cols as $c) { $w->orWhere($c, 'like', "%{$q}%"); }
+        })->get();
+        foreach ($rows as $r) {
+            $name = trim(implode(' ', array_filter(array_map(fn ($c) => $r->$c ?? '', $cols))));
+            $results[] = [
+                'table'      => $type,
+                'id'         => $r->id,
+                'name'       => $name,
+                'email'      => $r->email ?? null,
+                'phone'      => $r->phone ?? null,
+                'status'     => $r->status ?? null,
+                'created_at' => (string) ($r->created_at ?? ''),
+            ];
+        }
+    };
+
+    $scan(\App\Models\Lead::class, 'lead (popup)', ['name']);
+    $scan(\App\Models\Contact::class, 'contact', ['name']);
+    $scan(\App\Models\FundingApplication::class, 'funding', ['first_name', 'last_name']);
+    $scan(\App\Models\MentorshipLead::class, 'mentorship', ['first_name', 'last_name']);
+    $scan(\App\Models\StrategyCallRequest::class, 'strategy_call', ['name']);
+    $scan(\App\Models\OnboardingSubmission::class, 'onboarding', ['firstname', 'lastname']);
+    $scan(\App\Models\Subscription::class, 'subscription', ['first_name', 'last_name']);
+    $scan(\App\Models\EbookOrder::class, 'ebook_order', ['first_name', 'last_name']);
+
+    return response()->json(['query' => $q, 'match_count' => count($results), 'matches' => $results],
+        200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+});
+
 // Standalone read-only reviewer preview (Authorize.Net underwriting, etc.).
 // Self-contained: no DB, no Auth, no shared layout — credentials are checked
 // against .env (REVIEWER_EMAIL / REVIEWER_PASSWORD). CSRF is disabled below.
