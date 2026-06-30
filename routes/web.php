@@ -150,6 +150,33 @@ Route::get('/__lc_find_person', function (\Illuminate\Http\Request $request) {
         200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
 
+// TEMPORARY: per-table counts (total + still status=new). Token protected. Remove after use.
+Route::get('/__lc_counts', function (\Illuminate\Http\Request $request) {
+    abort_unless($request->query('k') === 'bf_ghl_7kQ2Lm', 404);
+    $tables = [
+        'lead (popup)'  => \App\Models\Lead::class,
+        'contact'       => \App\Models\Contact::class,
+        'funding'       => \App\Models\FundingApplication::class,
+        'mentorship'    => \App\Models\MentorshipLead::class,
+        'strategy_call' => \App\Models\StrategyCallRequest::class,
+        'onboarding'    => \App\Models\OnboardingSubmission::class,
+        'subscription'  => \App\Models\Subscription::class,
+        'ebook_order'   => \App\Models\EbookOrder::class,
+    ];
+    $perTable = []; $totalAll = 0; $totalNew = 0;
+    foreach ($tables as $name => $model) {
+        $all = $model::count();
+        $new = null;
+        try { $new = (clone $model::query())->where('status', 'new')->count(); } catch (\Throwable $e) {}
+        $perTable[$name] = ['total' => $all, 'new' => $new];
+        $totalAll += $all;
+        if (is_int($new)) { $totalNew += $new; }
+    }
+    return response()->json([
+        'per_table' => $perTable, 'total_all' => $totalAll, 'total_new' => $totalNew,
+    ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
+});
+
 // Standalone read-only reviewer preview (Authorize.Net underwriting, etc.).
 // Self-contained: no DB, no Auth, no shared layout — credentials are checked
 // against .env (REVIEWER_EMAIL / REVIEWER_PASSWORD). CSRF is disabled below.
