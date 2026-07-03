@@ -589,7 +589,7 @@
         </div>
 
         @if($planKey === 'monthly')
-          <div class="bday-checkout-banner">🎂 Birthday Sale — <s>$197 + $100/mo</s> now <strong>$134 + $34/mo</strong></div>
+          <div class="bday-checkout-banner">🎂 Birthday Sale — <s>$197 + $100/mo</s> now <strong>$134 + $84/mo</strong></div>
         @endif
 
         <div class="checkout-summary-plan">

@@ -130,7 +130,7 @@
       <div class="price reveal">
         <span class="price-tag price-tag-bday">🎂 Birthday Sale</span>
         <div class="name">Monthly</div>
-        <div class="amt">$134 <span class="p">+ $34/mo</span></div>
+        <div class="amt">$134 <span class="p">+ $84/mo</span></div>
         <div class="strike">was $197 + $100/mo</div>
         <p class="desc">Full 90-day credit transformation. Cancel after 90.</p>
         <ul>
@@ -729,9 +729,9 @@
 
     <div class="bday-price">
       <span class="was">$197 + $100/mo</span>
-      <span class="now">$134 <span class="per">+ $34/mo</span></span>
+      <span class="now">$134 <span class="per">+ $84/mo</span></span>
     </div>
-    <span class="bday-save">You save $63 today + $66/mo</span>
+    <span class="bday-save">You save $63 today + $16/mo</span>
 
     <a href="{{ route('checkout.show', ['plan' => 'monthly']) }}" class="btn btn-pink">Claim the birthday deal <span class="arr">→</span></a>
     <p class="bday-fine">Full 90-day credit transformation · Cancel after 90 days</p>

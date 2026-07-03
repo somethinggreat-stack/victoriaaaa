@@ -45,11 +45,11 @@ class AcceptJsPaymentController extends Controller
             ],
         ],
         'monthly' => [
-            // 🎂 Birthday Sale — was $197 today + $100/mo, now $134 today + $34/mo.
+            // 🎂 Birthday Sale — was $197 today + $100/mo, now $134 today + $84/mo.
             'amount'    => '134.00',
             'label'     => 'Monthly Plan',
             'tagline'   => 'Birthday Sale — full 90-day credit transformation, cancel after 90',
-            'recurring' => '34.00',
+            'recurring' => '84.00',
             'features'  => [
                 'Full 90-day credit plan',
                 'Aggressive 3-bureau disputes',
