@@ -301,6 +301,21 @@
   letter-spacing: -0.02em;
 }
 .checkout-summary-tagline { font-size: 13px; color: var(--ink-2); margin-bottom: 18px; }
+
+.bday-checkout-banner {
+  background: linear-gradient(135deg, #fdeaf2 0%, #faf0db 100%);
+  border: 1px solid rgba(230,49,121,0.22);
+  color: #8a1845;
+  border-radius: var(--r-sm);
+  padding: 10px 14px;
+  font-size: 13px;
+  font-weight: 600;
+  text-align: center;
+  margin-bottom: 16px;
+  line-height: 1.5;
+}
+.bday-checkout-banner s { color: var(--ink-3); font-weight: 500; }
+.bday-checkout-banner strong { color: #6b1234; }
 .checkout-summary-list {
   list-style: none;
   padding: 0;
@@ -572,6 +587,10 @@
           <span class="eyebrow">Your plan</span>
           <a href="{{ url('/#pricing') }}" class="change-link">Change</a>
         </div>
+
+        @if($planKey === 'monthly')
+          <div class="bday-checkout-banner">🎂 Birthday Sale — <s>$197 + $100/mo</s> now <strong>$134 + $34/mo</strong></div>
+        @endif
 
         <div class="checkout-summary-plan">
           <div class="name" id="summaryName">{{ $plan['label'] }}</div>
