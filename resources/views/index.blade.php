@@ -128,10 +128,9 @@
     <div class="pricing-grid">
       <!-- Card 1 · Monthly -->
       <div class="price reveal">
-        <span class="price-tag price-tag-bday">🎂 Birthday Sale</span>
         <div class="name">Monthly</div>
-        <div class="amt">$134 <span class="p">+ $84/mo</span></div>
-        <div class="strike">was $197 + $100/mo</div>
+        <div class="amt">$197 <span class="p">+ $100/mo</span></div>
+        <div class="strike">was $297</div>
         <p class="desc">Full 90-day credit transformation. Cancel after 90.</p>
         <ul>
           <li>Full 90-day credit plan</li>
@@ -628,146 +627,5 @@
     </div>
   </div>
 </div>
-
-<!-- ============ 🎂 BIRTHDAY SALE POPUP ============ -->
-<style>
-  /* Birthday badge on the Monthly pricing card */
-  .price-tag-bday {
-    background: linear-gradient(135deg, #e63179 0%, #ff7eb3 55%, #c89a4a 100%) !important;
-    box-shadow: 0 10px 24px -6px rgba(230,49,121,0.6) !important;
-    letter-spacing: 0.10em;
-  }
-
-  /* Overlay */
-  .bday-popup {
-    position: fixed; inset: 0; z-index: 9998;
-    display: none; align-items: center; justify-content: center;
-    padding: 24px;
-    background: rgba(20,12,16,0.6);
-    backdrop-filter: blur(6px); -webkit-backdrop-filter: blur(6px);
-    opacity: 0; transition: opacity .3s ease;
-  }
-  .bday-popup.open { display: flex; opacity: 1; }
-
-  .bday-card {
-    position: relative;
-    width: 100%; max-width: 440px;
-    background:
-      radial-gradient(70% 60% at 100% 0%, rgba(230,49,121,0.14), transparent 60%),
-      radial-gradient(60% 50% at 0% 100%, rgba(200,154,74,0.14), transparent 60%),
-      #fff;
-    border-radius: 26px;
-    padding: 40px 34px 34px;
-    text-align: center;
-    box-shadow: 0 40px 90px -25px rgba(20,16,14,0.5);
-    transform: translateY(16px) scale(0.97);
-    transition: transform .35s cubic-bezier(.2,1,.3,1);
-    overflow: hidden;
-  }
-  .bday-popup.open .bday-card { transform: translateY(0) scale(1); }
-  .bday-card::before {
-    content: "🎉"; position: absolute; top: -6px; left: 18px; font-size: 34px; opacity: 0.55; transform: rotate(-18deg);
-  }
-  .bday-card::after {
-    content: "🎈"; position: absolute; top: -4px; right: 18px; font-size: 30px; opacity: 0.55; transform: rotate(14deg);
-  }
-  .bday-close {
-    position: absolute; top: 12px; right: 14px;
-    width: 34px; height: 34px; border-radius: 50%;
-    background: rgba(20,16,14,0.06); color: var(--ink);
-    font-size: 20px; line-height: 1; display: grid; place-items: center;
-    transition: background .2s, transform .2s; z-index: 2;
-  }
-  .bday-close:hover { background: rgba(20,16,14,0.12); transform: rotate(90deg); }
-
-  .bday-emoji { font-size: 52px; line-height: 1; margin-bottom: 10px; }
-  .bday-eyebrow {
-    display: inline-block; font-size: 11px; font-weight: 700;
-    letter-spacing: 0.18em; text-transform: uppercase; color: var(--pink);
-    margin-bottom: 12px;
-  }
-  .bday-card h3 {
-    font-size: 26px; font-weight: 600; letter-spacing: -0.02em;
-    margin-bottom: 10px; line-height: 1.12;
-  }
-  .bday-card h3 .serif { color: var(--pink); }
-  .bday-card p.bday-sub { font-size: 14.5px; color: var(--ink-2); margin-bottom: 22px; }
-
-  .bday-price {
-    display: flex; align-items: baseline; justify-content: center; gap: 12px;
-    margin-bottom: 6px; flex-wrap: wrap;
-  }
-  .bday-price .was {
-    font-size: 18px; color: var(--ink-3); text-decoration: line-through; font-weight: 500;
-  }
-  .bday-price .now {
-    font-size: 46px; font-weight: 700; letter-spacing: -0.03em; color: var(--ink); line-height: 1;
-  }
-  .bday-price .now .per { font-size: 15px; font-weight: 500; color: var(--ink-2); }
-  .bday-save {
-    display: inline-block; font-size: 12px; font-weight: 700; color: #157a3d;
-    background: #e6f6ec; border: 1px solid #c9eccd;
-    padding: 5px 12px; border-radius: 100px; margin-bottom: 22px;
-  }
-
-  .bday-card .btn { width: 100%; margin-bottom: 12px; }
-  .bday-fine { font-size: 11.5px; color: var(--ink-3); }
-  @media (max-width: 480px) {
-    .bday-card { padding: 34px 22px 28px; border-radius: 22px; }
-    .bday-card h3 { font-size: 22px; }
-    .bday-price .now { font-size: 40px; }
-  }
-</style>
-
-<div class="bday-popup" id="bdayPopup" role="dialog" aria-modal="true" aria-labelledby="bdayTitle">
-  <div class="bday-card">
-    <button type="button" class="bday-close" id="bdayClose" aria-label="Close">×</button>
-    <div class="bday-emoji">🎂</div>
-    <span class="bday-eyebrow">It's my birthday!</span>
-    <h3 id="bdayTitle">Birthday Sale is <em class="serif">live.</em></h3>
-    <p class="bday-sub">Celebrating with the biggest discount of the year on the Monthly credit plan — today only pricing you won't see again.</p>
-
-    <div class="bday-price">
-      <span class="was">$197 + $100/mo</span>
-      <span class="now">$134 <span class="per">+ $84/mo</span></span>
-    </div>
-    <span class="bday-save">You save $63 today + $16/mo</span>
-
-    <a href="{{ route('checkout.show', ['plan' => 'monthly']) }}" class="btn btn-pink">Claim the birthday deal <span class="arr">→</span></a>
-    <p class="bday-fine">Full 90-day credit transformation · Cancel after 90 days</p>
-  </div>
-</div>
-
-<script>
-(function () {
-  var popup = document.getElementById('bdayPopup');
-  if (!popup) return;
-  var closeBtn = document.getElementById('bdayClose');
-  var STORE_KEY = 'bday_popup_seen';
-
-  var open = function () {
-    popup.classList.add('open');
-    document.body.style.overflow = 'hidden';
-  };
-  var close = function () {
-    popup.classList.remove('open');
-    document.body.style.overflow = '';
-    try { sessionStorage.setItem(STORE_KEY, '1'); } catch (e) {}
-  };
-
-  // Show once per browser session, shortly after load.
-  var seen = false;
-  try { seen = sessionStorage.getItem(STORE_KEY) === '1'; } catch (e) {}
-  if (!seen) {
-    window.setTimeout(open, 1300);
-  }
-
-  closeBtn.addEventListener('click', close);
-  popup.addEventListener('click', function (e) { if (e.target === popup) close(); });
-  document.addEventListener('keydown', function (e) {
-    if (e.key === 'Escape' && popup.classList.contains('open')) close();
-  });
-})();
-</script>
 
 @endsection
