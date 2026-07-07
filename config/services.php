@@ -83,4 +83,12 @@ return [
         'capi_token' => env('META_CAPI_TOKEN'),
     ],
 
+    // Apex Growth dashboard intake API — completed onboarding submissions are
+    // forwarded here (multipart/form-data) so the client lands in Apex "New Clients".
+    'apex' => [
+        'enabled' => filter_var(env('APEX_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
+        'url'     => env('APEX_API_URL', 'https://apexgrowthsolution.com/api/intake'),
+        'key'     => env('APEX_API_KEY'),
+    ],
+
 ];
