@@ -95,6 +95,13 @@
     font-weight: 600;
     margin-top: 12px;
   }
+
+  /* Video removed — hero is now a single centered column */
+  .ob-hero-grid { grid-template-columns: 1fr; justify-items: center; }
+  .ob-hero-text { text-align: center; max-width: 760px; }
+  .ob-hero-text .eyebrow { justify-content: center; }
+  .ob-hero-text .lede { margin-left: auto; margin-right: auto; }
+  .ob-hero-text .ob-hero-trust { justify-content: center; }
 </style>
 
 @if (session('success'))
@@ -111,9 +118,8 @@
           <div class="ob-success-next-head">What happens in the next 24 hours:</div>
           <ol>
             <li><span>1</span>I match your form to your payment.</li>
-            <li><span>2</span>You receive a portal-access email with password setup.</li>
-            <li><span>3</span>You sign up for MyScoreIQ to give us read-only access to your file.</li>
-            <li><span>4</span>Your first dispute round goes out within 7 days.</li>
+            <li><span>2</span>I review your documents and credit-monitoring access.</li>
+            <li><span>3</span>Your first dispute round goes out within 7 days.</li>
           </ol>
         </div>
 
@@ -134,42 +140,13 @@
       <div class="ob-hero-text reveal">
         <span class="eyebrow"><span class="ob-eye-dot"></span> Welcome aboard</span>
         <h1>You're <em class="serif gradient-text">one step closer</em> to transforming your credit.</h1>
-        <p class="lede">Watch this quick walkthrough, then complete the form below. The faster you submit, the faster we get to work — your first dispute round goes out within 7 days of receiving everything we need.</p>
+        <p class="lede">Complete the form below. The faster you submit, the faster we get to work — your first dispute round goes out within 7 days of receiving everything we need.</p>
 
         <ul class="ob-hero-trust">
           <li><span>🏆</span>BBB Accredited</li>
           <li><span>🔒</span>256-bit Secure</li>
           <li><span>✓</span>FCRA Compliant</li>
         </ul>
-      </div>
-
-      <div class="ob-hero-video reveal reveal-d2">
-        <div class="ob-must-watch" aria-hidden="true">
-          <span class="ob-mw-pulse"></span>
-          <span class="ob-mw-text">Must Watch — Don't Skip</span>
-        </div>
-
-        <div class="ob-video-card" id="obVideoCard">
-          <video id="obVideo" class="ob-video-el" preload="metadata" playsinline controlslist="nodownload" poster="">
-            <source src="{{ asset('images/onboardingpagevideo.mp4') }}" type="video/mp4" />
-            Your browser does not support the video tag.
-          </video>
-
-          <button type="button" class="ob-video-overlay" id="obVideoOverlay" aria-label="Play welcome video">
-            <span class="ob-video-tag">📺 Personally recorded by Victoria</span>
-
-            <span class="ob-play" aria-hidden="true">
-              <svg viewBox="0 0 24 24" fill="currentColor" width="26" height="26"><path d="M8 5v14l11-7z"/></svg>
-            </span>
-
-            <span class="ob-video-meta">
-              <span class="ob-video-title">Here's exactly what happens next.</span>
-              <span class="ob-video-duration" id="obVideoDuration">▶ Play</span>
-            </span>
-          </button>
-        </div>
-
-        <p class="ob-video-note">✨ Watch this <strong>before</strong> filling out the form — your 2-minute success blueprint</p>
       </div>
 
     </div>
@@ -413,61 +390,6 @@
         <div class="ob-badge"><span class="ico">✓</span><div><strong>FCRA Compliant</strong><small>Federally regulated</small></div></div>
       </div>
     </form>
-  </div>
-</section>
-
-<!-- ============ AFTER SUBMITTING — STEPS ============ -->
-<section class="ob-steps-section">
-  <div class="container">
-    <div class="section-head reveal">
-      <span class="eyebrow">Here's what happens next</span>
-      <h2>After you <em class="serif gradient-text">submit.</em></h2>
-      <p>Five things — in order. Follow them and your first dispute round goes out within 7 days.</p>
-    </div>
-
-    <div class="ob-steps">
-      <div class="ob-step reveal">
-        <div class="ob-step-num">1</div>
-        <h3>Check your email for portal access</h3>
-        <p>You'll receive an email with your secure portal login and all next steps.</p>
-        <span class="ob-step-note">Didn't get it? Check spam or contact support.</span>
-      </div>
-
-      <div class="ob-step reveal reveal-d2 ob-step-critical">
-        <div class="ob-step-num">2</div>
-        <span class="ob-step-tag">Required monthly</span>
-        <h3>Sign up for MyScoreIQ</h3>
-        <p><strong>Important:</strong> To get results, keep your MyScoreIQ account active every month. If it's not active, we can't deliver.</p>
-      </div>
-
-      <div class="ob-step reveal reveal-d3">
-        <div class="ob-step-num">3</div>
-        <h3>Upload your documents</h3>
-        <p>Log in to your portal and upload:</p>
-        <ul class="ob-list">
-          <li>Social Security Card</li>
-          <li>Government-issued ID</li>
-          <li>Proof of Address (within 30 days)</li>
-          <li>MyScoreIQ login details</li>
-        </ul>
-      </div>
-
-      <div class="ob-step reveal reveal-d4">
-        <div class="ob-step-num">4</div>
-        <h3>Forward any mail you receive</h3>
-        <p>Mail from credit bureaus or creditors? Upload it to your portal immediately. We respond fast and keep your file moving.</p>
-      </div>
-
-      <div class="ob-step reveal">
-        <div class="ob-step-num">5</div>
-        <h3>What to expect</h3>
-        <ul class="ob-list">
-          <li>Dispute results take ~30 days for the bureaus to respond</li>
-          <li>Monthly updates straight to your inbox</li>
-          <li>Free 15-minute check-in calls any time</li>
-        </ul>
-      </div>
-    </div>
   </div>
 </section>
 
