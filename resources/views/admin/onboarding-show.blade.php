@@ -71,15 +71,16 @@
   </div>
 </div>
 
-<!-- CRC SYNC -->
+<!-- APEX FORWARDING -->
 <div class="adm-card" style="margin-bottom: 16px;">
-  <div class="adm-card-head"><h2>Credit Repair Cloud sync</h2></div>
+  <div class="adm-card-head"><h2>Apex Growth forwarding</h2></div>
   <div class="detail-grid">
-    <div class="lab">CRC status</div>    <div class="val"><span class="badge {{ $onboarding->crc_status }}">{{ $onboarding->crc_status }}</span></div>
-    <div class="lab">CRC record ID</div> <div class="val mono">{{ $onboarding->crc_id ?: '—' }}</div>
+    <div class="lab">Forward status</div> <div class="val"><span class="badge {{ $onboarding->crc_status }}">{{ $onboarding->crc_status === 'sent' ? 'sent to Apex' : $onboarding->crc_status }}</span></div>
+    <div class="lab">Apex client ID</div> <div class="val mono">{{ $onboarding->crc_id ?: '—' }}</div>
     <div class="lab">Raw response</div>
     <div class="val mono" style="white-space: pre-wrap; max-height: 240px; overflow:auto; background: var(--bg-2); padding: 12px; border-radius: 8px; font-size: 12px;">{{ $onboarding->crc_response ?: '—' }}</div>
   </div>
+  <p style="margin-top: 12px; font-size: 12px; color: var(--ink-3);">Uploaded documents and the credit-monitoring login are forwarded to Apex and are <strong>not</strong> stored on this site.</p>
 </div>
 
 <!-- METADATA -->

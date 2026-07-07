@@ -59,9 +59,22 @@ return [
         'webhook_enforce_signature' => env('AUTHORIZE_NET_WEBHOOK_ENFORCE_SIGNATURE', false),
     ],
 
+    'google' => [
+        // Google Apps Script web-app /exec URL that appends each paid order as a sheet row.
+        'sheets_webhook_url' => env('GOOGLE_SHEETS_WEBHOOK_URL'),
+    ],
+
     'meta' => [
         'pixel_id'   => env('META_PIXEL_ID'),
         'capi_token' => env('META_CAPI_TOKEN'),
+    ],
+
+    // Apex Growth dashboard intake API — completed onboarding submissions are
+    // forwarded here (multipart/form-data) so the client lands in Apex "New Clients".
+    'apex' => [
+        'enabled' => filter_var(env('APEX_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
+        'url'     => env('APEX_API_URL', 'https://apexgrowthsolution.com/api/intake'),
+        'key'     => env('APEX_API_KEY'),
     ],
 
 ];

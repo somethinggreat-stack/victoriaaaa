@@ -34,6 +34,69 @@
   }
 @endphp
 
+<style>
+  /* New onboarding form bits (files, credit monitoring, locked provider) */
+  .ob-opt { color: var(--ink-3); font-weight: 400; font-size: 0.85em; }
+
+  .ob-file-input {
+    width: 100%;
+    padding: 12px 14px;
+    border: 1.5px dashed var(--line-2);
+    border-radius: var(--r-sm, 12px);
+    background: var(--bg-2);
+    font-family: inherit;
+    font-size: 14px;
+    color: var(--ink-2);
+    cursor: pointer;
+    transition: border-color .2s, background .2s;
+  }
+  .ob-file-input:hover { border-color: var(--pink); background: var(--pink-tint, #fff5f9); }
+  .ob-file-input::file-selector-button {
+    margin-right: 12px;
+    padding: 8px 14px;
+    border: 0;
+    border-radius: 100px;
+    background: var(--ink);
+    color: #fff;
+    font-family: inherit;
+    font-weight: 600;
+    font-size: 13px;
+    cursor: pointer;
+    transition: background .2s;
+  }
+  .ob-file-input:hover::file-selector-button { background: var(--pink); }
+  .ob-file-input.is-invalid { border-color: #d93838; background: #fdecec; }
+
+  .ob-enroll-btn {
+    display: inline-flex; align-items: center; gap: 8px;
+    margin: 4px 0 20px;
+    padding: 13px 22px;
+    border-radius: 100px;
+    background: var(--grad-warm, linear-gradient(135deg,#e63179,#ff7eb3));
+    color: #fff; font-weight: 700; font-size: 14px;
+    box-shadow: 0 12px 26px -10px rgba(230,49,121,0.55);
+    transition: transform .2s, box-shadow .2s;
+  }
+  .ob-enroll-btn:hover { transform: translateY(-2px); box-shadow: 0 18px 34px -10px rgba(230,49,121,0.6); }
+  .ob-enroll-btn .arr { transition: transform .2s; }
+  .ob-enroll-btn:hover .arr { transform: translateX(4px); }
+
+  .ob-locked {
+    background: var(--bg-2) !important;
+    color: var(--ink-2) !important;
+    cursor: not-allowed;
+    font-weight: 600;
+  }
+
+  .ob-encrypted-note {
+    text-align: center;
+    font-size: 13px;
+    color: #0f8a4a;
+    font-weight: 600;
+    margin-top: 12px;
+  }
+</style>
+
 @if (session('success'))
   <!-- ============ SUCCESS STATE ============ -->
   <section class="ob-hero ob-hero-success">
@@ -135,7 +198,7 @@
       </div>
     @endif
 
-    <form id="onboardingForm" class="ob-form reveal" method="POST" action="{{ route('onboarding.submit') }}" autocomplete="on" novalidate>
+    <form id="onboardingForm" class="ob-form reveal" method="POST" action="{{ route('onboarding.submit') }}" enctype="multipart/form-data" autocomplete="on" novalidate>
       @csrf
 
       <header class="ob-form-head">
@@ -146,11 +209,11 @@
         <span class="ob-req">Fields with <em>*</em> are required</span>
       </header>
 
-      <!-- Section 1 · Identity -->
+      <!-- Section 1 · Your Details -->
       <fieldset class="ob-section">
         <legend>
           <span class="ob-section-num">01</span>
-          <span class="ob-section-ttl">Identity</span>
+          <span class="ob-section-ttl">Your Details</span>
         </legend>
 
         <div class="ob-grid">
@@ -160,35 +223,24 @@
           </label>
 
           <label class="ob-field">
+            <span class="ob-lab">Middle Name <span class="ob-opt">(optional)</span></span>
+            <input type="text" name="middlename" value="{{ old('middlename') }}" maxlength="100" placeholder="Optional" autocomplete="additional-name" />
+          </label>
+
+          <label class="ob-field">
             <span class="ob-lab">Last Name <em>*</em></span>
             <input type="text" name="lastname" value="{{ old('lastname') }}" required maxlength="100" placeholder="Smith" autocomplete="family-name" />
           </label>
 
           <label class="ob-field">
-            <span class="ob-lab">Middle Name</span>
-            <input type="text" name="middlename" value="{{ old('middlename') }}" maxlength="100" placeholder="Optional" autocomplete="additional-name" />
-          </label>
-
-          <label class="ob-field">
-            <span class="ob-lab">Suffix</span>
+            <span class="ob-lab">Suffix <span class="ob-opt">(optional)</span></span>
             <select name="suffix" autocomplete="honorific-suffix">
-              <option value="">None</option>
-              @foreach (['Jr','Sr','II','III','IV'] as $sx)
-                <option value="{{ $sx }}" @selected(old('suffix')===$sx)>{{ $sx }}</option>
+              @foreach (['None','Jr.','Sr.','I','II','III','IV','V'] as $sx)
+                <option value="{{ $sx }}" @selected(old('suffix', 'None')===$sx)>{{ $sx }}</option>
               @endforeach
             </select>
           </label>
-        </div>
-      </fieldset>
 
-      <!-- Section 2 · Contact -->
-      <fieldset class="ob-section">
-        <legend>
-          <span class="ob-section-num">02</span>
-          <span class="ob-section-ttl">Contact</span>
-        </legend>
-
-        <div class="ob-grid">
           <label class="ob-field">
             <span class="ob-lab">Email Address <em>*</em></span>
             <div class="ob-input-wrap">
@@ -199,65 +251,26 @@
           </label>
 
           <label class="ob-field">
-            <span class="ob-lab">Phone Number <em>*</em></span>
+            <span class="ob-lab">Phone <em>*</em></span>
             <div class="ob-input-wrap ob-phone-wrap">
               <span class="ob-phone-prefix">🇺🇸 +1</span>
               <input type="tel" name="phone" id="ob-phone" value="{{ old('phone') }}" required placeholder="(555) 123-4567" inputmode="tel" autocomplete="tel" />
               <span class="ob-input-state" aria-hidden="true"></span>
             </div>
-            <span class="ob-help" data-help="phone">10-digit US number. We text appointment reminders only.</span>
-          </label>
-        </div>
-      </fieldset>
-
-      <!-- Section 3 · Address -->
-      <fieldset class="ob-section">
-        <legend>
-          <span class="ob-section-num">03</span>
-          <span class="ob-section-ttl">Address</span>
-        </legend>
-
-        <div class="ob-grid">
-          <label class="ob-field ob-field-wide">
-            <span class="ob-lab">Street Address</span>
-            <input type="text" name="street_address" value="{{ old('street_address') }}" maxlength="255" placeholder="123 Main Street, Apt 4B" autocomplete="street-address" />
+            <span class="ob-help" data-help="phone">10-digit US number.</span>
           </label>
 
           <label class="ob-field">
-            <span class="ob-lab">City</span>
-            <input type="text" name="city" value="{{ old('city') }}" maxlength="100" placeholder="Your city" autocomplete="address-level2" />
+            <span class="ob-lab">Date of Birth <em>*</em></span>
+            <div class="ob-input-wrap">
+              <input type="text" name="birth_date" id="ob-dob" value="{{ old('birth_date') }}" required placeholder="mm/dd/yyyy" inputmode="numeric" autocomplete="bday" maxlength="10" />
+              <span class="ob-input-state" aria-hidden="true"></span>
+            </div>
+            <span class="ob-help" data-help="dob">Format: mm/dd/yyyy.</span>
           </label>
 
-          <label class="ob-field">
-            <span class="ob-lab">State</span>
-            <select name="state" autocomplete="address-level1">
-              <option value="">Select state</option>
-              @foreach ($states as $abbr => $name)
-                <option value="{{ $abbr }}" @selected(old('state')===$abbr)>{{ $abbr }} — {{ $name }}</option>
-              @endforeach
-            </select>
-          </label>
-
-          <label class="ob-field">
-            <span class="ob-lab">Zip Code</span>
-            <input type="text" name="zip" value="{{ old('zip') }}" maxlength="10" placeholder="12345" inputmode="numeric" autocomplete="postal-code" />
-          </label>
-        </div>
-      </fieldset>
-
-      <!-- Section 4 · Secure Verification -->
-      <fieldset class="ob-section ob-section-secure">
-        <legend>
-          <span class="ob-section-num">04</span>
-          <span class="ob-section-ttl">Verification</span>
-          <span class="ob-section-pad">🔒 256-bit encrypted</span>
-        </legend>
-
-        <p class="ob-section-intro">We need these to pull your credit file and submit disputes to the bureaus on your behalf. Your data never leaves our secure system.</p>
-
-        <div class="ob-grid">
-          <label class="ob-field">
-            <span class="ob-lab">Full Social Security Number <em>*</em></span>
+          <label class="ob-field ob-field-wide ob-section-secure">
+            <span class="ob-lab">Full SSN <em>*</em> <span class="ob-section-pad">🔒 encrypted</span></span>
             <div class="ob-input-wrap">
               <input type="text" name="ssn" id="ob-ssn" value="{{ old('ssn') }}" required placeholder="XXX-XX-XXXX" inputmode="numeric" autocomplete="off" maxlength="11" />
               <button type="button" class="ob-ssn-toggle" id="ob-ssn-toggle" aria-label="Show or hide SSN">
@@ -268,42 +281,129 @@
             </div>
             <span class="ob-help" data-help="ssn">Required by the credit bureaus to identify your file.</span>
           </label>
+        </div>
+      </fieldset>
 
-          <div class="ob-field">
-            <span class="ob-lab">Date of Birth <em>*</em></span>
-            <div class="ob-dob">
-              <select name="dob_month" id="ob-dob-month" required aria-label="Month">
-                <option value="">Month</option>
-                @foreach ($months as $num => $name)
-                  <option value="{{ $num }}" @selected($dobMonth===$num)>{{ $name }}</option>
-                @endforeach
-              </select>
-              <select name="dob_day" id="ob-dob-day" required aria-label="Day">
-                <option value="">Day</option>
-                @for ($d = 1; $d <= 31; $d++)
-                  @php $dd = str_pad($d, 2, '0', STR_PAD_LEFT); @endphp
-                  <option value="{{ $dd }}" @selected($dobDay===$dd)>{{ $d }}</option>
-                @endfor
-              </select>
-              <select name="dob_year" id="ob-dob-year" required aria-label="Year">
-                <option value="">Year</option>
-                @for ($y = $yearMax; $y >= $yearMin; $y--)
-                  <option value="{{ $y }}" @selected($dobYear===(string)$y)>{{ $y }}</option>
-                @endfor
-              </select>
+      <!-- Section 2 · Mailing Address -->
+      <fieldset class="ob-section">
+        <legend>
+          <span class="ob-section-num">02</span>
+          <span class="ob-section-ttl">Mailing Address</span>
+        </legend>
+
+        <div class="ob-grid">
+          <label class="ob-field ob-field-wide">
+            <span class="ob-lab">Street Address <em>*</em></span>
+            <input type="text" name="street_address" value="{{ old('street_address') }}" required maxlength="255" placeholder="123 Main Street" autocomplete="address-line1" />
+          </label>
+
+          <label class="ob-field ob-field-wide">
+            <span class="ob-lab">Apt / Suite <span class="ob-opt">(optional)</span></span>
+            <input type="text" name="address_line2" value="{{ old('address_line2') }}" maxlength="100" placeholder="Apt 4B" autocomplete="address-line2" />
+          </label>
+
+          <label class="ob-field">
+            <span class="ob-lab">City <em>*</em></span>
+            <input type="text" name="city" value="{{ old('city') }}" required maxlength="100" placeholder="Your city" autocomplete="address-level2" />
+          </label>
+
+          <label class="ob-field">
+            <span class="ob-lab">State <em>*</em></span>
+            <select name="state" required autocomplete="address-level1">
+              <option value="">Select state</option>
+              @foreach ($states as $abbr => $name)
+                <option value="{{ $abbr }}" @selected(old('state')===$abbr)>{{ $abbr }} — {{ $name }}</option>
+              @endforeach
+            </select>
+          </label>
+
+          <label class="ob-field">
+            <span class="ob-lab">Zip Code <em>*</em></span>
+            <input type="text" name="zip" value="{{ old('zip') }}" required maxlength="10" placeholder="12345" inputmode="numeric" autocomplete="postal-code" />
+          </label>
+        </div>
+      </fieldset>
+
+      <!-- Section 3 · Documents -->
+      <fieldset class="ob-section ob-section-secure">
+        <legend>
+          <span class="ob-section-num">03</span>
+          <span class="ob-section-ttl">Documents</span>
+          <span class="ob-section-pad">🔒 encrypted upload</span>
+        </legend>
+
+        <p class="ob-section-intro">Upload clear photos or PDFs. These go straight to our secure processing partner — they are never stored on this website.</p>
+
+        <div class="ob-grid">
+          <label class="ob-field ob-field-wide">
+            <span class="ob-lab">Driver's License <em>*</em></span>
+            <input type="file" name="drivers_license" id="ob-dl" class="ob-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required />
+            <span class="ob-help" data-help="drivers_license">PDF or image, up to 10 MB.</span>
+          </label>
+
+          <label class="ob-field ob-field-wide">
+            <span class="ob-lab">Social Security Card <span class="ob-opt">(optional)</span></span>
+            <input type="file" name="ssn_card" id="ob-ssncard" class="ob-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" />
+            <span class="ob-help" data-help="ssn_card">Providing this helps get stronger results on your file.</span>
+          </label>
+
+          <label class="ob-field ob-field-wide">
+            <span class="ob-lab">Proof of Address <em>*</em></span>
+            <input type="file" name="proof_of_address" id="ob-poa" class="ob-file-input" accept=".pdf,.jpg,.jpeg,.png,.webp" required />
+            <span class="ob-help" data-help="proof_of_address">Utility bill, bank statement, or lease — up to 10 MB.</span>
+          </label>
+        </div>
+      </fieldset>
+
+      <!-- Section 4 · Credit Monitoring -->
+      <fieldset class="ob-section">
+        <legend>
+          <span class="ob-section-num">04</span>
+          <span class="ob-section-ttl">Credit Monitoring</span>
+        </legend>
+
+        <p class="ob-section-intro">We use <strong>myfreescore</strong> to monitor your progress. Enroll first, then enter the login you just created below.</p>
+
+        <a href="https://app.myfreescorenow.com/enroll/B01C4681?s=MXxmYWxzZQ%3D%3D" target="_blank" rel="noopener" class="ob-enroll-btn">Get Credit Monitoring <span class="arr">→</span></a>
+
+        <div class="ob-grid">
+          <label class="ob-field">
+            <span class="ob-lab">Credit Monitoring Provider</span>
+            <input type="text" name="credit_monitoring_provider" value="myfreescore" readonly aria-readonly="true" class="ob-locked" tabindex="-1" />
+            <span class="ob-help">Locked — monitoring is done through myfreescore.</span>
+          </label>
+
+          <label class="ob-field">
+            <span class="ob-lab">Credit Monitoring Email <em>*</em></span>
+            <input type="email" name="credit_monitoring_email" id="ob-cm-email" value="{{ old('credit_monitoring_email') }}" required maxlength="255" placeholder="The email you enrolled with" autocomplete="off" />
+          </label>
+
+          <label class="ob-field">
+            <span class="ob-lab">Credit Monitoring Password <em>*</em></span>
+            <div class="ob-input-wrap">
+              <input type="password" name="credit_monitoring_password" id="ob-cm-pass" required maxlength="255" placeholder="Your myfreescore password" autocomplete="off" />
+              <button type="button" class="ob-ssn-toggle" id="ob-cm-toggle" aria-label="Show or hide password">
+                <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
+                  <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
+                </svg>
+              </button>
             </div>
-            <input type="hidden" name="birth_date" id="ob-birth-date" value="{{ old('birth_date') }}" />
-            <span class="ob-help" data-help="dob">You must be 18 or older to enroll.</span>
-          </div>
+          </label>
+
+          <label class="ob-field">
+            <span class="ob-lab">Security Question Answer <span class="ob-opt">(optional)</span></span>
+            <input type="text" name="credit_monitoring_security_answer" value="{{ old('credit_monitoring_security_answer') }}" maxlength="255" placeholder="If you set one" autocomplete="off" />
+          </label>
         </div>
       </fieldset>
 
       <div class="ob-submit-wrap">
         <button type="submit" class="ob-submit" id="ob-submit">
-          <span class="ob-submit-label">Submit &amp; activate my account</span>
+          <span class="ob-submit-label">Submit Securely</span>
           <span class="ob-submit-spinner" aria-hidden="true"></span>
           <span class="arr">→</span>
         </button>
+        <p class="ob-encrypted-note">🔒 Encrypted submission · Your documents are stored privately.</p>
         <p class="ob-submit-fine">By submitting, you agree to our <a href="{{ route('legal.privacy-policy') }}" target="_blank" rel="noopener">Privacy Policy</a>, <a href="{{ route('legal.terms-of-service') }}" target="_blank" rel="noopener">Terms of Service</a>, and <a href="{{ route('legal.disclaimer') }}" target="_blank" rel="noopener">Disclaimer</a>.</p>
       </div>
 
@@ -453,10 +553,11 @@
   const phoneEl     = document.getElementById('ob-phone');
   const ssnEl       = document.getElementById('ob-ssn');
   const ssnToggle   = document.getElementById('ob-ssn-toggle');
-  const dobMonth    = document.getElementById('ob-dob-month');
-  const dobDay      = document.getElementById('ob-dob-day');
-  const dobYear     = document.getElementById('ob-dob-year');
-  const dobHidden   = document.getElementById('ob-birth-date');
+  const dobEl       = document.getElementById('ob-dob');
+  const cmPassEl    = document.getElementById('ob-cm-pass');
+  const cmToggle    = document.getElementById('ob-cm-toggle');
+  const fileInputs  = [document.getElementById('ob-dl'), document.getElementById('ob-ssncard'), document.getElementById('ob-poa')].filter(Boolean);
+  const MAX_FILE_BYTES = 10 * 1024 * 1024; // 10 MB
 
   /* ===== Phone mask: (555) 555-5555 ===== */
   const formatPhone = (raw) => {
@@ -519,38 +620,60 @@
   // Initial render
   renderSsn();
 
-  /* ===== DOB three selects → mm/dd/yyyy ===== */
-  const daysInMonth = (m, y) => {
-    if (!m || !y) return 31;
-    return new Date(parseInt(y, 10), parseInt(m, 10), 0).getDate();
+  /* ===== DOB mask: mm/dd/yyyy ===== */
+  const formatDob = (raw) => {
+    let d = raw.replace(/\D+/g, '').slice(0, 8);
+    const mm = d.slice(0, 2);
+    const dd = d.slice(2, 4);
+    const yy = d.slice(4, 8);
+    let out = mm;
+    if (d.length >= 2) out = mm + '/' + dd;
+    if (d.length >= 4) out = mm + '/' + dd + '/' + yy;
+    return out;
   };
-  const refreshDayOptions = () => {
-    const max = daysInMonth(dobMonth.value, dobYear.value);
-    const cur = dobDay.value;
-    [...dobDay.options].forEach((opt, i) => {
-      if (i === 0) return;
-      opt.hidden = parseInt(opt.value, 10) > max;
+  const validateDob = (v) => {
+    const m = (v || '').match(/^(\d{2})\/(\d{2})\/(\d{4})$/);
+    if (!m) return false;
+    const mm = +m[1], dd = +m[2], yy = +m[3];
+    if (mm < 1 || mm > 12 || dd < 1 || dd > 31 || yy < 1900) return false;
+    const dt = new Date(yy, mm - 1, dd);
+    if (dt.getFullYear() !== yy || dt.getMonth() !== mm - 1 || dt.getDate() !== dd) return false;
+    return dt < new Date(); // must be in the past
+  };
+  if (dobEl) {
+    dobEl.addEventListener('input', () => {
+      dobEl.value = formatDob(dobEl.value);
+      setState(dobEl, validateDob(dobEl.value));
     });
-    if (parseInt(cur, 10) > max) dobDay.value = '';
-    syncDob();
-  };
-  const syncDob = () => {
-    if (dobMonth.value && dobDay.value && dobYear.value) {
-      dobHidden.value = `${dobMonth.value}/${dobDay.value}/${dobYear.value}`;
-    } else {
-      dobHidden.value = '';
-    }
-    setDobState();
-  };
-  const setDobState = () => {
-    const valid = !!dobHidden.value;
-    [dobMonth, dobDay, dobYear].forEach(el => {
-      el.classList.toggle('is-valid', !!el.value);
+    dobEl.addEventListener('blur', () => setState(dobEl, validateDob(dobEl.value)));
+  }
+
+  /* ===== Credit-monitoring password show/hide ===== */
+  if (cmPassEl && cmToggle) {
+    cmToggle.addEventListener('click', () => {
+      const show = cmPassEl.type === 'password';
+      cmPassEl.type = show ? 'text' : 'password';
+      cmToggle.classList.toggle('on', show);
+      cmPassEl.focus();
     });
-  };
-  [dobMonth, dobYear].forEach(s => s.addEventListener('change', refreshDayOptions));
-  dobDay.addEventListener('change', syncDob);
-  refreshDayOptions();
+  }
+
+  /* ===== File size guard (10 MB) ===== */
+  fileInputs.forEach(inp => {
+    inp.addEventListener('change', () => {
+      const f = inp.files && inp.files[0];
+      if (f && f.size > MAX_FILE_BYTES) {
+        inp.classList.add('is-invalid');
+        const help = inp.parentElement.querySelector('.ob-help');
+        if (help) { help.dataset.orig = help.dataset.orig || help.textContent; help.textContent = 'That file is over 10 MB — please choose a smaller file.'; help.classList.add('error'); }
+        inp.value = '';
+      } else {
+        inp.classList.remove('is-invalid');
+        const help = inp.parentElement.querySelector('.ob-help');
+        if (help && help.dataset.orig) { help.textContent = help.dataset.orig; help.classList.remove('error'); }
+      }
+    });
+  });
 
   /* ===== Set valid/invalid state visuals ===== */
   function setState(el, ok) {
@@ -561,25 +684,25 @@
   /* Initial validation pass (for old() values) */
   setState(emailEl, validateEmail(emailEl.value));
   setState(phoneEl, validatePhone(phoneEl.value));
+  if (dobEl && dobEl.value) setState(dobEl, validateDob(dobEl.value));
 
   /* ===== Submit: validate, push SSN raw, lock button ===== */
   form.addEventListener('submit', (e) => {
     // Push the raw SSN digits as the actual value
     ssnEl.value = ssnRaw;
 
-    // Force DOB sync one more time
-    syncDob();
-
-    // Native + custom checks
+    // Native + custom checks (required fields, incl. required file inputs)
     let firstInvalid = null;
     form.querySelectorAll('input[required], select[required]').forEach(el => {
-      const isOk = el.checkValidity()
-        && (el.id !== 'ob-email'   || validateEmail(el.value))
-        && (el.id !== 'ob-phone'   || validatePhone(el.value))
-        && (el.id !== 'ob-ssn'     || validateSsn());
+      let isOk = el.checkValidity()
+        && (el.id !== 'ob-email' || validateEmail(el.value))
+        && (el.id !== 'ob-phone' || validatePhone(el.value))
+        && (el.id !== 'ob-ssn'   || validateSsn())
+        && (el.id !== 'ob-dob'   || validateDob(el.value));
+      if (el.type === 'file') isOk = el.files && el.files.length > 0;
       if (!isOk && !firstInvalid) firstInvalid = el;
+      if (!isOk) el.classList.add('is-invalid');
     });
-    if (!dobHidden.value && !firstInvalid) firstInvalid = dobMonth;
 
     if (firstInvalid) {
       e.preventDefault();
