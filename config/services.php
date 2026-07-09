@@ -45,9 +45,9 @@ return [
         'agreement'   => env('CRC_AGREEMENT'),
     ],
 
-    'calendly' => [
-        // Full URL to the Calendly event type, e.g. https://calendly.com/yourname/15min
-        'url' => env('CALENDLY_URL', 'https://calendly.com/your-handle/15min'),
+    'booking' => [
+        // LeadConnector (GoHighLevel) booking widget URL for the free strategy call.
+        'url' => env('BOOKING_URL', 'https://api.leadconnectorhq.com/widget/booking/cpNjALPPHd29F4FQS6AY'),
     ],
 
     'authorize_net' => [

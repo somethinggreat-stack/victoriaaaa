@@ -9,7 +9,8 @@
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="dns-prefetch" href="https://assets.calendly.com">
+<link rel="dns-prefetch" href="https://api.leadconnectorhq.com">
+<link rel="dns-prefetch" href="https://link.msgsndr.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="{{ asset('images/companylogo.png') }}">
 
@@ -156,13 +157,15 @@ a { color: inherit; text-decoration: none; }
       </div>
 
       <div class="sc-cal-card">
-        <div class="calendly-inline-widget"
-             data-url="{{ $calendlyUrl }}?hide_event_type_details=0&hide_gdpr_banner=1"
-             style="min-width:320px;height:720px;"></div>
+        <iframe src="{{ $bookingUrl }}"
+                title="Book your free 15-minute strategy call"
+                style="width:100%;min-width:320px;height:720px;border:none;overflow:hidden;"
+                scrolling="no"
+                id="booking-widget"></iframe>
       </div>
 
       <p class="sc-cal-foot">
-        Calendar not loading? <a href="{{ $calendlyUrl }}" target="_blank" rel="noopener">Open it in a new tab →</a>
+        Calendar not loading? <a href="{{ $bookingUrl }}" target="_blank" rel="noopener">Open it in a new tab →</a>
       </p>
 
     </div>
@@ -170,6 +173,6 @@ a { color: inherit; text-decoration: none; }
 
 </div>
 
-<script src="https://assets.calendly.com/assets/external/widget.js" async></script>
+<script src="https://link.msgsndr.com/js/form_embed.js" async></script>
 </body>
 </html>
