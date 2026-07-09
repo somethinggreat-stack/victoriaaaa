@@ -113,18 +113,20 @@ class StrategyCallController extends Controller
             Log::error('Strategy call mail failed', ['error' => $e->getMessage()]);
         }
 
-        $calendlyUrl = (string) config('services.calendly.url');
-        $isConfigured = $calendlyUrl !== ''
-            && $calendlyUrl !== 'https://calendly.com/your-handle/15min'
-            && filter_var($calendlyUrl, FILTER_VALIDATE_URL);
+        $bookingUrl   = (string) config('services.booking.url');
+        $isConfigured = $bookingUrl !== '' && filter_var($bookingUrl, FILTER_VALIDATE_URL);
 
         if ($isConfigured) {
-            $url = $calendlyUrl
-                . (str_contains($calendlyUrl, '?') ? '&' : '?')
+            // LeadConnector prefills from first_name / last_name / email / phone.
+            $nameParts = preg_split('/\s+/', trim($row->name), 2);
+
+            $url = $bookingUrl
+                . (str_contains($bookingUrl, '?') ? '&' : '?')
                 . http_build_query([
-                    'name'          => $row->name,
-                    'email'         => $row->email,
-                    'a1'            => $row->phone,
+                    'first_name' => $nameParts[0] ?? $row->name,
+                    'last_name'  => $nameParts[1] ?? '',
+                    'email'      => $row->email,
+                    'phone'      => $row->phone,
                 ]);
             return redirect()->away($url);
         }
@@ -141,8 +143,8 @@ class StrategyCallController extends Controller
             return redirect()->route('strategy-call.show');
         }
         return view('strategy-call-booked', [
-            'leadName'    => $request->session()->get('lead_name', ''),
-            'calendlyUrl' => config('services.calendly.url'),
+            'leadName'   => $request->session()->get('lead_name', ''),
+            'bookingUrl' => config('services.booking.url'),
         ]);
     }
 }

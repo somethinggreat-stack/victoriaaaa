@@ -213,7 +213,7 @@ Route::post('/mentorship-agreement', [PaymentAgreementController::class, 'sign']
 Route::get('/onboarding',  [OnboardingController::class, 'show'])->name('onboarding.show');
 Route::post('/onboarding', [OnboardingController::class, 'submit'])->name('onboarding.submit');
 
-// Contact form + Calendly booking page
+// Contact form + booking page
 Route::get('/contact',  [ContactController::class, 'show'])->name('contact.show');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
 

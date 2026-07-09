@@ -10,7 +10,7 @@
 <div class="admin-header">
   <div>
     <h1>Strategy call requests</h1>
-    <div class="sub">{{ $rows->total() }} total · qualified before they reach the Calendly booking page</div>
+    <div class="sub">{{ $rows->total() }} total · qualified before they reach the booking page</div>
   </div>
 </div>
 

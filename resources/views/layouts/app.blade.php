@@ -14,7 +14,7 @@
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
 <link rel="dns-prefetch" href="https://fonts.googleapis.com">
 <link rel="dns-prefetch" href="https://fonts.gstatic.com">
-<link rel="dns-prefetch" href="https://assets.calendly.com">
+<link rel="dns-prefetch" href="https://api.leadconnectorhq.com">
 
 {{-- Drop unused Manrope weights (only 400/500/600/700 are actually used) --}}
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap">
@@ -2339,7 +2339,7 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
   .fund-next, .fund-submit { padding: 12px 20px; font-size: 13.5px; }
 }
 
-/* ===== CONTACT PAGE — form + Calendly ===== */
+/* ===== CONTACT PAGE — form + booking calendar ===== */
 .ct-hero {
   padding: 140px 0 30px;
   position: relative;
@@ -2415,7 +2415,6 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
 .ct-form-card .ct-form { flex: 1; display: flex; flex-direction: column; }
 .ct-form-card .ct-submit { margin-top: auto; }
 .ct-cal-card .ct-cal-embed { flex: 1; min-height: 700px; display: flex; }
-.ct-cal-card .ct-cal-embed > .calendly-inline-widget,
 .ct-cal-card .ct-cal-embed > iframe { flex: 1; width: 100%; }
 
 /* Portrait card paired with the form */
