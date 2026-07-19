@@ -461,12 +461,27 @@ class AcceptJsPaymentController extends Controller
             // Fire Meta CAPI (no-op if not configured)
             $this->fireMetaCapi($invoiceNumber, $transId, $amount, $validated, $request->ip(), $request->userAgent());
 
+            // ────────── Where the buyer lands next ──────────
+            // Mentorship buyers get the mentorship welcome page (Skool / Zoom /
+            // Telegram). Credit-repair buyers get the client intake form — they
+            // must never be sent to each other's flow.
+            if (in_array($planKey, MentorshipWelcomeController::MENTORSHIP_PLANS, true)) {
+                session([
+                    'mentorship_purchase_success' => true,
+                    'mentorship_first_name'       => $validated['first_name'],
+                    'mentorship_plan_label'       => $planLabel,
+                ]);
+                $redirectUrl = route('mentorship.welcome');
+            } else {
+                $redirectUrl = url('/onboarding');
+            }
+
             return response()->json([
                 'success'     => true,
                 'message'     => 'Payment successful.',
                 'invoice'     => $invoiceNumber,
                 'transaction' => $transId,
-                'redirect'    => url('/onboarding'),
+                'redirect'    => $redirectUrl,
             ]);
 
         } catch (\Throwable $e) {
