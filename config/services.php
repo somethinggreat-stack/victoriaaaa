@@ -77,4 +77,22 @@ return [
         'key'     => env('APEX_API_KEY'),
     ],
 
+    // "Become Your Own Boss" mentorship — everything a new mentee needs after
+    // paying. Shown on the gated mentorship welcome page.
+    'mentorship' => [
+        'skool_url'    => env('MENTORSHIP_SKOOL_URL', 'https://www.skool.com/become-your-own-boss-1571/about?ref=9202b99c9e5a4a6f9a4d7fd72ff32c21'),
+        'telegram_url' => env('MENTORSHIP_TELEGRAM_URL', 'https://t.me/+lRbocZA65Ow1MmRh'),
+
+        'zoom_join_url'  => env('MENTORSHIP_ZOOM_URL', 'https://us06web.zoom.us/j/88052356202?pwd=95hpbfXl2KlnDEFARzy95TjGR06mxL.1'),
+        'zoom_ics_url'   => env('MENTORSHIP_ZOOM_ICS', 'https://us06web.zoom.us/meeting/tZwtcuurqz0oGtYq6GVAE5vfwiEAcK3Sv5CU/ics?icsToken=DLOpeqImPEaC_I14sAAALAAAANUg_7SeaWWARBqWV5zrUdvuBS7rAfd1u4a_4j1Ooc4PJAqo7xDw8MO7NqqTReB4EPpXlCTPHwVcHp803TAwMDAwMQ&meetingMasterEventId=iowJ5Tp4Q8WAtMJp56ENZQ'),
+        'zoom_meeting_id' => env('MENTORSHIP_ZOOM_ID', '880 5235 6202'),
+        'zoom_passcode'   => env('MENTORSHIP_ZOOM_PASSCODE', '578899'),
+        'zoom_schedule'   => env('MENTORSHIP_ZOOM_SCHEDULE', 'Every Monday · 7:30 PM Central'),
+        'zoom_dial_in'    => env('MENTORSHIP_ZOOM_DIAL_IN', '+1 346 248 7799'),
+
+        // Private link Victoria can send manually (bypasses the payment gate).
+        // Anyone with this token can view the welcome page — keep it unlisted.
+        'welcome_token' => env('MENTORSHIP_WELCOME_TOKEN', 'byob-w7k4qp92xm'),
+    ],
+
 ];

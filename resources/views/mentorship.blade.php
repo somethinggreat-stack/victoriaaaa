@@ -23,7 +23,7 @@
         </div>
 
         <div class="svc-hero-stats">
-          <div class="stt"><strong>$997</strong><span>One-time · was $2,497</span></div>
+          <div class="stt"><strong>$1,697</strong><span>Pay in full · or $2,000 on a plan</span></div>
           <div class="stt"><strong>1:1</strong><span>Weekly calls with Victoria</span></div>
           <div class="stt"><strong>Limited</strong><span>Spots open each quarter</span></div>
         </div>
@@ -31,12 +31,12 @@
 
       <div class="svc-hero-img reveal reveal-d2">
         <span class="tag">Apply · Plan · Launch</span>
-        <img src="{{ asset('images/founderimage5.jpeg') }}" alt="Victoria Love · 1:1 mentor" width="520" height="650" fetchpriority="high" decoding="async" />
+        <img src="{{ asset('images/mentorshiponbaording.jpeg') }}" alt="Victoria Puente · 1:1 mentor" width="520" height="650" fetchpriority="high" decoding="async" />
         <div class="fly-card">
           <div class="icn">★</div>
           <div>
-            <div class="lab">Save $1,500</div>
-            <div class="val">$2,497 → $997</div>
+            <div class="lab">Save $303</div>
+            <div class="val">Pay in full · $1,697</div>
           </div>
         </div>
       </div>
@@ -112,7 +112,7 @@
         <div class="fund-step" data-step="4">
           <span class="fund-step-tag">Step 4 · Investment</span>
           <h3>Are you ready to invest in mentorship?</h3>
-          <p class="fund-step-sub">The mentorship is currently <strong>$997</strong> (down from $2,497).</p>
+          <p class="fund-step-sub">The mentorship is <strong>$2,000</strong> — or <strong>$1,697</strong> if you pay in full.</p>
           <div class="fund-options">
             <label><input type="radio" name="investment" value="Yes — ready to invest"      required><span><span class="opt-letter">A</span><span>Yes — ready to invest in myself</span></span></label>
             <label><input type="radio" name="investment" value="Ready, need a payment plan"        ><span><span class="opt-letter">B</span><span>Ready, but I need a payment plan</span></span></label>
@@ -435,7 +435,7 @@
         <div class="faq-item"><div class="faq-q">Do I need experience in credit repair? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">No. I'll teach you the whole game — disputes, software, sales, pricing — starting from zero. If you already have a few clients, we'll accelerate.</div></div></div>
         <div class="faq-item"><div class="faq-q">How long is the mentorship? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">The active 1:1 phase is roughly 90 days. After that you keep <strong>lifetime access</strong> to the SOPs, scripts, community, and updates — so the program grows with you.</div></div></div>
         <div class="faq-item"><div class="faq-q">How much time does it take? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">Plan on 5–7 hours a week. Most mentees do it nights and weekends while they're still working a 9–5, then transition out as the business takes over their income.</div></div></div>
-        <div class="faq-item"><div class="faq-q">What's the actual investment? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">$997 one-time, down from $2,497. Limited spots open each quarter so I can give every mentee the attention they signed up for.</div></div></div>
+        <div class="faq-item"><div class="faq-q">What's the actual investment? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">$2,000 total. You can split it — $500 today then 3 × $500, or $500 today then 5 × $300 — or pay in full for $1,697 and save $303. Limited spots open each quarter so I can give every mentee the attention they signed up for.</div></div></div>
         <div class="faq-item"><div class="faq-q">Is there a guarantee? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">I can't legally guarantee an income number — that depends on you. What I <em>can</em> guarantee: I'll show up to every call, hand you every tool I use, and keep the door open for as long as you stay in the program.</div></div></div>
       </div>
     </div>

@@ -12,6 +12,7 @@ use App\Http\Controllers\EbookCheckoutController;
 use App\Http\Controllers\FundingController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MentorshipController;
+use App\Http\Controllers\MentorshipWelcomeController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PaymentAgreementController;
 use App\Http\Controllers\ReviewerPreviewController;
@@ -53,6 +54,11 @@ Route::get('/mentorship-agreement/{plan}', [PaymentAgreementController::class, '
     ->name('mentorship-agreement.show');
 Route::post('/mentorship-agreement', [PaymentAgreementController::class, 'sign'])
     ->name('mentorship-agreement.sign');
+
+// Mentorship welcome page — shown right after a mentorship purchase.
+// Also reachable via Victoria's private token link (see services.mentorship.welcome_token).
+Route::get('/mentorship-welcome/{token?}', [MentorshipWelcomeController::class, 'show'])
+    ->name('mentorship.welcome');
 
 // Post-payment onboarding form — submits new clients to Credit Repair Cloud
 Route::get('/onboarding',  [OnboardingController::class, 'show'])->name('onboarding.show');

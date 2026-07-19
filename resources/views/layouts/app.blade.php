@@ -16,6 +16,9 @@
 <link rel="dns-prefetch" href="https://fonts.gstatic.com">
 <link rel="dns-prefetch" href="https://api.leadconnectorhq.com">
 
+{{-- Per-page <head> additions (e.g. noindex on gated pages) --}}
+@yield('head_extra')
+
 {{-- Drop unused Manrope weights (only 400/500/600/700 are actually used) --}}
 <link rel="preload" as="style" href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet" media="all">
