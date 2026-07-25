@@ -59,6 +59,27 @@ class CustomCheckoutController extends Controller
                 ['label' => 'Today', 'amount' => '$1,500.00', 'note' => 'Charged now · one-time'],
             ],
         ],
+
+        // Link 3 — Credit Repair $497 split in half: $248.50 today, then the
+        // remaining $248.50 auto-charged two weeks later on Aug 8, 2026.
+        'vlc-cr497-8x2p' => [
+            'amount'      => '248.50',
+            'label'       => 'Credit Repair — Split Payment',
+            'tagline'     => '$248.50 today, then $248.50 on Aug 8, 2026 (total $497).',
+            'recurring'   => [
+                'amount'          => '248.50',
+                'interval_length' => 14,
+                'interval_unit'   => 'days',
+                'start_date'      => '2026-08-08',
+                'occurrences'     => 1,
+                'next_billing'    => '2026-08-08',
+            ],
+            'total'       => '497.00',
+            'schedule'    => [
+                ['label' => 'Today',           'amount' => '$248.50', 'note' => 'Charged now'],
+                ['label' => 'August 8, 2026',  'amount' => '$248.50', 'note' => 'Auto-charged to the same card'],
+            ],
+        ],
     ];
 
     public function show(string $token)
