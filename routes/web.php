@@ -244,7 +244,7 @@ Route::post('/checkout/process', [AcceptJsPaymentController::class, 'processPaym
 // ============ TEMPORARY one-off private payment links (NOT linked anywhere) ============
 // Reached only by their obscure token URL; remove these once the clients have paid.
 Route::get('/secure-pay/{token}', [CustomCheckoutController::class, 'show'])
-    ->where('token', 'vlc-7k3p9q2x|vlc-4m8t6w1z')
+    ->where('token', 'vlc-7k3p9q2x|vlc-4m8t6w1z|vlc-cr497-8x2p')
     ->name('custom-pay.show');
 Route::post('/secure-pay/process', [CustomCheckoutController::class, 'process'])
     ->name('custom-pay.process');
