@@ -388,6 +388,31 @@ CREATE TABLE IF NOT EXISTS `ebook_orders` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────────────────────
+-- payment_links — admin-generated one-time payment links (client name + amount).
+-- Victoria creates these in /victoria-admin/payment-links and sends /pay/{token}.
+-- (matches database/migrations/2026_07_25_000000_create_payment_links_table.php)
+-- ────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `payment_links` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `token` VARCHAR(64) NOT NULL,
+  `client_name` VARCHAR(150) NOT NULL,
+  `email` VARCHAR(150) NULL DEFAULT NULL,
+  `amount` DECIMAL(10,2) NOT NULL,
+  `note` VARCHAR(255) NULL DEFAULT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'unpaid',
+  `invoice_number` VARCHAR(64) NULL DEFAULT NULL,
+  `transaction_id` VARCHAR(64) NULL DEFAULT NULL,
+  `auth_code` VARCHAR(32) NULL DEFAULT NULL,
+  `payer_email` VARCHAR(150) NULL DEFAULT NULL,
+  `paid_at` TIMESTAMP NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  UNIQUE KEY `payment_links_token_unique` (`token`),
+  KEY `payment_links_status_index` (`status`),
+  KEY `payment_links_created_at_index` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ────────────────────────────────────────────────────────────────────────────
 -- Seed: 4 starter eBooks (matches database/migrations/2026_05_14_120000_*.php)
 -- ────────────────────────────────────────────────────────────────────────────
 

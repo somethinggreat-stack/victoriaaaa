@@ -13,7 +13,9 @@ use App\Http\Controllers\FundingController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MentorshipController;
 use App\Http\Controllers\MentorshipWelcomeController;
+use App\Http\Controllers\Admin\PaymentLinksController;
 use App\Http\Controllers\OnboardingController;
+use App\Http\Controllers\PayController;
 use App\Http\Controllers\PaymentAgreementController;
 use App\Http\Controllers\ReviewerPreviewController;
 use App\Http\Controllers\StrategyCallController;
@@ -86,6 +88,14 @@ Route::get('/checkout/{plan?}', [AcceptJsPaymentController::class, 'showCheckout
 Route::post('/checkout/process', [AcceptJsPaymentController::class, 'processPayment'])
     ->name('checkout.process');
 
+// ============ ADMIN-GENERATED ONE-TIME PAYMENT LINKS ============
+// Victoria creates these in the dashboard; the client pays here. Payment-only —
+// no onboarding handoff. Tokens are "pl_"-prefixed so nothing else collides.
+Route::get('/pay/{token}', [PayController::class, 'show'])
+    ->where('token', 'pl_[A-Za-z0-9]{10,60}')
+    ->name('pay.show');
+Route::post('/pay/process', [PayController::class, 'process'])->name('pay.process');
+
 // ============ TEMPORARY one-off private payment links (NOT linked anywhere) ============
 // Reached only by their obscure token URL; remove these once the clients have paid.
 Route::get('/secure-pay/{token}', [CustomCheckoutController::class, 'show'])
@@ -137,6 +147,11 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
         Route::get('/onboarding', [DashboardController::class, 'onboarding'])->name('onboarding');
         Route::get('/onboarding/{onboarding}', [DashboardController::class, 'onboardingShow'])->name('onboarding.show');
         Route::patch('/onboarding/{onboarding}/status', [DashboardController::class, 'onboardingStatus'])->name('onboarding.status');
+
+        // ─── One-time payment links (create + track) ───
+        Route::get('/payment-links',                   [PaymentLinksController::class, 'index'])->name('payment-links');
+        Route::post('/payment-links',                  [PaymentLinksController::class, 'store'])->name('payment-links.store');
+        Route::patch('/payment-links/{paymentLink}/void', [PaymentLinksController::class, 'void'])->name('payment-links.void');
 
         // ─── Payments / subscriptions / webhooks ───
         Route::get('/subscriptions',                [PaymentsController::class, 'subscriptions'])->name('subscriptions');

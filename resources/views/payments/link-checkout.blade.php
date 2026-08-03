@@ -260,7 +260,7 @@
     fd.set('cardCode', cardCvcEl.value.trim());
     ['agree_terms','agree_privacy'].forEach(n => { const el=form.querySelector(`input[name="${n}"]`); if(el && !el.checked) fd.set(n,'0'); });
 
-    fetch('{{ route('custom-pay.process') }}', {
+    fetch('{{ $processRoute ?? route('custom-pay.process') }}', {
       method:'POST',
       headers:{ 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'X-Requested-With':'XMLHttpRequest', 'Accept':'application/json' },
       body: fd,
