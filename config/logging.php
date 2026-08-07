@@ -118,6 +118,16 @@ return [
             'replace_placeholders' => true,
         ],
 
+        // Every Apex intake forward (success + failure) is logged here so a
+        // failed submission can be diagnosed from one file: storage/logs/apex-*.log
+        'apex' => [
+            'driver' => 'daily',
+            'path' => storage_path('logs/apex.log'),
+            'level' => 'debug',
+            'days' => 30,
+            'replace_placeholders' => true,
+        ],
+
         'null' => [
             'driver' => 'monolog',
             'handler' => NullHandler::class,
