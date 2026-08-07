@@ -69,37 +69,45 @@ class ApexClient
             $url = str_replace('/api/intake', '/partner-intake', $url);
         }
 
-        // A real User-Agent is required — the default Guzzle UA gets bot-blocked
-        // at Cloudflare's edge (403).
-        // Short timeouts: a reachable Apex answers in ~1s. A long hang means the
-        // server's outbound call is being dropped/held (e.g. Cloudflare blocking
-        // the server IP) — fail fast and queue for retry instead of making the
-        // client wait a full minute.
-        $http = Http::connectTimeout(10)->timeout(20)->withHeaders([
-            'X-Intake-Key' => $key,
-            'User-Agent'   => 'VictoriaFunnel/1.0 (+https://victorialovecredit.com)',
-            'Accept'       => 'application/json',
+        // Browser-like headers. A custom/library User-Agent (Guzzle, or our own
+        // "VictoriaFunnel/1.0") trips the origin's mod_security → 406 Not
+        // Acceptable. Look like an ordinary browser XHR instead.
+        $http = Http::connectTimeout(10)->timeout(30)->withHeaders([
+            'X-Intake-Key'    => $key,
+            'User-Agent'      => 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/125.0.0.0 Safari/537.36',
+            'Accept'          => 'application/json, text/plain, */*',
+            'Accept-Language' => 'en-US,en;q=0.9',
         ]);
 
-        foreach ($files as $name => $file) {
+        // Send documents as base64 inside a JSON body — NOT multipart/form-data.
+        // The origin WAF (cPanel mod_security) returns 406 on the multipart file
+        // upload; the Apex API accepts <field>_base64 (+ optional <field>_filename)
+        // and decodes them server-side.
+        $payload = $fields;
+        foreach ($files as $apexName => $file) {
             if (! empty($file['stream'])) {
-                $http = $http->attach($name, $file['stream'], $file['filename'] ?? $name);
+                $contents = stream_get_contents($file['stream']);
+                if ($contents !== false && $contents !== '') {
+                    $payload[$apexName . '_base64']   = base64_encode($contents);
+                    $payload[$apexName . '_filename'] = $file['filename'] ?? ($apexName . '.dat');
+                }
             }
         }
 
-        // Log context — field NAMES only (never SSN/password values).
+        // Log context — field NAMES only (never SSN / password / base64 values).
         $ctx = [
-            'url'           => $url,
-            'client'        => ($fields['first_name'] ?? '') . ' ' . ($fields['last_name'] ?? ''),
-            'email'         => $fields['email'] ?? null,
-            'fields_sent'   => array_keys($fields),
-            'files_sent'    => array_keys(array_filter($files, fn ($f) => ! empty($f['stream']))),
-            'key_present'   => $key !== '',
-            'key_last4'     => $key !== '' ? substr($key, -4) : null,
+            'url'         => $url,
+            'client'      => ($fields['first_name'] ?? '') . ' ' . ($fields['last_name'] ?? ''),
+            'email'       => $fields['email'] ?? null,
+            'fields_sent' => array_keys($fields),
+            'docs_sent'   => array_keys(array_filter($files, fn ($f) => ! empty($f['stream']))),
+            'transport'   => 'json+base64',
+            'key_present' => $key !== '',
+            'key_last4'   => $key !== '' ? substr($key, -4) : null,
         ];
 
         try {
-            $response = $http->post($url, $fields);
+            $response = $http->asJson()->post($url, $payload);
         } catch (\Throwable $e) {
             $this->log('error', 'Apex forward EXCEPTION', $ctx + ['error' => $e->getMessage()]);
             return ['ok' => false, 'status' => 0, 'message' => 'Network error contacting Apex.', 'errors' => [], 'raw' => ''];
