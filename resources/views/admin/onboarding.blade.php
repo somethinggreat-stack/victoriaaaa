@@ -28,7 +28,7 @@
   <div class="adm-table-wrap"><table class="adm-table">
     <thead>
       <tr>
-        <th>Client</th><th>Contact</th><th>Location</th><th>SSN</th><th>DOB</th><th>Apex</th><th>Status</th><th>Submitted</th><th></th>
+        <th>Client</th><th>Contact</th><th>Location</th><th>SSN</th><th>DOB</th><th>Status</th><th>Submitted</th><th></th>
       </tr>
     </thead>
     <tbody>
@@ -45,7 +45,6 @@
           <td>{{ $r->city ?: '—' }}@if($r->state), {{ $r->state }}@endif</td>
           <td><code>{{ $r->masked_ssn }}</code></td>
           <td>{{ optional($r->birth_date)->format('M j, Y') }}</td>
-          <td><span class="badge {{ $r->crc_status }}">{{ $r->crc_status }}</span></td>
           <td>
             <form class="status-form" method="POST" action="{{ route('admin.onboarding.status', $r) }}">
               @csrf @method('PATCH')

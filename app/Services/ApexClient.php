@@ -83,10 +83,21 @@ class ApexClient
             }
         }
 
+        // Log context — field NAMES only (never SSN/password values).
+        $ctx = [
+            'url'           => $url,
+            'client'        => ($fields['first_name'] ?? '') . ' ' . ($fields['last_name'] ?? ''),
+            'email'         => $fields['email'] ?? null,
+            'fields_sent'   => array_keys($fields),
+            'files_sent'    => array_keys(array_filter($files, fn ($f) => ! empty($f['stream']))),
+            'key_present'   => $key !== '',
+            'key_last4'     => $key !== '' ? substr($key, -4) : null,
+        ];
+
         try {
             $response = $http->post($url, $fields);
         } catch (\Throwable $e) {
-            Log::error('[Apex] request threw', ['error' => $e->getMessage()]);
+            $this->log('error', 'Apex forward EXCEPTION', $ctx + ['error' => $e->getMessage()]);
             return ['ok' => false, 'status' => 0, 'message' => 'Network error contacting Apex.', 'errors' => [], 'raw' => ''];
         }
 
@@ -94,9 +105,16 @@ class ApexClient
         $body   = $response->json() ?? [];
         $raw    = $response->body();
 
+        $ctx += ['http_status' => $status, 'response_body' => mb_substr((string) $raw, 0, 3000)];
+
         if ($status === 201 && ($body['ok'] ?? false)) {
+            $this->log('info', 'Apex forward OK', $ctx + ['apex_id' => $body['id'] ?? null]);
             return ['ok' => true, 'status' => 201, 'id' => $body['id'] ?? null, 'errors' => [], 'raw' => $raw];
         }
+
+        // Any non-success → detailed error log so it can be diagnosed from apex.log.
+        $this->log('error', 'Apex forward FAILED (HTTP ' . $status . ')', $ctx);
+
         if ($status === 401) {
             return ['ok' => false, 'status' => 401, 'message' => $body['message'] ?? 'Invalid or missing intake key.', 'errors' => [], 'raw' => $raw];
         }
@@ -105,5 +123,15 @@ class ApexClient
         }
 
         return ['ok' => false, 'status' => $status, 'message' => $body['message'] ?? ('Unexpected Apex response (HTTP ' . $status . ').'), 'errors' => [], 'raw' => $raw];
+    }
+
+    /** Log to the dedicated apex channel, falling back to the default log. */
+    private function log(string $level, string $message, array $context): void
+    {
+        try {
+            Log::channel('apex')->{$level}($message, $context);
+        } catch (\Throwable $e) {
+            Log::{$level}($message, $context);
+        }
     }
 }
