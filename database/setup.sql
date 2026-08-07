@@ -413,6 +413,32 @@ CREATE TABLE IF NOT EXISTS `payment_links` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────────────────────
+-- apex_retry_jobs — a completed onboarding whose Apex forward failed. Stores the
+-- payload (encrypted) + document paths so the admin can re-post it to Apex.
+-- (matches database/migrations/2026_08_08_000000_create_apex_retry_jobs_table.php)
+-- ────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `apex_retry_jobs` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `onboarding_submission_id` BIGINT UNSIGNED NULL DEFAULT NULL,
+  `client_name` VARCHAR(200) NULL DEFAULT NULL,
+  `email` VARCHAR(150) NULL DEFAULT NULL,
+  `payload_encrypted` TEXT NOT NULL,
+  `drivers_license_path` VARCHAR(255) NULL DEFAULT NULL,
+  `proof_of_address_path` VARCHAR(255) NULL DEFAULT NULL,
+  `ssn_card_path` VARCHAR(255) NULL DEFAULT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'pending',
+  `attempts` INT UNSIGNED NOT NULL DEFAULT 0,
+  `last_error` TEXT NULL DEFAULT NULL,
+  `last_attempt_at` TIMESTAMP NULL DEFAULT NULL,
+  `succeeded_at` TIMESTAMP NULL DEFAULT NULL,
+  `apex_id` VARCHAR(64) NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  KEY `apex_retry_jobs_status_index` (`status`),
+  KEY `apex_retry_jobs_created_at_index` (`created_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- ────────────────────────────────────────────────────────────────────────────
 -- Seed: 4 starter eBooks (matches database/migrations/2026_05_14_120000_*.php)
 -- ────────────────────────────────────────────────────────────────────────────
 
