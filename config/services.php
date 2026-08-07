@@ -73,7 +73,9 @@ return [
     // forwarded here (multipart/form-data) so the client lands in Apex "New Clients".
     'apex' => [
         'enabled' => filter_var(env('APEX_ENABLED', false), FILTER_VALIDATE_BOOLEAN),
-        'url'     => env('APEX_API_URL', 'https://apexgrowthsolution.com/api/intake'),
+        // Use /partner-intake, NOT /api/intake — the /api/* path is blocked by
+        // Cloudflare/WAF for server-to-server callers (403/406). Identical handler.
+        'url'     => env('APEX_API_URL', 'https://apexgrowthsolution.com/partner-intake'),
         'key'     => env('APEX_API_KEY'),
     ],
 

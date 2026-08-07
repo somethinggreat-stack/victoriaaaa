@@ -28,7 +28,7 @@
   <div class="adm-table-wrap"><table class="adm-table">
     <thead>
       <tr>
-        <th>Client</th><th>Contact</th><th>Location</th><th>SSN</th><th>DOB</th><th>CRC</th><th>Status</th><th>Submitted</th><th></th>
+        <th>Client</th><th>Contact</th><th>Location</th><th>SSN</th><th>DOB</th><th>Apex</th><th>Status</th><th>Submitted</th><th></th>
       </tr>
     </thead>
     <tbody>
