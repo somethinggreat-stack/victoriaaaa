@@ -4,10 +4,15 @@ namespace App\Http\Controllers;
 
 use App\Concerns\SavesToGoogleSheet;
 use App\Concerns\SendsToGoHighLevel;
+use App\Models\ApexRetryJob;
 use App\Models\OnboardingSubmission;
+use App\Services\ApexClient;
 use Illuminate\Http\Request;
+use Illuminate\Support\Arr;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
+use Illuminate\Support\Str;
 
 class OnboardingController extends Controller
 {
@@ -171,6 +176,10 @@ class OnboardingController extends Controller
             return $this->successRedirect($validated['firstname']);
         }
 
+        // Forward failed → save the payload + documents so the admin can retry it
+        // later (nothing is ever lost to a WAF/network blip again).
+        $this->storeApexRetryJob($validated, $dob, $request, $submission, $result);
+
         // 422 → surface the exact fields Apex rejected, mapped back to form names.
         if (($result['status'] ?? 0) === 422 && ! empty($result['errors'])) {
             Log::warning('Apex intake validation failed', ['errors' => $result['errors']]);
@@ -193,89 +202,65 @@ class OnboardingController extends Controller
     }
 
     /**
-     * POST the submission to the Apex intake API as multipart/form-data.
-     * Returns ['ok'=>bool, 'status'=>int, 'id'=>?int, 'errors'=>array, 'message'=>?string, 'raw'=>string].
+     * POST the submission to the Apex intake API (via the shared ApexClient),
+     * streaming the uploaded documents from the current request.
      */
     private function forwardToApex(array $v, string $dob, Request $request): array
     {
-        $url = config('services.apex.url');
-        $key = config('services.apex.key');
+        $apex   = app(ApexClient::class);
+        $fields = $apex->buildFields($v, $dob);
 
-        if (empty($key)) {
-            return ['ok' => false, 'status' => 0, 'message' => 'Apex intake key not configured.', 'errors' => []];
+        $files = [];
+        foreach (['drivers_license', 'proof_of_address', 'ssn_card'] as $name) {
+            if ($request->hasFile($name)) {
+                $f = $request->file($name);
+                $files[$name] = ['stream' => fopen($f->getRealPath(), 'r'), 'filename' => $f->getClientOriginalName()];
+            }
         }
 
-        // The /api/* path is blocked by Cloudflare/WAF for server-to-server callers
-        // (403/406) before it reaches Apex's PHP. /partner-intake is the identical
-        // handler that bypasses it. Rewrite defensively in case a stale APEX_API_URL
-        // still points at /api/intake.
-        if (str_contains($url, '/api/intake')) {
-            $url = str_replace('/api/intake', '/partner-intake', $url);
-        }
+        return $apex->post($fields, $files);
+    }
 
-        // Text fields (map funnel → Apex names). credit_monitoring_name is locked
-        // to "myfreescore"; the CM login email is sent as credit_monitoring_username.
-        $fields = [
-            'first_name'                 => $v['firstname'],
-            'last_name'                  => $v['lastname'],
-            'email'                      => $v['email'],
-            'ssn'                        => $v['ssn'],
-            'date_of_birth'              => $dob,                                   // YYYY-MM-DD
-            'current_address'            => $v['street_address'],
-            'city'                       => $v['city'],
-            'state'                      => $v['state'],
-            'zipcode'                    => substr(preg_replace('/\D+/', '', $v['zip']), 0, 5),
-            'phone'                      => '+1' . $v['phone'],
-            'credit_monitoring_name'     => 'myfreescore',
-            'credit_monitoring_username' => $v['credit_monitoring_email'],
-            'credit_monitoring_password' => $v['credit_monitoring_password'],
-        ];
-
-        if (! empty($v['middlename']))                            $fields['middle_name'] = $v['middlename'];
-        if (! empty($v['suffix']) && $v['suffix'] !== 'None')     $fields['suffix'] = $v['suffix'];
-        if (! empty($v['address_line2']))                         $fields['address_line2'] = $v['address_line2'];
-        if (! empty($v['credit_monitoring_security_answer']))     $fields['credit_monitoring_security_answer'] = $v['credit_monitoring_security_answer'];
-
-        // A real User-Agent is required — the default Guzzle UA gets bot-blocked
-        // at Cloudflare's edge (403). Accept JSON so errors come back as JSON.
-        $http = Http::timeout(60)->withHeaders([
-            'X-Intake-Key' => $key,
-            'User-Agent'   => 'VictoriaFunnel/1.0 (+https://victorialovecredit.com)',
-            'Accept'       => 'application/json',
-        ]);
-
-        // Required files + optional SSN card. Attaching makes the request multipart.
-        $dl  = $request->file('drivers_license');
-        $poa = $request->file('proof_of_address');
-        $http = $http->attach('drivers_license', fopen($dl->getRealPath(), 'r'), $dl->getClientOriginalName());
-        $http = $http->attach('proof_of_address', fopen($poa->getRealPath(), 'r'), $poa->getClientOriginalName());
-        if ($request->hasFile('ssn_card')) {
-            $card = $request->file('ssn_card');
-            $http = $http->attach('ssn_card', fopen($card->getRealPath(), 'r'), $card->getClientOriginalName());
-        }
-
+    /**
+     * Persist a failed forward so the admin can retry it later without losing the
+     * client's documents. Stores the funnel payload (encrypted) + the uploaded
+     * files on the private disk. Best-effort — never breaks the user flow.
+     */
+    private function storeApexRetryJob(array $v, string $dob, Request $request, ?OnboardingSubmission $submission, array $result): void
+    {
         try {
-            $response = $http->post($url, $fields);
+            if (! Schema::hasTable('apex_retry_jobs')) {
+                Log::warning('apex_retry_jobs table missing — failed Apex submission NOT stored for retry.', ['email' => $v['email'] ?? null]);
+                return;
+            }
+
+            $dir   = 'apex-retry/' . Str::uuid();
+            $paths = [];
+            foreach (['drivers_license', 'proof_of_address', 'ssn_card'] as $name) {
+                if ($request->hasFile($name)) {
+                    $paths[$name] = $request->file($name)->store($dir, ApexRetryJob::DISK);
+                }
+            }
+
+            ApexRetryJob::create([
+                'onboarding_submission_id' => $submission?->id,
+                'client_name'              => trim(($v['firstname'] ?? '') . ' ' . ($v['lastname'] ?? '')),
+                'email'                    => $v['email'] ?? null,
+                'payload_encrypted'        => json_encode([
+                    'v'   => Arr::except($v, ['drivers_license', 'proof_of_address', 'ssn_card']),
+                    'dob' => $dob,
+                ]),
+                'drivers_license_path'  => $paths['drivers_license'] ?? null,
+                'proof_of_address_path' => $paths['proof_of_address'] ?? null,
+                'ssn_card_path'         => $paths['ssn_card'] ?? null,
+                'status'                => 'pending',
+                'attempts'              => 1,
+                'last_error'            => substr((string) ($result['message'] ?? ('HTTP ' . ($result['status'] ?? '?'))), 0, 1000),
+                'last_attempt_at'       => now(),
+            ]);
         } catch (\Throwable $e) {
-            Log::error('Apex intake request threw', ['error' => $e->getMessage()]);
-            return ['ok' => false, 'status' => 0, 'message' => 'Network error contacting Apex.', 'errors' => []];
+            Log::error('Failed to store Apex retry job', ['error' => $e->getMessage()]);
         }
-
-        $status = $response->status();
-        $body   = $response->json() ?? [];
-        $raw    = $response->body();
-
-        if ($status === 201 && ($body['ok'] ?? false)) {
-            return ['ok' => true, 'status' => 201, 'id' => $body['id'] ?? null, 'errors' => [], 'raw' => $raw];
-        }
-        if ($status === 401) {
-            return ['ok' => false, 'status' => 401, 'message' => $body['message'] ?? 'Invalid or missing intake key.', 'errors' => [], 'raw' => $raw];
-        }
-        if ($status === 422) {
-            return ['ok' => false, 'status' => 422, 'message' => 'Validation failed at Apex.', 'errors' => $body['errors'] ?? [], 'raw' => $raw];
-        }
-
-        return ['ok' => false, 'status' => $status, 'message' => $body['message'] ?? 'Unexpected Apex response.', 'errors' => [], 'raw' => $raw];
     }
 
     /** Map Apex's error keys back to the funnel's form field names for display. */

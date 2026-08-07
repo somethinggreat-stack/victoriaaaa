@@ -83,6 +83,30 @@
   <p style="margin-top: 12px; font-size: 12px; color: var(--ink-3);">Uploaded documents and the credit-monitoring login are forwarded to Apex and are <strong>not</strong> stored on this site.</p>
 </div>
 
+@if ($onboarding->crc_status === 'failed')
+  @php
+    $obUrl = url('/onboarding');
+    $subject = rawurlencode('Quick re-do of your onboarding — Victoria Love');
+    $body = rawurlencode("Hi " . $onboarding->firstname . ",\n\nWe hit a technical snag processing your onboarding and need you to submit it once more so we can get started. It only takes a couple of minutes:\n\n" . $obUrl . "\n\nPlease have your ID, proof of address, and MyFreeScore login handy. Thank you!\n\n— Victoria Love");
+  @endphp
+  <!-- RE-INVITE (failed forwards) -->
+  <div class="adm-card" style="margin-bottom: 16px; border-color:#ffd8a8; background:#fffaf2;">
+    <div class="adm-card-head"><h2>Re-invite this client</h2></div>
+    <p style="font-size:13.5px; color:var(--ink-2); margin-bottom:14px;">
+      This submission never reached Apex. If it isn't in your <strong>Apex Retries</strong> queue (older submissions weren't captured),
+      send the client the onboarding link so they re-submit with their documents.
+    </p>
+    <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
+      <input type="text" id="obLink" value="{{ $obUrl }}" readonly onclick="this.select()"
+             style="flex:1; min-width:240px; padding:10px 12px; border:1.5px solid #ffd8a8; border-radius:9px; font-family:ui-monospace,monospace; font-size:13px; background:#fff;">
+      <button type="button" class="adm-btn" onclick="navigator.clipboard.writeText(document.getElementById('obLink').value).then(()=>{this.textContent='✓ Copied';setTimeout(()=>this.textContent='Copy link',1600);})">Copy link</button>
+      @if($onboarding->email)
+        <a class="adm-btn ghost" href="mailto:{{ $onboarding->email }}?subject={{ $subject }}&body={{ $body }}">Email client</a>
+      @endif
+    </div>
+  </div>
+@endif
+
 <!-- METADATA -->
 <div class="adm-card">
   <div class="adm-card-head"><h2>Metadata</h2></div>

@@ -13,6 +13,7 @@ use App\Http\Controllers\FundingController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MentorshipController;
 use App\Http\Controllers\MentorshipWelcomeController;
+use App\Http\Controllers\Admin\ApexRetryController;
 use App\Http\Controllers\Admin\PaymentLinksController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PayController;
@@ -302,6 +303,11 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
         Route::get('/onboarding', [DashboardController::class, 'onboarding'])->name('onboarding');
         Route::get('/onboarding/{onboarding}', [DashboardController::class, 'onboardingShow'])->name('onboarding.show');
         Route::patch('/onboarding/{onboarding}/status', [DashboardController::class, 'onboardingStatus'])->name('onboarding.status');
+
+        // ─── Apex retry queue (failed onboarding forwards) ───
+        Route::get('/apex-retries',                     [ApexRetryController::class, 'index'])->name('apex-retries');
+        Route::post('/apex-retries/retry-all',          [ApexRetryController::class, 'retryAll'])->name('apex-retries.retry-all');
+        Route::post('/apex-retries/{apexRetry}/retry',  [ApexRetryController::class, 'retry'])->name('apex-retries.retry');
 
         // ─── One-time payment links (create + track) ───
         Route::get('/payment-links',                   [PaymentLinksController::class, 'index'])->name('payment-links');
