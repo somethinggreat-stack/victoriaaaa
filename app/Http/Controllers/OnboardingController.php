@@ -205,6 +205,14 @@ class OnboardingController extends Controller
             return ['ok' => false, 'status' => 0, 'message' => 'Apex intake key not configured.', 'errors' => []];
         }
 
+        // The /api/* path is blocked by Cloudflare/WAF for server-to-server callers
+        // (403/406) before it reaches Apex's PHP. /partner-intake is the identical
+        // handler that bypasses it. Rewrite defensively in case a stale APEX_API_URL
+        // still points at /api/intake.
+        if (str_contains($url, '/api/intake')) {
+            $url = str_replace('/api/intake', '/partner-intake', $url);
+        }
+
         // Text fields (map funnel → Apex names). credit_monitoring_name is locked
         // to "myfreescore"; the CM login email is sent as credit_monitoring_username.
         $fields = [
@@ -228,7 +236,13 @@ class OnboardingController extends Controller
         if (! empty($v['address_line2']))                         $fields['address_line2'] = $v['address_line2'];
         if (! empty($v['credit_monitoring_security_answer']))     $fields['credit_monitoring_security_answer'] = $v['credit_monitoring_security_answer'];
 
-        $http = Http::timeout(60)->withHeaders(['X-Intake-Key' => $key]);
+        // A real User-Agent is required — the default Guzzle UA gets bot-blocked
+        // at Cloudflare's edge (403). Accept JSON so errors come back as JSON.
+        $http = Http::timeout(60)->withHeaders([
+            'X-Intake-Key' => $key,
+            'User-Agent'   => 'VictoriaFunnel/1.0 (+https://victorialovecredit.com)',
+            'Accept'       => 'application/json',
+        ]);
 
         // Required files + optional SSN card. Attaching makes the request multipart.
         $dl  = $request->file('drivers_license');
