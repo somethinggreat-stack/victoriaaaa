@@ -148,29 +148,18 @@ class OnboardingController extends Controller
             return $this->successRedirect($validated['firstname']);
         }
 
-        // Forward failed → save the payload + documents so the admin can retry it
-        // later (nothing is ever lost to a WAF/network blip again).
-        $this->storeApexRetryJob($validated, $dob, $request, $submission, $result);
-
-        // 422 → surface the exact fields Apex rejected, mapped back to form names.
-        if (($result['status'] ?? 0) === 422 && ! empty($result['errors'])) {
-            Log::warning('Apex intake validation failed', ['errors' => $result['errors']]);
-
-            return back()
-                ->withInput($request->except(['ssn', 'credit_monitoring_password', 'drivers_license', 'proof_of_address', 'ssn_card']))
-                ->withErrors($this->mapApexErrors($result['errors']))
-                ->with('error', 'A few details need fixing before we can finish. Please review the highlighted fields and resubmit (you may need to re-select your documents).');
-        }
-
-        // 401 → key wrong/disabled; anything else → generic failure.
-        Log::error('Apex intake forward failed', [
+        // Forward failed → the client's info + documents are saved locally and
+        // queued for retry (admin → Apex Retries). Delivery to Apex is our
+        // backend concern, so the client still sees success — we never make them
+        // re-do the form or stare at an error over an issue on our side. Full
+        // detail is in storage/logs/apex-*.log for us to fix + retry.
+        Log::warning('Apex forward failed — saved + queued for retry', [
             'status'  => $result['status'] ?? null,
             'message' => $result['message'] ?? null,
         ]);
+        $this->storeApexRetryJob($validated, $dob, $request, $submission, $result);
 
-        return back()
-            ->withInput($request->except(['ssn', 'credit_monitoring_password', 'drivers_license', 'proof_of_address', 'ssn_card']))
-            ->with('error', 'We could not finish setting up your account right now. Please try again in a moment, or email support@victorialovecredit.com and we will complete it manually.');
+        return $this->successRedirect($validated['firstname']);
     }
 
     /**

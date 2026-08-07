@@ -71,7 +71,11 @@ class ApexClient
 
         // A real User-Agent is required — the default Guzzle UA gets bot-blocked
         // at Cloudflare's edge (403).
-        $http = Http::timeout(60)->withHeaders([
+        // Short timeouts: a reachable Apex answers in ~1s. A long hang means the
+        // server's outbound call is being dropped/held (e.g. Cloudflare blocking
+        // the server IP) — fail fast and queue for retry instead of making the
+        // client wait a full minute.
+        $http = Http::connectTimeout(10)->timeout(20)->withHeaders([
             'X-Intake-Key' => $key,
             'User-Agent'   => 'VictoriaFunnel/1.0 (+https://victorialovecredit.com)',
             'Accept'       => 'application/json',
