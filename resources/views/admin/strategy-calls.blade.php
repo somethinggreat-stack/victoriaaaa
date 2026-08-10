@@ -64,6 +64,10 @@
           <td class="actions">
             @unless ($rm)
               <a class="adm-btn ghost" href="{{ route('admin.strategy-calls.show', $r) }}">View</a>
+              <form class="adm-inline-form" method="POST" action="{{ route('admin.strategy-calls.destroy', $r) }}" onsubmit="return confirm('Delete this consultation request? This cannot be undone.');">
+                @csrf @method('DELETE')
+                <button class="adm-btn danger" type="submit">Delete</button>
+              </form>
             @endunless
           </td>
         </tr>

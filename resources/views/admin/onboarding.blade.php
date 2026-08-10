@@ -56,7 +56,13 @@
             </form>
           </td>
           <td>{{ $r->created_at->format('M j · g:ia') }}</td>
-          <td class="actions"><a class="adm-btn ghost" href="{{ route('admin.onboarding.show', $r) }}">View</a></td>
+          <td class="actions">
+            <a class="adm-btn ghost" href="{{ route('admin.onboarding.show', $r) }}">View</a>
+            <form class="adm-inline-form" method="POST" action="{{ route('admin.onboarding.destroy', $r) }}" onsubmit="return confirm('Delete {{ $r->firstname }} {{ $r->lastname }}? This permanently removes the client and cannot be undone.');">
+              @csrf @method('DELETE')
+              <button class="adm-btn danger" type="submit">Delete</button>
+            </form>
+          </td>
         </tr>
       @endforeach
     </tbody>

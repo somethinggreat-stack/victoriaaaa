@@ -204,6 +204,46 @@ class DashboardController extends Controller
         return back()->with('success', 'Onboarding status updated.');
     }
 
+    // ════════════════════════════════════════════════════════════════
+    // Delete (admin-only — reviewers are blocked by ReviewerGuard). Each
+    // permanently removes the record from the dashboard.
+    // ════════════════════════════════════════════════════════════════
+    public function leadDestroy(Lead $lead)
+    {
+        $lead->delete();
+        return back()->with('success', 'Lead deleted.');
+    }
+
+    public function contactDestroy(Contact $contact)
+    {
+        $contact->delete();
+        return back()->with('success', 'Contact submission deleted.');
+    }
+
+    public function onboardingDestroy(OnboardingSubmission $onboarding)
+    {
+        $onboarding->delete();
+        return redirect()->route('admin.onboarding')->with('success', 'Client deleted.');
+    }
+
+    public function fundingDestroy(FundingApplication $funding)
+    {
+        $funding->delete();
+        return back()->with('success', 'Funding lead deleted.');
+    }
+
+    public function mentorshipDestroy(MentorshipLead $mentorship)
+    {
+        $mentorship->delete();
+        return back()->with('success', 'Mentorship lead deleted.');
+    }
+
+    public function strategyCallDestroy(StrategyCallRequest $strategy)
+    {
+        $strategy->delete();
+        return back()->with('success', 'Consultation call request deleted.');
+    }
+
     public function funding(Request $request)
     {
         $q = FundingApplication::query();

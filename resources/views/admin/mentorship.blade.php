@@ -86,6 +86,10 @@
           <td class="actions">
             @unless ($rm)
               <a class="adm-btn ghost" href="{{ route('admin.mentorship.show', $m) }}">View</a>
+              <form class="adm-inline-form" method="POST" action="{{ route('admin.mentorship.destroy', $m) }}" onsubmit="return confirm('Delete this mentorship lead? This cannot be undone.');">
+                @csrf @method('DELETE')
+                <button class="adm-btn danger" type="submit">Delete</button>
+              </form>
             @endunless
           </td>
         </tr>

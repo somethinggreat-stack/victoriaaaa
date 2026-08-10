@@ -120,7 +120,11 @@
   </div>
 </div>
 
-<div style="margin-top: 20px;">
+<div style="margin-top: 20px; display:flex; gap:10px; align-items:center;">
   <a class="adm-btn" href="mailto:{{ $onboarding->email }}?subject=Your%20onboarding%20with%20Victoria%20Love">Email this client →</a>
+  <form class="adm-inline-form" method="POST" action="{{ route('admin.onboarding.destroy', $onboarding) }}" onsubmit="return confirm('Delete {{ $onboarding->firstname }} {{ $onboarding->lastname }}? This permanently removes the client and cannot be undone.');">
+    @csrf @method('DELETE')
+    <button class="adm-btn danger" type="submit">Delete client</button>
+  </form>
 </div>
 @endsection
