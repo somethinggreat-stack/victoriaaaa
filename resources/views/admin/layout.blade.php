@@ -48,20 +48,24 @@ a { color: inherit; text-decoration: none; }
 .admin-sidebar {
   background: var(--ink);
   color: rgba(255,255,255,0.85);
-  padding: 22px 18px;
+  padding: 16px 14px;
   position: fixed; top: 0; left: 0;
   width: 240px;
   height: 100vh; overflow-y: auto;
   display: flex; flex-direction: column;
   z-index: 40;
+  /* Fit the full column height without a visible scrollbar */
+  scrollbar-width: none;               /* Firefox */
+  -ms-overflow-style: none;            /* old Edge */
 }
+.admin-sidebar::-webkit-scrollbar { width: 0; height: 0; display: none; } /* Chrome/Safari */
 .admin-brand {
   display: flex; align-items: center; gap: 10px;
-  padding-bottom: 22px; margin-bottom: 18px;
+  padding-bottom: 14px; margin-bottom: 12px;
   border-bottom: 1px solid rgba(255,255,255,0.08);
 }
 .admin-brand-mark {
-  width: 38px; height: 38px; border-radius: 50%;
+  width: 34px; height: 34px; border-radius: 50%;
   overflow: hidden;
   border: 2px solid var(--pink);
   flex-shrink: 0;
@@ -75,12 +79,12 @@ a { color: inherit; text-decoration: none; }
 .admin-brand-text strong { display: block; font-size: 14px; color: #fff; font-weight: 700; letter-spacing: -0.01em; }
 .admin-brand-text small  { display: block; font-size: 11px; color: rgba(255,255,255,0.45); letter-spacing: 0.08em; text-transform: uppercase; }
 
-.admin-nav { display: flex; flex-direction: column; gap: 2px; }
+.admin-nav { display: flex; flex-direction: column; gap: 1px; }
 .admin-nav a {
   display: flex; align-items: center; gap: 10px;
-  padding: 10px 12px;
-  border-radius: 10px;
-  font-size: 13.5px; font-weight: 500;
+  padding: 7px 12px;
+  border-radius: 9px;
+  font-size: 13px; font-weight: 500;
   color: rgba(255,255,255,0.7);
   transition: background .2s, color .2s;
 }
@@ -90,7 +94,7 @@ a { color: inherit; text-decoration: none; }
 
 .admin-foot {
   margin-top: auto;
-  padding-top: 18px;
+  padding-top: 12px;
   border-top: 1px solid rgba(255,255,255,0.08);
   font-size: 12px;
 }
@@ -307,6 +311,9 @@ a { color: inherit; text-decoration: none; }
 }
 .adm-btn:hover { background: var(--pink); transform: translateY(-1px); }
 .adm-btn.ghost { background: transparent; color: var(--ink); border: 1px solid var(--line-2); }
+.adm-btn.danger { background: #fdecec; color: #c0392b; border: 1px solid #f1b5b5; }
+.adm-btn.danger:hover { background: #c0392b; color: #fff; border-color: #c0392b; }
+.adm-inline-form { display: inline; }
 
 table.adm-table {
   width: 100%;

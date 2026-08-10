@@ -283,26 +283,32 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
         Route::get('/funding',   [DashboardController::class, 'funding'])->name('funding');
         Route::get('/funding/{funding}', [DashboardController::class, 'fundingShow'])->name('funding.show');
         Route::patch('/funding/{funding}/status', [DashboardController::class, 'fundingStatus'])->name('funding.status');
+        Route::delete('/funding/{funding}', [DashboardController::class, 'fundingDestroy'])->name('funding.destroy');
 
         Route::get('/mentorship', [DashboardController::class, 'mentorship'])->name('mentorship');
         Route::get('/mentorship/{mentorship}', [DashboardController::class, 'mentorshipShow'])->name('mentorship.show');
         Route::patch('/mentorship/{mentorship}/status', [DashboardController::class, 'mentorshipStatus'])->name('mentorship.status');
+        Route::delete('/mentorship/{mentorship}', [DashboardController::class, 'mentorshipDestroy'])->name('mentorship.destroy');
 
         Route::get('/strategy-calls', [DashboardController::class, 'strategyCalls'])->name('strategy-calls');
         Route::get('/strategy-calls/{strategy}', [DashboardController::class, 'strategyCallShow'])->name('strategy-calls.show');
         Route::patch('/strategy-calls/{strategy}/status', [DashboardController::class, 'strategyCallStatus'])->name('strategy-calls.status');
+        Route::delete('/strategy-calls/{strategy}', [DashboardController::class, 'strategyCallDestroy'])->name('strategy-calls.destroy');
 
         Route::get('/leads',     [DashboardController::class, 'leads'])->name('leads');
         Route::get('/leads/{lead}', [DashboardController::class, 'leadShow'])->name('leads.show');
         Route::patch('/leads/{lead}/status', [DashboardController::class, 'leadStatus'])->name('leads.status');
+        Route::delete('/leads/{lead}', [DashboardController::class, 'leadDestroy'])->name('leads.destroy');
 
         Route::get('/contacts',  [DashboardController::class, 'contacts'])->name('contacts');
         Route::get('/contacts/{contact}', [DashboardController::class, 'contactShow'])->name('contacts.show');
         Route::patch('/contacts/{contact}/status', [DashboardController::class, 'contactStatus'])->name('contacts.status');
+        Route::delete('/contacts/{contact}', [DashboardController::class, 'contactDestroy'])->name('contacts.destroy');
 
         Route::get('/onboarding', [DashboardController::class, 'onboarding'])->name('onboarding');
         Route::get('/onboarding/{onboarding}', [DashboardController::class, 'onboardingShow'])->name('onboarding.show');
         Route::patch('/onboarding/{onboarding}/status', [DashboardController::class, 'onboardingStatus'])->name('onboarding.status');
+        Route::delete('/onboarding/{onboarding}', [DashboardController::class, 'onboardingDestroy'])->name('onboarding.destroy');
 
         // ─── Apex retry queue (failed onboarding forwards) ───
         Route::get('/apex-retries',                     [ApexRetryController::class, 'index'])->name('apex-retries');

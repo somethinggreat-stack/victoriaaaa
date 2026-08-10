@@ -86,6 +86,10 @@
           <td class="actions">
             @unless ($rm)
               <a class="adm-btn ghost" href="{{ route('admin.funding.show', $f) }}">View</a>
+              <form class="adm-inline-form" method="POST" action="{{ route('admin.funding.destroy', $f) }}" onsubmit="return confirm('Delete this funding lead? This cannot be undone.');">
+                @csrf @method('DELETE')
+                <button class="adm-btn danger" type="submit">Delete</button>
+              </form>
             @endunless
           </td>
         </tr>

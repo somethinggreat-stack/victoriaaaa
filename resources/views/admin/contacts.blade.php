@@ -67,6 +67,10 @@
           <td class="actions">
             @unless ($rm)
               <a class="adm-btn ghost" href="{{ route('admin.contacts.show', $c) }}">Open</a>
+              <form class="adm-inline-form" method="POST" action="{{ route('admin.contacts.destroy', $c) }}" onsubmit="return confirm('Delete this contact submission? This cannot be undone.');">
+                @csrf @method('DELETE')
+                <button class="adm-btn danger" type="submit">Delete</button>
+              </form>
             @endunless
           </td>
         </tr>
