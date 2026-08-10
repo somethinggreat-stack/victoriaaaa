@@ -3,14 +3,12 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>Pick your time · Victoria Love</title>
-<meta name="description" content="Pick a 15-minute slot on Victoria's calendar.">
+<title>Call requested · Victoria Love</title>
+<meta name="description" content="Your free 15-minute phone call is requested — Victoria will call you.">
 <meta name="robots" content="noindex,nofollow">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
 <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-<link rel="dns-prefetch" href="https://api.leadconnectorhq.com">
-<link rel="dns-prefetch" href="https://link.msgsndr.com">
 <link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=Instrument+Serif:ital@0;1&display=swap" rel="stylesheet">
 <link rel="icon" type="image/png" href="{{ asset('images/companylogo.png') }}">
 
@@ -125,47 +123,55 @@ a { color: inherit; text-decoration: none; }
 
   <aside class="sc-left">
     <div class="sc-left-body">
-      <span class="sc-step-pill"><span class="ck">✓</span> Step 2 of 2 · Pick a time</span>
-      <h1>Form received{{ $leadName ? ', '.e(explode(' ', $leadName)[0]) : '' }} — pick your <span class="serif">slot.</span></h1>
-      <p class="lede">I'll see your answers before we hop on Zoom. Now grab any open 15-minute slot that works for you.</p>
+      <span class="sc-step-pill"><span class="ck">✓</span> Request received</span>
+      <h1>You're all set{{ $leadName ? ', '.e(explode(' ', $leadName)[0]) : '' }} — <span class="serif">I'll call you.</span></h1>
+      <p class="lede">Your free 15-minute phone call is booked. I'll call the number you gave me at your requested time.</p>
 
       <ul class="sc-bullets">
-        <li><span class="ck">✓</span><span>Your file is on my list — I'll prep before we meet</span></li>
-        <li><span class="ck">✓</span><span>You'll get a Zoom link and reminders by email + text</span></li>
-        <li><span class="ck">✓</span><span>Need to reschedule? Use the link in your confirmation</span></li>
+        <li><span class="ck">✓</span><span>I'll call you personally — no Zoom, no software</span></li>
+        <li><span class="ck">✓</span><span>We'll go over your credit and your best next step</span></li>
+        <li><span class="ck">✓</span><span>Keep your phone handy at the time you picked</span></li>
       </ul>
 
       <div class="sc-progress" aria-hidden="true"><span></span></div>
-      <p class="sc-progress-lab"><span>✓ Step 1 · Done</span><span>Step 2 · Pick a time</span></p>
+      <p class="sc-progress-lab"><span>✓ Request sent</span><span>Next · Victoria calls you</span></p>
     </div>
 
     <div class="sc-victoria">
       <span class="sc-victoria-img"><img src="{{ asset('images/founderimage7.jpeg') }}" alt=""></span>
       <div class="sc-victoria-text">
-        <strong>See you on Zoom</strong>
+        <strong>Talk soon</strong>
         <small>— Victoria</small>
       </div>
     </div>
   </aside>
 
   <main class="sc-right">
-    <div class="sc-cal-wrap">
+    <div class="sc-cal-wrap" style="max-width:560px;">
 
-      <div class="sc-cal-head">
-        <h2>Pick a 15-minute window</h2>
-        <p>Times below are in your local timezone.</p>
-      </div>
+      <div class="sc-cal-card" style="text-align:center; padding:44px 34px;">
+        <div style="width:66px;height:66px;border-radius:50%;background:#f0fdf4;color:#157a3d;display:flex;align-items:center;justify-content:center;font-size:32px;margin:0 auto 20px;">✓</div>
+        <h2 style="font-size:24px;margin:0 0 8px;">Your free call is requested</h2>
+        <p style="color:var(--ink-2);font-size:15px;margin:0 auto 22px;max-width:400px;">
+          Thank you{{ $leadName ? ', '.e(explode(' ', $leadName)[0]) : '' }}! I've got your request and I'll call your phone
+          @if($callWhen) on <strong style="color:var(--ink)">{{ $callWhen }} (Central)</strong> @else at your requested time @endif.
+        </p>
 
-      <div class="sc-cal-card">
-        <iframe src="{{ $bookingUrl }}"
-                title="Book your free 15-minute strategy call"
-                style="width:100%;min-width:320px;height:720px;border:none;overflow:hidden;"
-                scrolling="no"
-                id="booking-widget"></iframe>
+        @if($callWhen)
+          <div style="display:inline-flex;align-items:center;gap:10px;background:var(--pink-soft,#fdeaf2);border:1px solid rgba(230,49,121,0.2);color:#8a1845;padding:12px 20px;border-radius:100px;font-weight:700;font-size:14px;margin-bottom:22px;">
+            📞 {{ $callWhen }} · Central
+          </div>
+        @endif
+
+        <p style="font-size:13px;color:var(--ink-3);margin:0 0 24px;">
+          Please keep your phone nearby at that time. If you need to change it, just reply to the confirmation or reach out.
+        </p>
+
+        <a href="{{ url('/#pricing') }}" style="display:inline-flex;align-items:center;gap:8px;background:var(--pink);color:#fff;padding:14px 26px;border-radius:100px;font-weight:700;font-size:14.5px;">See pricing while you wait →</a>
       </div>
 
       <p class="sc-cal-foot">
-        Calendar not loading? <a href="{{ $bookingUrl }}" target="_blank" rel="noopener">Open it in a new tab →</a>
+        Questions before the call? <a href="{{ route('contact.show') }}">Message my team →</a>
       </p>
 
     </div>
@@ -173,6 +179,5 @@ a { color: inherit; text-decoration: none; }
 
 </div>
 
-<script src="https://link.msgsndr.com/js/form_embed.js" async></script>
 </body>
 </html>

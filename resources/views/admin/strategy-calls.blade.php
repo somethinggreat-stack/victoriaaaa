@@ -1,5 +1,5 @@
 @extends('admin.layout')
-@section('title', 'Strategy Calls')
+@section('title', 'Consultation Calls')
 
 @section('content')
 @php
@@ -9,8 +9,8 @@
 
 <div class="admin-header">
   <div>
-    <h1>Strategy call requests</h1>
-    <div class="sub">{{ $rows->total() }} total · qualified before they reach the booking page</div>
+    <h1>Consultation call requests</h1>
+    <div class="sub">{{ $rows->total() }} total · free 15-min phone calls — call each person at their requested day &amp; time (Central)</div>
   </div>
 </div>
 
@@ -31,7 +31,7 @@
   <div class="empty"><strong>No strategy-call requests yet.</strong>They will show up here the moment someone fills the gate form.</div>
 @else
   <div class="adm-table-wrap"><table class="adm-table">
-    <thead><tr><th>Lead</th><th>Goal</th><th>Monitoring</th><th>Investment</th><th>Status</th><th>Submitted</th><th></th></tr></thead>
+    <thead><tr><th>Lead</th><th>Requested call</th><th>Note</th><th>Status</th><th>Submitted</th><th></th></tr></thead>
     <tbody>
       @foreach ($rows as $r)
         <tr>
@@ -44,14 +44,8 @@
               <span class="sub">{{ $r->email }} · {{ $r->phone }}</span>
             @endif
           </td>
+          <td><strong>{{ $r->best_time ?: '—' }}</strong></td>
           <td>{{ \Illuminate\Support\Str::limit($r->goal, 70) ?: '—' }}</td>
-          <td>
-            {{ $r->monitoring_service ?: '—' }}
-            @if (!$rm && $r->monitoring_username)
-              <br><span class="sub">{{ $r->monitoring_username }}</span>
-            @endif
-          </td>
-          <td>{{ $r->investment_range ?: '—' }}</td>
           <td>
             @if ($rm)
               <span class="badge {{ $r->status }}">{{ ucfirst(str_replace('_',' ',$r->status)) }}</span>

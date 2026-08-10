@@ -239,7 +239,7 @@ Route::post('/lead', [LeadController::class, 'submit'])->name('lead.submit');
 
 // ============ SECURE CHECKOUT (Authorize.Net Accept.js) ============
 Route::get('/checkout/{plan?}', [AcceptJsPaymentController::class, 'showCheckout'])
-    ->where('plan', 'starter|audit|monthly|onetime|couple|vip|mentorship-3pay|mentorship-5pay|mentorship-full')
+    ->where('plan', 'fast-dispute|unlimited|starter|audit|monthly|onetime|couple|vip|mentorship-3pay|mentorship-5pay|mentorship-full')
     ->name('checkout.show');
 Route::post('/checkout/process', [AcceptJsPaymentController::class, 'processPayment'])
     ->name('checkout.process');
