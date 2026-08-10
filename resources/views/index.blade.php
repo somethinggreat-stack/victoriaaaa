@@ -1,7 +1,7 @@
 ﻿@extends('layouts.app')
 
 @section('title', 'Victoria Love — Fix Your Credit. Own Your Home. Build Wealth.')
-@section('description', 'Texas Realtor & Credit Coach. Raise your score 100+ points, unlock $100K in funding, and close on your first home in 90 days. Free 15-min strategy call.')
+@section('description', 'Texas Realtor & Credit Coach. We remove collections, charge-offs & late payments — real results in as little as 2 weeks. Free 15-min phone consultation.')
 
 @section('content')
 <!-- ============ HERO ============ -->
@@ -14,11 +14,11 @@
         Build <em class="serif gradient-text">real wealth.</em>
       </h1>
       <p class="lede">
-        I'm Victoria — a Texas Realtor &amp; Credit Coach. In <strong>90 days</strong> I'll raise your score, unlock funding, and walk you to closing. <strong>1,000+ clients</strong> already did it.
+        I'm Victoria — a Texas Realtor &amp; Credit Coach. I remove the collections, charge-offs, and late payments dragging you down — with real results in as little as <strong>2 weeks</strong>. <strong>1,000+ clients</strong> already did it.
       </p>
       <div class="hero-ctas">
-        <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book my free call <span class="arr">→</span></a>
-        <a href="#pricing" class="btn btn-ghost">Get started</a>
+        <a href="#pricing" class="btn btn-pink">See pricing &amp; start <span class="arr">→</span></a>
+        <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost">Free 15-min phone call</a>
       </div>
       <div class="hero-meta">
         <div class="avs">
@@ -46,71 +46,68 @@
 <section class="pain-section">
   <div class="container">
     <div class="section-head reveal">
-      <span class="eyebrow">Sound familiar?</span>
-      <h2>You're facing one of these. <em class="serif gradient-text">That's why you're here.</em></h2>
-      <p>Eight things quietly wreck American credit scores. If even one is sitting on your report, you already know how it feels — and every single one of them <strong style="color:var(--ink)">can be challenged.</strong></p>
+      <span class="eyebrow">What we can remove</span>
+      <h2>Everything dragging your score down — <em class="serif gradient-text">we challenge it.</em></h2>
+      <p>The items below quietly wreck American credit scores. If even one is sitting on your report, you already know how it feels — and every single one of them <strong style="color:var(--ink)">can be disputed and removed.</strong></p>
     </div>
 
-    <div class="pain-grid">
-      <div class="pain reveal">
-        <div class="pain-ico">⏰</div>
-        <h3>Late Payments</h3>
-        <p>One missed due date can cost you 80–110 points and stay visible for seven years. We dispute every entry that isn't backed by airtight proof.</p>
-        
-      </div>
+    <style>
+      .remove-grid {
+        display: grid; grid-template-columns: repeat(3, 1fr); gap: 16px;
+        max-width: 1040px; margin: 0 auto;
+      }
+      .remove-pill {
+        position: relative; overflow: hidden;
+        display: flex; align-items: center; gap: 15px;
+        background: linear-gradient(180deg, #ffffff 0%, #fff7fb 100%);
+        border: 1px solid var(--line);
+        border-radius: 16px; padding: 18px 22px;
+        font-weight: 650; font-size: 16px; letter-spacing: -0.005em; color: var(--ink);
+        box-shadow: 0 10px 30px -22px rgba(20,16,14,0.28);
+        transition: transform .28s var(--ease), box-shadow .28s, border-color .28s;
+      }
+      /* Brand accent bar that slides in on hover */
+      .remove-pill::before {
+        content: ''; position: absolute; left: 0; top: 0; bottom: 0; width: 3px;
+        background: var(--grad-warm, linear-gradient(135deg,#e63179,#ff7eb3));
+        transform: scaleY(0); transform-origin: bottom;
+        transition: transform .3s var(--ease);
+      }
+      .remove-pill:hover {
+        transform: translateY(-4px);
+        box-shadow: 0 28px 52px -24px rgba(230,49,121,0.38);
+        border-color: rgba(230,49,121,0.28);
+      }
+      .remove-pill:hover::before { transform: scaleY(1); }
+      .remove-pill .rk {
+        flex-shrink: 0; width: 30px; height: 30px; border-radius: 50%;
+        background: var(--grad-warm, linear-gradient(135deg,#e63179,#ff7eb3));
+        color: #fff; display: grid; place-items: center;
+        font-size: 14px; font-weight: 800;
+        box-shadow: 0 6px 16px -5px rgba(230,49,121,0.7), 0 0 0 5px rgba(230,49,121,0.10);
+        transition: transform .28s var(--ease), box-shadow .28s;
+      }
+      .remove-pill:hover .rk {
+        transform: scale(1.08) rotate(-6deg);
+        box-shadow: 0 8px 22px -5px rgba(230,49,121,0.85), 0 0 0 6px rgba(230,49,121,0.16);
+      }
+      @media (max-width: 800px) { .remove-grid { grid-template-columns: repeat(2, 1fr); gap: 12px; } }
+      @media (max-width: 460px) { .remove-grid { grid-template-columns: 1fr; } .remove-pill { font-size: 15px; padding: 16px 18px; } }
+    </style>
 
-      <div class="pain reveal reveal-d2">
-        <div class="pain-ico">🗂️</div>
-        <h3>Collections</h3>
-        <p>Old debts get sold, resold, and keep haunting your file long after you've moved on. We force the agencies to verify — most can't.</p>
-   
-      </div>
-
-      <div class="pain reveal reveal-d3">
-        <div class="pain-ico">💳</div>
-        <h3>Charge-Offs</h3>
-        <p>The lender already wrote it off as a loss — but your report still treats it like a live wound. It doesn't have to stay there.</p>
-      
-      </div>
-
-      <div class="pain reveal reveal-d4">
-        <div class="pain-ico">🚗</div>
-        <h3>Repossessions</h3>
-        <p>A car taken back can lock you out of auto loans for years. The paperwork behind a repo is rarely airtight — that's where we attack.</p>
-       
-      </div>
-
-      <div class="pain reveal">
-        <div class="pain-ico">⚖️</div>
-        <h3>Bankruptcy</h3>
-        <p>Chapter 7 or 13 isn't a 10-year sentence. Public-record reporting must be perfect — and most filings have errors we can use to push back.</p>
-     
-      </div>
-
-      <div class="pain reveal reveal-d2">
-        <div class="pain-ico">🎓</div>
-        <h3>Student Loans</h3>
-        <p>Defaults, mismatched balances, transfer errors, and outdated late marks from old federal or private loans — far more removable than you think.</p>
-     
-      </div>
-
-      <div class="pain reveal reveal-d3">
-        <div class="pain-ico">👶</div>
-        <h3>Child Support</h3>
-        <p>Wrong amounts, outdated balances, or already-paid obligations still showing on your file. We make sure your report reflects the truth — not the past.</p>
-        
-      </div>
-
-      <div class="pain reveal reveal-d4">
-        <div class="pain-ico">🏥</div>
-        <h3>Medical Bills</h3>
-        <p>New federal rules wiped most paid medical collections off reports — and balances under $500 must be removed. We make sure they actually are.</p>
-    
-      </div>
+    <div class="remove-grid reveal">
+      @foreach ([
+        'Foreclosures', 'Collections', 'Charge-Offs',
+        'Student Loans', 'Judgments', 'Medical Bills',
+        'Late Payments', 'Repossessions', 'Public Records',
+        'Bankruptcies', 'Child Support', 'Hard Inquiries',
+      ] as $item)
+        <div class="remove-pill"><span class="rk">✓</span>{{ $item }}</div>
+      @endforeach
     </div>
 
     <div class="pain-foot reveal">
-      <strong>Recognize even one of these?</strong> You're already in the right place. <a href="{{ route('strategy-call.show') }}" style="color:var(--pink); font-weight:600; text-decoration:underline; text-underline-offset:3px">Book your free 15-min call →</a>
+      <strong>Recognize even one of these?</strong> You're already in the right place. <a href="{{ route('strategy-call.show') }}" style="color:var(--pink); font-weight:600; text-decoration:underline; text-underline-offset:3px">Book your free 15-min phone call →</a>
     </div>
   </div>
 </section>
@@ -121,61 +118,123 @@
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">Choose your plan</span>
-      <h2>Simple pricing. <em class="serif gradient-text">Real outcomes.</em></h2>
-      <p>Three ways in. Same destination — a score that opens every door. Free 15-min consult included with every plan.</p>
+      <h2>Simple pricing. <em class="serif gradient-text">Real removals.</em></h2>
+      <p>Pick your speed — every plan runs aggressive 3-bureau disputes on your file. A free 15-min phone consult is available with any plan, but it's optional. You can start today.</p>
     </div>
 
     <div class="pricing-grid">
-      <!-- Card 1 · Monthly -->
+      <!-- Card 1 · Fast Dispute -->
       <div class="price reveal">
+        <div class="name">Fast Dispute</div>
+        <div class="amt">$297</div>
+        <div class="strike">one-time · results in ~2 weeks</div>
+        <p class="desc">All-in-one aggressive dispute. First results in as little as two weeks.</p>
+        <ul>
+          <li>One-time — nothing recurring</li>
+          <li>Aggressive all-in-one 3-bureau dispute</li>
+          <li>First results in ~2 weeks</li>
+          <li>Priority handling on your file</li>
+        </ul>
+        <a href="{{ route('checkout.show', ['plan' => 'fast-dispute']) }}" class="btn btn-ghost">Start fast dispute <span class="arr">→</span></a>
+      </div>
+
+      <!-- Card 2 · Monthly (FEATURED) -->
+      <div class="price feat reveal reveal-d2">
+        <span class="price-tag">Most Popular</span>
         <div class="name">Monthly</div>
         <div class="amt">$197 <span class="p">+ $100/mo</span></div>
-        <div class="strike">was $297</div>
-        <p class="desc">Full 90-day credit transformation. Cancel after 90.</p>
+        <div class="strike">full 90-day plan</div>
+        <p class="desc">Full 90-day credit transformation. Cancel anytime after 90.</p>
         <ul>
           <li>Full 90-day credit plan</li>
           <li>Aggressive 3-bureau disputes</li>
           <li>Monthly progress updates</li>
           <li>Cancel after 90 days</li>
         </ul>
-        <a href="{{ route('checkout.show', ['plan' => 'monthly']) }}" class="btn btn-ghost">Get started</a>
+        <a href="{{ route('checkout.show', ['plan' => 'monthly']) }}" class="btn btn-pink">Start monthly <span class="arr">→</span></a>
       </div>
 
-      <!-- Card 2 · One-time (FEATURED) -->
-      <div class="price feat reveal reveal-d2">
-        <span class="price-tag">Most Popular</span>
-        <div class="name">One-time</div>
-        <div class="amt">$497</div>
-        <div class="strike">save $197</div>
-        <p class="desc">Single payment. Priority dispute filing + ongoing support.</p>
-        <ul>
-          <li>One-time, zero recurring</li>
-          <li>Priority dispute filing</li>
-          <li>Results in 30–45 days</li>
-          <li>Ongoing support</li>
-          <li>Lifetime credit guidance</li>
-        </ul>
-        <a href="{{ route('checkout.show', ['plan' => 'onetime']) }}" class="btn btn-pink">Pay once, done <span class="arr">→</span></a>
-      </div>
-
-      <!-- Card 3 · Couple -->
+      <!-- Card 3 · Unlimited Lifetime -->
       <div class="price reveal reveal-d3">
-        <div class="name">Couple</div>
-        <div class="amt">$900</div>
-        <div class="strike">2 plans, 1 price</div>
-        <p class="desc">For two. Coordinated attack so you and your partner buy together.</p>
+        <div class="name">Unlimited · Lifetime</div>
+        <div class="amt">$597</div>
+        <div class="strike">one payment · for life</div>
+        <p class="desc">One payment, unlimited dispute rounds for life. Best long-term value.</p>
         <ul>
-          <li>Program for both partners</li>
-          <li>Dual credit restoration</li>
-          <li>Coordinated bureau attacks</li>
-          <li>Joint funding prep</li>
+          <li>One-time $597 — lifetime access</li>
+          <li>Unlimited dispute rounds</li>
+          <li>Every negative item, every bureau</li>
+          <li>Priority support for life</li>
         </ul>
-        <a href="{{ route('checkout.show', ['plan' => 'couple']) }}" class="btn btn-ghost">Apply as couple</a>
+        <a href="{{ route('checkout.show', ['plan' => 'unlimited']) }}" class="btn btn-ghost">Go unlimited <span class="arr">→</span></a>
       </div>
     </div>
 
     <div class="price-meta reveal">
-      <strong>Not sure?</strong> Book a free 15-min call — I'll point you to the right plan, no pressure.
+      <strong>Together?</strong> Two people, unlimited lifetime rounds for <strong>$597</strong> total — <a href="{{ route('checkout.show', ['plan' => 'couple']) }}" style="color:var(--pink);font-weight:600;text-decoration:underline;text-underline-offset:3px">start the couples plan →</a>
+    </div>
+  </div>
+</section>
+
+
+<!-- ============ WHAT HAPPENS AFTER PURCHASE ============ -->
+<section class="after-purchase">
+  <div class="container">
+    <div class="section-head reveal">
+      <span class="eyebrow">After you purchase</span>
+      <h2>What happens <em class="serif gradient-text">next.</em></h2>
+      <p>Four quick steps and we're working your file. The faster you finish onboarding, the faster your first results.</p>
+    </div>
+
+    <style>
+      .after-purchase { padding: 100px 0; }
+      .ap-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 18px; max-width: 1140px; margin: 0 auto; }
+      .ap-step {
+        position: relative; background: #fff; border: 1px solid var(--line);
+        border-radius: var(--r-lg, 24px); padding: 30px 26px 28px;
+        transition: transform .3s, box-shadow .3s, border-color .3s;
+      }
+      .ap-step:hover { transform: translateY(-5px); box-shadow: 0 30px 60px -28px rgba(20,16,14,0.18); border-color: var(--line-2); }
+      .ap-num {
+        width: 46px; height: 46px; border-radius: 14px;
+        background: var(--grad-warm, linear-gradient(135deg,#e63179,#ff7eb3));
+        color: #fff; display: grid; place-items: center;
+        font-size: 20px; font-weight: 700; margin-bottom: 18px;
+        box-shadow: 0 12px 24px -10px rgba(230,49,121,0.6);
+      }
+      .ap-step h3 { font-size: 18px; font-weight: 600; margin: 0 0 8px; letter-spacing: -0.01em; }
+      .ap-step p { font-size: 14px; line-height: 1.6; color: var(--ink-2); margin: 0; }
+      .ap-foot { text-align: center; margin-top: 40px; font-size: 15px; color: var(--ink-2); }
+      .ap-foot a { color: var(--pink); font-weight: 600; text-decoration: underline; text-underline-offset: 3px; }
+      @media (max-width: 1000px) { .ap-grid { grid-template-columns: 1fr 1fr; } }
+      @media (max-width: 560px)  { .ap-grid { grid-template-columns: 1fr; } }
+    </style>
+
+    <div class="ap-grid">
+      <div class="ap-step reveal">
+        <div class="ap-num">1</div>
+        <h3>Complete your onboarding form</h3>
+        <p>Right after checkout you'll fill out a quick, 256-bit encrypted form — your details, date of birth, SSN, and mailing address.</p>
+      </div>
+      <div class="ap-step reveal reveal-d2">
+        <div class="ap-num">2</div>
+        <h3>Upload your documents</h3>
+        <p>Your driver's license and a proof of address (utility bill, bank statement, or lease). Your Social Security card is optional but helps.</p>
+      </div>
+      <div class="ap-step reveal reveal-d3">
+        <div class="ap-num">3</div>
+        <h3>Set up credit monitoring</h3>
+        <p>Enroll in <strong>MyFreeScore</strong> (link is right on the form), then add your login so we can pull your live 3-bureau reports.</p>
+      </div>
+      <div class="ap-step reveal reveal-d4">
+        <div class="ap-num">4</div>
+        <h3>We go to work</h3>
+        <p>We file aggressive disputes across all three bureaus. As results come back — usually in 10–15 days — we verify deletions and launch the next round.</p>
+      </div>
+    </div>
+
+    <div class="ap-foot reveal">
+      You'll get your secure onboarding link <strong>right after checkout</strong> — nothing to do until then.
     </div>
   </div>
 </section>
@@ -386,14 +445,14 @@
           <li><span class="ck">✓</span> CFPB-compliant dispute process</li>
           <li><span class="ck">✓</span> Trusted by women in all 50 states</li>
           <li><span class="ck">✓</span> Texas-licensed Realtor &amp; Coach</li>
-          <li><span class="ck">✓</span> Free 15-min strategy call</li>
+          <li><span class="ck">✓</span> Free 15-min phone consultation</li>
         </ul>
 
 
 
         <div class="auth-ctas">
-          <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Start your credit review <span class="arr">→</span></a>
-          <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost">Book free consultation</a>
+          <a href="#pricing" class="btn btn-pink">Start your credit repair <span class="arr">→</span></a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost">Free 15-min phone call</a>
         </div>
       </div>
 
@@ -448,7 +507,7 @@
       <h2>Got <em class="serif gradient-text">questions?</em></h2>
       <p>Everything you need to know about working with me. Don't see your question? Just ask on the call.</p>
       <div class="ctas">
-        <a href="{{ route('strategy-call.show') }}" class="btn btn-primary">Book free call <span class="arr">→</span></a>
+        <a href="{{ route('strategy-call.show') }}" class="btn btn-primary">Book free phone call <span class="arr">→</span></a>
         <a href="{{ route('contact.show') }}" class="btn btn-ghost">Ask a question</a>
       </div>
     </div>
@@ -471,7 +530,7 @@
 
       <div class="faq-item">
         <div class="faq-q">Can my partner and I do this together? <span class="icon">+</span></div>
-        <div class="faq-a"><div class="faq-a-inner">Yes — that's the <strong style="color:var(--ink)">Couple plan ($900)</strong>. Dual coordinated repair so you both qualify for the same loan and close on your forever home together.</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Yes — that's the <strong style="color:var(--ink)">Couple plan ($597)</strong>. Two people, unlimited lifetime rounds, coordinated so you both qualify for the same loan and close on your forever home together.</div></div>
       </div>
 
       <div class="faq-item">
@@ -497,7 +556,7 @@
         <p>Simple monthly pricing built around real credit transformation — pick the plan that gets you to your dream score, your dream home, your next chapter.</p>
         <div class="ctas">
           <a href="#pricing" class="btn btn-pink">View pricing <span class="arr">→</span></a>
-          <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost-light">Book free call</a>
+          <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost-light">Free 15-min phone call</a>
         </div>
         <div class="stamp">
           <img src="{{ asset('images/founderimage4.jpeg') }}" alt="Victoria Love" width="48" height="48" loading="lazy" decoding="async" />
@@ -513,119 +572,5 @@
     </div>
   </div>
 </section>
-
-<!-- ============ MULTI-STEP LEAD POPUP ============ -->
-<div class="lead-popup" id="leadPopup" role="dialog" aria-modal="true" aria-labelledby="leadPopupTitle">
-  <div class="lead-card">
-    <button type="button" class="lead-close" id="leadClose" aria-label="Close">×</button>
-
-    <!-- Branded header -->
-    <div class="lead-head">
-      <div class="lead-avatar">
-        <img src="{{ asset('images/founderimage7.jpeg') }}" alt="Victoria Love" width="40" height="40" loading="lazy" decoding="async" />
-        <span class="online-dot"></span>
-      </div>
-      <div class="lead-greet">
-        <div class="lead-name">Victoria Love</div>
-        <div class="lead-role">Credit Coach · Founder</div>
-      </div>
-    </div>
-
-    <!-- Progress dots -->
-    <div class="lead-progress">
-      <div class="lp-dot active"></div>
-      <div class="lp-dot"></div>
-      <div class="lp-dot"></div>
-      <div class="lp-dot"></div>
-    </div>
-
-    <form id="leadForm" novalidate>
-      <!-- STEP 1 — Credit Score -->
-      <div class="lead-step active" data-step="1">
-        <span class="lead-eyebrow">Step 1 of 4 · 30 seconds</span>
-        <h3 id="leadPopupTitle">What's your current credit score range?</h3>
-        <p>Be honest — it helps me match you to the right plan.</p>
-        <div class="lead-options">
-          <label><input type="radio" name="score" value="below-500" required /><span>Below 500 — major reset needed</span></label>
-          <label><input type="radio" name="score" value="500-579" /><span>500–579 — Poor</span></label>
-          <label><input type="radio" name="score" value="580-669" /><span>580–669 — Fair</span></label>
-          <label><input type="radio" name="score" value="670-739" /><span>670–739 — Good, want better</span></label>
-          <label><input type="radio" name="score" value="740-plus" /><span>740+ — push higher</span></label>
-          <label><input type="radio" name="score" value="unknown" /><span>Not sure — haven't checked</span></label>
-        </div>
-      </div>
-
-      <!-- STEP 2 — Biggest Issue -->
-      <div class="lead-step" data-step="2">
-        <span class="lead-eyebrow">Step 2 of 4</span>
-        <h3>What's holding your credit back the most?</h3>
-        <p>Pick the biggest culprit. We attack it first.</p>
-        <div class="lead-options">
-          <label><input type="radio" name="issue" value="collections" required /><span>🗂️ Collections</span></label>
-          <label><input type="radio" name="issue" value="late-payments" /><span>⏰ Late payments</span></label>
-          <label><input type="radio" name="issue" value="charge-offs" /><span>💳 Charge-offs</span></label>
-          <label><input type="radio" name="issue" value="inquiries" /><span>🎯 Too many hard inquiries</span></label>
-          <label><input type="radio" name="issue" value="bankruptcy" /><span>⚖️ Bankruptcy on file</span></label>
-          <label><input type="radio" name="issue" value="multiple" /><span>📋 Multiple — all of the above</span></label>
-        </div>
-      </div>
-
-      <!-- STEP 3 — Goal -->
-      <div class="lead-step" data-step="3">
-        <span class="lead-eyebrow">Step 3 of 4</span>
-        <h3>What's your #1 goal in the next 90 days?</h3>
-        <p>One target. Your plan gets built around it.</p>
-        <div class="lead-options">
-          <label><input type="radio" name="goal" value="home" required /><span>🏠 Buy my first home</span></label>
-          <label><input type="radio" name="goal" value="funding" /><span>💼 Unlock $100K+ in business funding</span></label>
-          <label><input type="radio" name="goal" value="cleanup" /><span>✨ Clean up my credit file fast</span></label>
-          <label><input type="radio" name="goal" value="all" /><span>📈 All of the above</span></label>
-        </div>
-      </div>
-
-      <!-- STEP 4 — Contact -->
-      <div class="lead-step" data-step="4">
-        <span class="lead-eyebrow">Final step · Almost done</span>
-        <h3>Where should I send your free 90-day plan?</h3>
-        <p>I'll personally review your answers and reach out within 24 hours.</p>
-        <div class="lead-fields">
-          <label class="lead-field">
-            <span>Full name</span>
-            <input type="text" name="name" required placeholder="Your name" autocomplete="name" />
-          </label>
-          <label class="lead-field">
-            <span>Email address</span>
-            <input type="email" name="email" required placeholder="you@email.com" autocomplete="email" />
-          </label>
-          <label class="lead-field">
-            <span>Phone number</span>
-            <input type="tel" name="phone" required placeholder="(555) 123-4567" autocomplete="tel" />
-          </label>
-        </div>
-      </div>
-
-      <!-- Success state -->
-      <div class="lead-step" data-step="success">
-        <div class="lead-success-icon">✓</div>
-        <h3>You're in. I'll be in touch.</h3>
-        <p>I'll personally review your answers and send your custom 90-day plan within 24 hours. Check your inbox &amp; phone.</p>
-        <button type="button" class="btn btn-pink" id="leadDoneBtn">Close &amp; keep exploring</button>
-      </div>
-
-      <!-- Nav buttons -->
-      <div class="lead-nav" id="leadNav">
-        <button type="button" class="lead-back" id="leadBack" disabled>← Back</button>
-        <button type="button" class="lead-next" id="leadNext" disabled>Next →</button>
-        <button type="submit" class="lead-submit" id="leadSubmit" hidden disabled>Send my plan →</button>
-      </div>
-    </form>
-
-    <div class="lead-trust">
-      <span class="lt-stars">★★★★★</span>
-      <strong>1,000+ clients served</strong>
-      <small>· Your info stays private</small>
-    </div>
-  </div>
-</div>
 
 @endsection

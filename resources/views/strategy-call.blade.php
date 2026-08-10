@@ -4,8 +4,8 @@
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <meta name="csrf-token" content="{{ csrf_token() }}">
-<title>Free Strategy Call · Victoria Love</title>
-<meta name="description" content="Take 60 seconds to qualify, then pick a time on Victoria's calendar.">
+<title>Free 15-Min Phone Call · Victoria Love</title>
+<meta name="description" content="Leave your number and pick a day &amp; time — Victoria will call you for a free 15-minute credit consultation.">
 <meta name="robots" content="noindex,nofollow">
 
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -345,26 +345,23 @@ form.sc-form { display: flex; flex-direction: column; gap: 18px; }
   <!-- LEFT — promise + trust -->
   <aside class="sc-left">
     <div class="sc-left-body">
-      <span class="sc-step-pill"><span class="dot"></span> Step 1 of 2 · Qualify first</span>
-      <h1>Tell me about your file in <span class="serif">60 seconds.</span></h1>
-      <p class="lede">Then you pick a 15-minute slot on my calendar. I read every form before the call so we don't waste your time.</p>
+      <span class="sc-step-pill"><span class="dot"></span> Free 15-min phone call</span>
+      <h1>Leave your number &amp; <span class="serif">I'll call you.</span></h1>
+      <p class="lede">Tell me the best day and time, and I'll personally call your phone for a free 15-minute credit consultation. No Zoom, no card, no pressure.</p>
 
       <ul class="sc-bullets">
-        <li><span class="ck">✓</span><span>Free 15-min Zoom — no card, no pitch</span></li>
-        <li><span class="ck">✓</span><span>I pull up your real reports with you on the call</span></li>
-        <li><span class="ck">✓</span><span>You leave with a 90-day plan, written down</span></li>
+        <li><span class="ck">✓</span><span>A real 15-min phone call with Victoria</span></li>
+        <li><span class="ck">✓</span><span>We go over your credit and your options</span></li>
+        <li><span class="ck">✓</span><span>You leave with a clear next step — even if you never hire me</span></li>
         <li><span class="ck">✓</span><span>1,000+ files cleaned · +147 avg gain</span></li>
       </ul>
-
-      <div class="sc-progress" aria-hidden="true"><span></span></div>
-      <p class="sc-progress-lab"><span>Step 1 · Qualify</span><span>Step 2 · Pick a time</span></p>
     </div>
 
     <div class="sc-victoria">
       <span class="sc-victoria-img"><img src="{{ asset('images/founderimage7.jpeg') }}" alt=""></span>
       <div class="sc-victoria-text">
-        <strong>Victoria reviews every form</strong>
-        <small>Personally — before the call.</small>
+        <strong>Victoria calls you personally</strong>
+        <small>At the day &amp; time you pick.</small>
       </div>
     </div>
   </aside>
@@ -374,8 +371,8 @@ form.sc-form { display: flex; flex-direction: column; gap: 18px; }
     <div class="sc-form-wrap">
 
       <div class="sc-form-head">
-        <h2>Let's get you <em>booked.</em></h2>
-        <p>Honest answers help me come ready. None of this is shared — it goes straight to me.</p>
+        <h2>Request your <em>free call.</em></h2>
+        <p>Leave your number and pick a day &amp; time — I'll call your phone personally. It goes straight to me.</p>
       </div>
 
       @if ($errors->any())
@@ -389,10 +386,15 @@ form.sc-form { display: flex; flex-direction: column; gap: 18px; }
         </div>
       @endif
 
+      <div class="sc-callout" style="margin-bottom:22px;">
+        <strong>📞 When I'm available</strong>
+        Free 15-minute phone calls, <em>Monday–Friday, 11:00 AM – 3:00 PM Central.</em> Pick a slot below and I'll call you.
+      </div>
+
       <form id="strategyCallForm" class="sc-form" method="POST" action="{{ route('strategy-call.submit') }}" autocomplete="on" novalidate>
         @csrf
 
-        <div class="sc-section-lab">Who you are</div>
+        <div class="sc-section-lab">Your details</div>
 
         <div class="sc-row">
           <label class="sc-field">
@@ -400,128 +402,49 @@ form.sc-form { display: flex; flex-direction: column; gap: 18px; }
             <input type="text" name="name" required maxlength="120" value="{{ old('name') }}" placeholder="Jane Smith" autocomplete="name" />
           </label>
           <label class="sc-field">
-            <span class="sc-lab">Email <em>*</em></span>
-            <input type="email" name="email" required maxlength="255" value="{{ old('email') }}" placeholder="you@email.com" autocomplete="email" />
-          </label>
-        </div>
-
-        <div class="sc-row">
-          <label class="sc-field">
-            <span class="sc-lab">Phone <em>*</em></span>
+            <span class="sc-lab">Phone <em>*</em> <small>(I'll call this number)</small></span>
             <input type="tel" name="phone" required maxlength="30" value="{{ old('phone') }}" placeholder="(555) 123-4567" autocomplete="tel" />
           </label>
-          <label class="sc-field">
-            <span class="sc-lab">Best time to reach you</span>
-            <input type="text" name="best_time" maxlength="120" value="{{ old('best_time') }}" placeholder="Weekday afternoons CT" />
-          </label>
         </div>
 
-        <div class="sc-section-lab">Where you are with credit</div>
+        <label class="sc-field">
+          <span class="sc-lab">Email <em>*</em></span>
+          <input type="email" name="email" required maxlength="255" value="{{ old('email') }}" placeholder="you@email.com" autocomplete="email" />
+        </label>
+
+        <div class="sc-section-lab">When should I call you? <small style="text-transform:none;letter-spacing:0;color:var(--ink-3);font-weight:500">· Mon–Fri, 11am–3pm CT</small></div>
 
         <div class="sc-row">
           <label class="sc-field">
-            <span class="sc-lab">Your current situation</span>
-            <select name="situation" autocomplete="off">
-              <option value="">Pick one</option>
-              @foreach ([
-                'starting'        => 'Just starting — don\'t know where I stand',
-                'mid'             => 'In the middle of fixing it on my own',
-                'stuck'           => 'Stuck — tried things, nothing\'s moving',
-                'already_worked'  => 'Worked with a credit repair company before',
-              ] as $val => $lab)
-                <option value="{{ $val }}" @selected(old('situation')===$val)>{{ $lab }}</option>
+            <span class="sc-lab">Preferred day <em>*</em></span>
+            <select name="preferred_day" required autocomplete="off">
+              <option value="">Pick a day</option>
+              @foreach (['Monday','Tuesday','Wednesday','Thursday','Friday'] as $d)
+                <option value="{{ $d }}" @selected(old('preferred_day')===$d)>{{ $d }}</option>
               @endforeach
             </select>
           </label>
           <label class="sc-field">
-            <span class="sc-lab">Current credit score</span>
-            <select name="score" autocomplete="off">
-              <option value="">Not sure / haven't checked</option>
-              @foreach (['Below 500','500–579 (Poor)','580–669 (Fair)','670–739 (Good)','740+ (Great)'] as $s)
-                <option value="{{ $s }}" @selected(old('score')===$s)>{{ $s }}</option>
-              @endforeach
-            </select>
-          </label>
-        </div>
-
-        <div class="sc-row">
-          <label class="sc-field">
-            <span class="sc-lab">When do you want to start?</span>
-            <select name="timeline" autocomplete="off">
-              <option value="">Pick a timeline</option>
-              @foreach (['ASAP — ready today','Within 1–2 weeks','In the next month','Just exploring'] as $tl)
-                <option value="{{ $tl }}" @selected(old('timeline')===$tl)>{{ $tl }}</option>
-              @endforeach
-            </select>
-          </label>
-          <label class="sc-field">
-            <span class="sc-lab">Investment you're comfortable with</span>
-            <select name="investment_range" autocomplete="off">
-              <option value="">Pick a range</option>
-              @foreach (['Under $300','$300–$600','$600–$1,000','$1,000+','Just exploring'] as $iv)
-                <option value="{{ $iv }}" @selected(old('investment_range')===$iv)>{{ $iv }}</option>
+            <span class="sc-lab">Preferred time (CT) <em>*</em></span>
+            <select name="preferred_time" required autocomplete="off">
+              <option value="">Pick a time</option>
+              @foreach (['11:00 AM','11:30 AM','12:00 PM','12:30 PM','1:00 PM','1:30 PM','2:00 PM','2:30 PM','3:00 PM'] as $t)
+                <option value="{{ $t }}" @selected(old('preferred_time')===$t)>{{ $t }}</option>
               @endforeach
             </select>
           </label>
         </div>
 
         <label class="sc-field">
-          <span class="sc-lab">What's your 90-day goal?</span>
-          <textarea name="goal" rows="3" maxlength="2000" placeholder="Mortgage approval, business funding, buy a car, just clean things up — be specific so I can come ready.">{{ old('goal') }}</textarea>
-        </label>
-
-        <div class="sc-row">
-          <label class="sc-field">
-            <span class="sc-lab">Tried credit repair before?</span>
-            <select name="prior_repair" autocomplete="off">
-              <option value="no"  @selected(old('prior_repair','no')==='no')>No — first time</option>
-              <option value="yes" @selected(old('prior_repair')==='yes')>Yes — tell me below</option>
-            </select>
-          </label>
-          <label class="sc-field">
-            <span class="sc-lab">Who did you work with? <small>(optional)</small></span>
-            <input type="text" name="prior_repair_notes" maxlength="2000" value="{{ old('prior_repair_notes') }}" placeholder="Company name, DIY method, etc." />
-          </label>
-        </div>
-
-        <div class="sc-section-lab">Monitoring access — bring it to the call</div>
-
-        <div class="sc-callout">
-          <strong>I can't help you on a 15-min call unless we can see your real reports together.</strong>
-          Tell me which monitoring service you use and the username — <em>never your password.</em> You'll log in live on Zoom.
-        </div>
-
-        <div class="sc-row">
-          <label class="sc-field">
-            <span class="sc-lab">Monitoring service you use</span>
-            <select name="monitoring_service" autocomplete="off">
-              <option value="">Pick one</option>
-              @foreach (['IdentityIQ','SmartCredit','MyScoreIQ','MyFICO','Experian (paid)','Credit Karma (free)','None yet','Other'] as $ms)
-                <option value="{{ $ms }}" @selected(old('monitoring_service')===$ms)>{{ $ms }}</option>
-              @endforeach
-            </select>
-          </label>
-          <label class="sc-field">
-            <span class="sc-lab">Monitoring username / email</span>
-            <input type="text" name="monitoring_username" maxlength="120" value="{{ old('monitoring_username') }}" placeholder="The email you log in with" autocomplete="off" />
-          </label>
-        </div>
-
-        <label class="sc-check">
-          <input type="checkbox" name="will_bring_login" value="1" @checked(old('will_bring_login')) required />
-          <span><strong>I'll have my monitoring login open and ready</strong> when we get on Zoom. Without it, the call gets rescheduled.</span>
-        </label>
-
-        <label class="sc-check">
-          <input type="checkbox" name="showup_confirmed" value="1" @checked(old('showup_confirmed')) required />
-          <span><strong>I'll show up on time.</strong> If something comes up, I'll reschedule at least 24 hours in advance — no ghosting.</span>
+          <span class="sc-lab">What do you need help with? <small>(optional)</small></span>
+          <textarea name="goal" rows="3" maxlength="2000" placeholder="A quick note on your situation or goal — totally optional.">{{ old('goal') }}</textarea>
         </label>
 
         <button type="submit" class="sc-submit">
-          Continue to pick a time <span class="arr">→</span>
+          Request my free call <span class="arr">→</span>
         </button>
 
-        <p class="sc-fine">By submitting you agree to be contacted by email or phone. Your info stays private.</p>
+        <p class="sc-fine">By submitting you agree to be contacted by phone or email at the time you selected. Your info stays private.</p>
       </form>
 
     </div>

@@ -703,26 +703,33 @@ table.adm-table .actions { white-space: nowrap; }
     @endphp
     <nav class="admin-nav">
       <a href="{{ route('admin.dashboard') }}"      class="@if($current==='admin.dashboard') active @endif"><span class="ic">⬚</span> Dashboard</a>
+
       @if (\Illuminate\Support\Facades\Route::has('admin.all-leads'))
         <a href="{{ route('admin.all-leads') }}"    class="@if($current==='admin.all-leads') active @endif"><span class="ic">≡</span> All Leads</a>
       @endif
+
       @unless ($reviewMode)
-        <a href="{{ route('admin.subscriptions') }}"  class="@if(str_starts_with($current,'admin.subscriptions')) active @endif"><span class="ic">◆</span> Subscriptions</a>
         <a href="{{ route('admin.payments') }}"       class="@if($current==='admin.payments') active @endif"><span class="ic">$</span> Payments</a>
+        <a href="{{ route('admin.onboarding') }}"     class="@if(str_starts_with($current,'admin.onboarding')) active @endif"><span class="ic">⚑</span> Paid Credit Repair Clients</a>
         <a href="{{ route('admin.payment-links') }}"  class="@if(str_starts_with($current,'admin.payment-links')) active @endif"><span class="ic">🔗</span> Payment Links</a>
+      @endunless
+
+      @if (\Illuminate\Support\Facades\Route::has('admin.strategy-calls'))
+        <a href="{{ route('admin.strategy-calls') }}" class="@if(str_starts_with($current,'admin.strategy-calls')) active @endif"><span class="ic">📞</span> Consultation Calls</a>
+      @endif
+
+      <a href="{{ route('admin.funding') }}"        class="@if(str_starts_with($current,'admin.funding')) active @endif"><span class="ic">$</span> Funding Leads</a>
+      <a href="{{ route('admin.mentorship') }}"     class="@if($current==='admin.mentorship' || str_starts_with($current,'admin.mentorship.')) active @endif"><span class="ic">★</span> Mentorship Leads</a>
+      <a href="{{ route('admin.contacts') }}"       class="@if(str_starts_with($current,'admin.contacts')) active @endif"><span class="ic">✉</span> Contact Us Submissions</a>
+
+      @unless ($reviewMode)
         <a href="{{ route('admin.apex-retries') }}"   class="@if(str_starts_with($current,'admin.apex-retries')) active @endif"><span class="ic">↻</span> Apex Retries</a>
         <a href="{{ route('admin.mentorship-clients') }}" class="@if(str_starts_with($current,'admin.mentorship-clients')) active @endif"><span class="ic">★</span> Paid Mentorship Clients</a>
         <a href="{{ route('admin.ebooks') }}"         class="@if(str_starts_with($current,'admin.ebooks')) active @endif"><span class="ic">📖</span> eBooks Catalog</a>
         <a href="{{ route('admin.ebook-orders') }}"   class="@if(str_starts_with($current,'admin.ebook-orders')) active @endif"><span class="ic">📦</span> eBook Sales</a>
-        <a href="{{ route('admin.onboarding') }}"     class="@if(str_starts_with($current,'admin.onboarding')) active @endif"><span class="ic">⚑</span> Paid Credit Repair Clients</a>
+        <a href="{{ route('admin.subscriptions') }}"  class="@if(str_starts_with($current,'admin.subscriptions')) active @endif"><span class="ic">◆</span> Subscriptions</a>
       @endunless
-      @if (\Illuminate\Support\Facades\Route::has('admin.strategy-calls'))
-        <a href="{{ route('admin.strategy-calls') }}" class="@if(str_starts_with($current,'admin.strategy-calls')) active @endif"><span class="ic">☎</span> Strategy Calls</a>
-      @endif
-      <a href="{{ route('admin.funding') }}"        class="@if(str_starts_with($current,'admin.funding')) active @endif"><span class="ic">$</span> Funding Leads</a>
-      <a href="{{ route('admin.mentorship') }}"     class="@if(str_starts_with($current,'admin.mentorship')) active @endif"><span class="ic">★</span> Mentorship Leads</a>
-      <a href="{{ route('admin.contacts') }}"       class="@if(str_starts_with($current,'admin.contacts')) active @endif"><span class="ic">✉</span> Contact Us Submissions</a>
-      <a href="{{ route('admin.leads') }}"          class="@if(str_starts_with($current,'admin.leads')) active @endif"><span class="ic">★</span> Popup Submissions</a>
+
       <a href="{{ url('/') }}" target="_blank"><span class="ic">↗</span> View site</a>
     </nav>
 
@@ -746,7 +753,7 @@ table.adm-table .actions { white-space: nowrap; }
       <form class="admin-search" method="GET" action="{{ route('admin.search') }}">
         <span class="admin-search-ico" aria-hidden="true">⌕</span>
         <input type="search" name="q" value="{{ request('q') }}"
-               placeholder="Search across paid clients, funding leads, contact us submissions, popup submissions…"
+               placeholder="Search across paid clients, funding leads, contact us submissions, consultation calls…"
                autocomplete="off"
                aria-label="Search the dashboard">
         <button type="submit" class="adm-btn">Search</button>

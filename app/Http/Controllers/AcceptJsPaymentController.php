@@ -44,16 +44,41 @@ class AcceptJsPaymentController extends Controller
                 'Pre-approval prep',
             ],
         ],
+        // ───────────── Credit-repair plans (homepage pricing) ─────────────
+        'fast-dispute' => [
+            'amount'    => '297.00',
+            'label'     => 'Fast Dispute',
+            'tagline'   => 'All-in-one aggressive dispute — first results in about 2 weeks.',
+            'recurring' => null,
+            'features'  => [
+                'One-time payment — nothing recurring',
+                'Aggressive all-in-one 3-bureau dispute',
+                'First results in as little as 2 weeks',
+                'Priority handling on your file',
+            ],
+        ],
         'monthly' => [
             'amount'    => '197.00',
             'label'     => 'Monthly Plan',
-            'tagline'   => 'Full 90-day credit transformation, cancel after 90',
+            'tagline'   => 'Full 90-day credit transformation — $197 today, then $100/mo.',
             'recurring' => '100.00',
             'features'  => [
                 'Full 90-day credit plan',
                 'Aggressive 3-bureau disputes',
                 'Monthly progress updates',
                 'Cancel anytime after 90 days',
+            ],
+        ],
+        'unlimited' => [
+            'amount'    => '597.00',
+            'label'     => 'Unlimited · Lifetime',
+            'tagline'   => 'One payment, unlimited dispute rounds for life.',
+            'recurring' => null,
+            'features'  => [
+                'One-time $597 — lifetime access',
+                'Unlimited dispute rounds',
+                'Every negative item, every bureau',
+                'Priority support for life',
             ],
         ],
         'onetime' => [
@@ -69,15 +94,15 @@ class AcceptJsPaymentController extends Controller
             ],
         ],
         'couple' => [
-            'amount'    => '900.00',
-            'label'     => 'Couple Plan',
-            'tagline'   => 'Two-person coordinated credit restoration',
+            'amount'    => '597.00',
+            'label'     => 'Couple · Unlimited',
+            'tagline'   => 'Two people, unlimited lifetime rounds — one payment of $597.',
             'recurring' => null,
             'features'  => [
-                'Program for both partners',
-                'Dual credit restoration',
-                'Coordinated bureau attacks',
-                'Joint funding prep',
+                'Covers both partners',
+                'Unlimited dispute rounds for two',
+                'Coordinated 3-bureau attack',
+                'One payment of $597',
             ],
         ],
         'vip' => [

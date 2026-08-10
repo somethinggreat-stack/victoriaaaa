@@ -335,11 +335,11 @@ class DashboardController extends Controller
             foreach ($sq->latest()->get() as $s) {
                 $rows->push([
                     'type'       => 'strategy',
-                    'type_label' => 'Strategy Call',
+                    'type_label' => 'Consultation Call',
                     'name'       => $s->name,
                     'email'      => $s->email,
                     'phone'      => $s->phone,
-                    'summary'    => trim(collect([$s->situation, $s->score, $s->timeline, $s->investment_range])->filter()->join(' · ')),
+                    'summary'    => $s->best_time ? ('Call: ' . $s->best_time) : trim(collect([$s->situation, $s->score, $s->timeline, $s->investment_range])->filter()->join(' · ')),
                     'status'     => $s->status,
                     'created_at' => $s->created_at,
                     'view_url'   => route('admin.strategy-calls.show', $s),
