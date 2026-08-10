@@ -144,7 +144,7 @@
         <div class="name">Monthly</div>
         <div class="amt">$197 <span class="p">+ $100/mo</span></div>
         <div class="strike">full 90-day plan</div>
-        <p class="desc">Full 90-day credit transformation. Cancel anytime after 90.</p>
+        <p class="desc">A steady, thorough 90-day rebuild — best when time's on your side and you're not chasing a deadline. Cancel anytime after 90.</p>
         <ul>
           <li>Full 90-day credit plan</li>
           <li>Aggressive 3-bureau disputes</li>
