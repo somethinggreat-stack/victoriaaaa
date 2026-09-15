@@ -111,4 +111,13 @@ return [
         'welcome_token' => env('MENTORSHIP_WELCOME_TOKEN', 'byob-w7k4qp92xm'),
     ],
 
+    // Burgundy Clients — backend partner, 50/50 split of net profit.
+    'burgundy' => [
+        'round_cost'     => (float) env('BURGUNDY_ROUND_COST', 15),      // per client, per processed round
+        'support_weekly' => (float) env('BURGUNDY_SUPPORT_WEEKLY', 100), // customer support, per week
+        // Date support billing starts (YYYY-MM-DD). Blank = first Burgundy client added.
+        'support_start'  => env('BURGUNDY_SUPPORT_START'),
+        'burgundy_share' => (float) env('BURGUNDY_SHARE', 0.5),
+    ],
+
 ];

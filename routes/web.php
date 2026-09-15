@@ -2,6 +2,7 @@
 
 use App\Http\Controllers\AcceptJsPaymentController;
 use App\Http\Controllers\Admin\AuthController;
+use App\Http\Controllers\Admin\BurgundyClientsController;
 use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EbooksController;
 use App\Http\Controllers\Admin\PaymentsController;
@@ -340,5 +341,28 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
 
         Route::get('/ebook-orders',           [EbooksController::class, 'orders'])->name('ebook-orders');
         Route::get('/ebook-orders/{order}',   [EbooksController::class, 'orderShow'])->name('ebook-orders.show');
+
+        // ─── Burgundy Clients (separate from Paid Credit Repair Clients) ───
+        Route::prefix('burgundy-clients')->name('burgundy.')->controller(BurgundyClientsController::class)->group(function () {
+            Route::get('/',        'index')->name('index');
+            Route::post('/',       'store')->name('store');
+            Route::post('/setup',  'setup')->name('setup');
+            Route::post('/import', 'import')->name('import');
+
+            Route::get('/expenses',                            'expenses')->name('expenses');
+            Route::post('/expenses',                           'storeExpense')->name('expenses.store');
+            Route::patch('/expenses/{burgundyExpense}/status', 'expenseStatus')->name('expenses.status');
+            Route::delete('/expenses/{burgundyExpense}',       'destroyExpense')->name('expenses.destroy');
+
+            Route::get('/{burgundyClient}',            'show')->name('show');
+            Route::patch('/{burgundyClient}',          'update')->name('update');
+            Route::patch('/{burgundyClient}/status',   'status')->name('status');
+            Route::delete('/{burgundyClient}',         'destroy')->name('destroy');
+            Route::post('/{burgundyClient}/rounds',                 'storeRound')->name('rounds.store');
+            Route::delete('/{burgundyClient}/rounds/{round}',       'destroyRound')->name('rounds.destroy');
+            Route::post('/{burgundyClient}/payments',               'storePayment')->name('payments.store');
+            Route::post('/{burgundyClient}/payment-link',           'storePaymentLink')->name('payments.link');
+            Route::delete('/{burgundyClient}/payments/{payment}',   'destroyPayment')->name('payments.destroy');
+        });
     });
 });

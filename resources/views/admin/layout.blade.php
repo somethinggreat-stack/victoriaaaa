@@ -738,6 +738,10 @@ table.adm-table .actions { white-space: nowrap; }
       @endunless
 
       <a href="{{ url('/') }}" target="_blank"><span class="ic">↗</span> View site</a>
+
+      @unless ($reviewMode)
+        <a href="{{ route('admin.burgundy.index') }}" class="@if(str_starts_with($current,'admin.burgundy.')) active @endif"><span class="ic">❖</span> Burgundy Clients</a>
+      @endunless
     </nav>
 
     <div class="admin-foot">

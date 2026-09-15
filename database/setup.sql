@@ -439,6 +439,86 @@ CREATE TABLE IF NOT EXISTS `apex_retry_jobs` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- ────────────────────────────────────────────────────────────────────────────
+-- Burgundy Clients — clients serviced with Burgundy on a 50/50 profit split.
+-- Also creatable with the "Set up" button on /victoria-admin/burgundy-clients.
+-- (matches database/migrations/2026_09_15_000000_create_burgundy_tables.php)
+-- ────────────────────────────────────────────────────────────────────────────
+CREATE TABLE IF NOT EXISTS `burgundy_clients` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `first_name` VARCHAR(100) NOT NULL,
+  `last_name` VARCHAR(100) NULL DEFAULT NULL,
+  `email` VARCHAR(150) NULL DEFAULT NULL,
+  `phone` VARCHAR(30) NULL DEFAULT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'invited',
+  `source` VARCHAR(20) NOT NULL DEFAULT 'new',
+  `subscription_id` BIGINT UNSIGNED NULL DEFAULT NULL,
+  `monthly_fee` DECIMAL(10,2) NULL DEFAULT NULL,
+  `current_round` INT UNSIGNED NOT NULL DEFAULT 0,
+  `invited_at` TIMESTAMP NULL DEFAULT NULL,
+  `signed_up_at` DATE NULL DEFAULT NULL,
+  `paid_at` TIMESTAMP NULL DEFAULT NULL,
+  `last_activity_at` TIMESTAMP NULL DEFAULT NULL,
+  `next_action` VARCHAR(255) NULL DEFAULT NULL,
+  `notes` TEXT NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  KEY `burgundy_clients_email_index` (`email`),
+  KEY `burgundy_clients_status_index` (`status`),
+  KEY `burgundy_clients_subscription_id_index` (`subscription_id`),
+  KEY `burgundy_clients_last_activity_at_index` (`last_activity_at`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `burgundy_rounds` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `burgundy_client_id` BIGINT UNSIGNED NOT NULL,
+  `round_number` INT UNSIGNED NOT NULL,
+  `processed_at` TIMESTAMP NOT NULL,
+  `cost` DECIMAL(10,2) NOT NULL DEFAULT 15.00,
+  `note` VARCHAR(255) NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  KEY `burgundy_rounds_processed_at_index` (`processed_at`),
+  CONSTRAINT `burgundy_rounds_burgundy_client_id_foreign`
+    FOREIGN KEY (`burgundy_client_id`) REFERENCES `burgundy_clients`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `burgundy_payments` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `burgundy_client_id` BIGINT UNSIGNED NOT NULL,
+  `amount` DECIMAL(10,2) NOT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'paid',
+  `method` VARCHAR(40) NULL DEFAULT NULL,
+  `payment_link_id` BIGINT UNSIGNED NULL DEFAULT NULL,
+  `counts_toward_profit` TINYINT(1) NOT NULL DEFAULT 1,
+  `paid_at` TIMESTAMP NULL DEFAULT NULL,
+  `note` VARCHAR(255) NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  UNIQUE KEY `burgundy_payments_payment_link_id_unique` (`payment_link_id`),
+  KEY `burgundy_payments_status_index` (`status`),
+  KEY `burgundy_payments_paid_at_index` (`paid_at`),
+  CONSTRAINT `burgundy_payments_burgundy_client_id_foreign`
+    FOREIGN KEY (`burgundy_client_id`) REFERENCES `burgundy_clients`(`id`) ON DELETE CASCADE
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `burgundy_expenses` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `description` VARCHAR(150) NOT NULL,
+  `amount` DECIMAL(10,2) NOT NULL,
+  `expense_date` DATE NOT NULL,
+  `status` VARCHAR(20) NOT NULL DEFAULT 'pending',
+  `notes` VARCHAR(255) NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  KEY `burgundy_expenses_status_index` (`status`),
+  KEY `burgundy_expenses_expense_date_index` (`expense_date`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+INSERT IGNORE INTO `migrations` (`migration`, `batch`)
+SELECT '2026_09_15_000000_create_burgundy_tables', 2
+FROM DUAL WHERE NOT EXISTS (SELECT 1 FROM `migrations` WHERE `migration` = '2026_09_15_000000_create_burgundy_tables');
+
+-- ────────────────────────────────────────────────────────────────────────────
 -- Seed: 4 starter eBooks (matches database/migrations/2026_05_14_120000_*.php)
 -- ────────────────────────────────────────────────────────────────────────────
 
