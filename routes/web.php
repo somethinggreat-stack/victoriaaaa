@@ -116,26 +116,6 @@ Route::get('/__lc_export_new_leads', function (\Illuminate\Http\Request $request
     ], 200, [], JSON_PRETTY_PRINT | JSON_UNESCAPED_SLASHES);
 });
 
-// TEMPORARY: run the Authorize.Net payment backfill / identification pass from
-// the browser (no shell on cPanel). Token protected. Remove once run.
-//   Preview : /__lc_backfill_payments?k=bf_pay_9sK4Wz&days=365&dry=1
-//   Apply   : /__lc_backfill_payments?k=bf_pay_9sK4Wz&days=365
-Route::get('/__lc_backfill_payments', function (\Illuminate\Http\Request $request) {
-    abort_unless($request->query('k') === 'bf_pay_9sK4Wz', 404);
-
-    @set_time_limit(0);
-
-    $options = ['--days' => (string) max(1, min(730, (int) $request->query('days', 180)))];
-    if ($request->query('dry') === '1') {
-        $options['--dry'] = true;
-    }
-
-    $exit = \Illuminate\Support\Facades\Artisan::call('payments:backfill-authnet', $options);
-
-    return response(\Illuminate\Support\Facades\Artisan::output(), $exit === 0 ? 200 : 500)
-        ->header('Content-Type', 'text/plain; charset=utf-8');
-});
-
 // TEMPORARY: find a person by name across every form table. Token protected. Remove after use.
 Route::get('/__lc_find_person', function (\Illuminate\Http\Request $request) {
     abort_unless($request->query('k') === 'bf_ghl_7kQ2Lm', 404);
