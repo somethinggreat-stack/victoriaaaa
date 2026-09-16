@@ -133,6 +133,13 @@ class BackfillAuthorizeNetPayments extends Command
                     $unmatched++;
                 }
 
+                // Now that the client is known, a charge with no payment number
+                // can be labelled properly: a renewal, unless they have no
+                // signup charge on file yet.
+                if (in_array($type, ['initial', 'recurring'], true)) {
+                    $type = $sync->typeForCharge($payNum, $subscription);
+                }
+
                 if (! $dry) {
                     $sync->record([
                         'transaction_id' => $transactionId,

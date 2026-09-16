@@ -109,6 +109,27 @@ class PaymentSync
     }
 
     /**
+     * Label a captured charge. Authorize.Net only supplies a payment number for
+     * charges taken by the recurring schedule; a charge taken any other way
+     * (virtual terminal, payment link) has none. In that case it's only a signup
+     * charge if the client doesn't already have one on file.
+     */
+    public function typeForCharge($payNum, ?Subscription $subscription): string
+    {
+        if ($payNum !== null && $payNum !== '') {
+            return $this->typeForPayNum($payNum);
+        }
+
+        if ($subscription && Payment::where('subscription_id', $subscription->id)
+                ->where('type', 'initial')
+                ->exists()) {
+            return 'recurring';
+        }
+
+        return 'initial';
+    }
+
+    /**
      * Map an Authorize.Net transaction type onto our payment type + status.
      *
      * @return array{0: string, 1: string}|null  [type, status]

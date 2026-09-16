@@ -148,6 +148,25 @@ class RecurringPaymentLinkingTest extends TestCase
         $this->assertSame(1, Payment::where('transaction_id', '121799000001')->count());
     }
 
+    public function test_a_charge_with_no_payment_number_is_labelled_a_renewal_when_a_signup_exists(): void
+    {
+        $sync = app(\App\Services\PaymentSync::class);
+
+        // Nothing on file yet, so an unnumbered charge is the signup.
+        $this->assertSame('initial', $sync->typeForCharge(null, $this->subscription));
+
+        Payment::create([
+            'subscription_id' => $this->subscription->id, 'transaction_id' => '121688665999',
+            'amount' => 197.00, 'type' => 'initial', 'status' => 'captured',
+            'charged_at' => '2026-06-24 13:10:00',
+        ]);
+
+        // With a signup already recorded, later charges are renewals.
+        $this->assertSame('recurring', $sync->typeForCharge(null, $this->subscription));
+        $this->assertSame('recurring', $sync->typeForCharge(3, $this->subscription));
+        $this->assertSame('initial', $sync->typeForCharge(1, $this->subscription));
+    }
+
     public function test_backfill_imports_missing_charges_and_relinks_orphans(): void
     {
         // Already on file, attached to nobody — what the old webhook produced.

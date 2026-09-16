@@ -199,7 +199,7 @@ class AuthorizeNetWebhookController extends Controller
             'transaction_id'  => $transactionId,
             'invoice_number'  => $invoiceNumber,
             'amount'          => (float) ($amount ?? 0),
-            'type'            => $payNum ? $sync->typeForPayNum($payNum) : 'recurring',
+            'type'            => $sync->typeForCharge($payNum, $subscription),
             'status'          => 'captured',
             'event_type_raw'  => self::EVT_PAYMENT_SUCCESS,
             'raw_payload'     => $payload,
