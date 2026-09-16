@@ -2,11 +2,14 @@
 
 namespace App\Services;
 
+use App\Models\EbookOrder;
 use App\Models\Payment;
+use App\Models\PaymentLink;
 use App\Models\Subscription;
 use Carbon\CarbonInterface;
 use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Attaches Authorize.Net charges to the right subscription.
@@ -149,6 +152,79 @@ class PaymentSync
         };
     }
 
+    /**
+     * Work out who actually paid, so a charge is never shown as "Unlinked".
+     *
+     * In order of certainty: the linked subscription, a payment link we
+     * generated, an eBook order, and finally the name on the card as
+     * Authorize.Net holds it (charges taken straight in the gateway).
+     */
+    public function attribute(Payment $payment, ?array $details = null, bool $save = true): Payment
+    {
+        $name = $email = $source = null;
+
+        if ($payment->subscription) {
+            $name   = trim($payment->subscription->first_name . ' ' . $payment->subscription->last_name) ?: null;
+            $email  = $payment->subscription->email;
+            $source = 'subscription';
+        }
+
+        if (! $name && ($payment->invoice_number || $payment->transaction_id)) {
+            if (Schema::hasTable('payment_links')) {
+                $link = PaymentLink::where(function ($q) use ($payment) {
+                    if ($payment->invoice_number) $q->orWhere('invoice_number', $payment->invoice_number);
+                    if ($payment->transaction_id) $q->orWhere('transaction_id', $payment->transaction_id);
+                })->first();
+
+                if ($link) {
+                    $name   = $link->client_name;
+                    $email  = $link->payer_email ?: $link->email;
+                    $source = 'payment_link';
+                }
+            }
+
+            if (! $name && Schema::hasTable('ebook_orders')) {
+                $order = EbookOrder::where(function ($q) use ($payment) {
+                    if ($payment->invoice_number) $q->orWhere('invoice_number', $payment->invoice_number);
+                    if ($payment->transaction_id) $q->orWhere('transaction_id', $payment->transaction_id);
+                })->first();
+
+                if ($order) {
+                    $name   = trim($order->first_name . ' ' . $order->last_name) ?: null;
+                    $email  = $order->email;
+                    $source = 'ebook';
+                }
+            }
+        }
+
+        // Nothing local knows this charge — it was taken inside Authorize.Net.
+        if (! $name && $details) {
+            $fromCard = trim(data_get($details, 'billTo.firstName', '') . ' ' . data_get($details, 'billTo.lastName', ''));
+            $fromCard = $fromCard !== '' ? $fromCard : null;
+            $gatewayEmail = data_get($details, 'customer.email') ?: null;
+
+            if ($fromCard || $gatewayEmail) {
+                $name   = $fromCard;
+                $email  = $gatewayEmail;
+                $source = 'gateway';
+            }
+        }
+
+        if ($name || $email) {
+            $payment->forceFill(array_filter([
+                'customer_name'  => $name,
+                'customer_email' => $email,
+                'source'         => $source,
+            ]));
+
+            if ($save) {
+                $payment->save();
+            }
+        }
+
+        return $payment;
+    }
+
     /** True when this transaction is already on file (under any type). */
     public function alreadyRecorded(?string $transactionId): bool
     {
@@ -159,7 +235,7 @@ class PaymentSync
      * Resolve + record one charge. Returns the payment, or null if it was
      * skipped. Safe to call twice for the same transaction.
      */
-    public function record(array $attrs, ?Subscription $subscription, CarbonInterface $chargedAt): ?Payment
+    public function record(array $attrs, ?Subscription $subscription, CarbonInterface $chargedAt, ?array $details = null): ?Payment
     {
         try {
             $attrs['subscription_id'] = $subscription?->id;
@@ -174,6 +250,9 @@ class PaymentSync
                 $this->advanceBillingDate($subscription, $chargedAt);
                 $this->clearPastDue($subscription);
             }
+
+            $payment->setRelation('subscription', $subscription);
+            $this->attribute($payment, $details);
 
             return $payment;
         } catch (\Throwable $e) {

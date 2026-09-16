@@ -167,6 +167,52 @@ class RecurringPaymentLinkingTest extends TestCase
         $this->assertSame('initial', $sync->typeForCharge(1, $this->subscription));
     }
 
+    public function test_charges_without_a_subscription_still_show_who_paid(): void
+    {
+        $sync = app(\App\Services\PaymentSync::class);
+
+        // 1. A charge from a payment link we generated.
+        \App\Models\PaymentLink::create([
+            'token' => 'pl_' . str_repeat('a', 20), 'client_name' => 'Dorenda Blake',
+            'email' => 'dorenda@example.com', 'amount' => 100.00, 'status' => 'paid',
+            'invoice_number' => 'PL-1789071841-U2MM', 'transaction_id' => '960001',
+            'payer_email' => 'dorenda.pays@example.com', 'paid_at' => now(),
+        ]);
+        $linkPayment = Payment::create([
+            'transaction_id' => '960001', 'invoice_number' => 'PL-1789071841-U2MM',
+            'amount' => 100.00, 'type' => 'recurring', 'status' => 'captured', 'charged_at' => now(),
+        ]);
+        $sync->attribute($linkPayment);
+        $this->assertSame('Dorenda Blake', $linkPayment->fresh()->payerName());
+        $this->assertSame('Payment link', $linkPayment->fresh()->sourceLabel());
+
+        // 2. An eBook sale.
+        \App\Models\EbookOrder::create([
+            'ebook_slug' => 'hard-inquiries-gone', 'ebook_title' => 'Get Hard Inquiries Gone',
+            'amount' => 47.00, 'first_name' => 'Milo', 'last_name' => 'Park', 'email' => 'milo@example.com',
+            'invoice_number' => 'EB-1789150542-CS4L', 'transaction_id' => '960002', 'status' => 'paid',
+        ]);
+        $bookPayment = Payment::create([
+            'transaction_id' => '960002', 'invoice_number' => 'EB-1789150542-CS4L',
+            'amount' => 47.00, 'type' => 'recurring', 'status' => 'captured', 'charged_at' => now(),
+        ]);
+        $sync->attribute($bookPayment);
+        $this->assertSame('Milo Park', $bookPayment->fresh()->payerName());
+        $this->assertSame('eBook sale', $bookPayment->fresh()->sourceLabel());
+
+        // 3. Charged straight inside Authorize.Net — only the gateway knows it.
+        $gatewayPayment = Payment::create([
+            'transaction_id' => '960003', 'invoice_number' => '4pxSpiAU5',
+            'amount' => 250.00, 'type' => 'recurring', 'status' => 'captured', 'charged_at' => now(),
+        ]);
+        $sync->attribute($gatewayPayment, [
+            'billTo'   => ['firstName' => 'Andre', 'lastName' => 'Sherard'],
+            'customer' => ['email' => 'walkin@example.com'],
+        ]);
+        $this->assertSame('Andre Sherard', $gatewayPayment->fresh()->payerName());
+        $this->assertSame('Charged in Authorize.Net', $gatewayPayment->fresh()->sourceLabel());
+    }
+
     public function test_backfill_imports_missing_charges_and_relinks_orphans(): void
     {
         // Already on file, attached to nobody — what the old webhook produced.

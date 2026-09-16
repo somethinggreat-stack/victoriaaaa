@@ -81,11 +81,14 @@
             @if($p->subscription)
               <a href="{{ route('admin.subscriptions.show', $p->subscription) }}" class="nm">{{ $p->subscription->first_name }} {{ $p->subscription->last_name }}</a>
               <span class="sub">{{ $p->subscription->email }}</span>
+            @elseif($p->payerName() || $p->payerEmail())
+              <span class="nm">{{ $p->payerName() ?: $p->payerEmail() }}</span>
+              @if($p->payerName() && $p->payerEmail())<span class="sub">{{ $p->payerEmail() }}</span>@endif
             @else
-              <span class="sub">Unlinked</span>
+              <span class="sub">Not identified</span>
             @endif
           </td>
-          <td>{{ $p->subscription?->plan_label ?? '—' }}</td>
+          <td>{{ $p->sourceLabel() }}</td>
           <td><span class="badge {{ in_array($p->type,['initial','recurring'])?'active':'failed' }}">{{ $p->type }}</span></td>
           <td><span class="badge {{ $p->status === 'captured' ? 'active' : 'failed' }}">{{ $p->status }}</span></td>
           <td><strong>{{ in_array($p->type, ['refund','void']) ? '−' : '' }}${{ number_format((float) $p->amount, 2) }}</strong></td>

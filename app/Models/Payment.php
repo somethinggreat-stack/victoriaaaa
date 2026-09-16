@@ -9,6 +9,9 @@ class Payment extends Model
 {
     protected $fillable = [
         'subscription_id',
+        'customer_name',
+        'customer_email',
+        'source',
         'transaction_id',
         'invoice_number',
         'amount',
@@ -28,6 +31,36 @@ class Payment extends Model
     public function subscription(): BelongsTo
     {
         return $this->belongsTo(Subscription::class);
+    }
+
+    /** Who paid — the subscription's owner, or whoever we identified. */
+    public function payerName(): ?string
+    {
+        if ($this->subscription) {
+            return trim($this->subscription->first_name . ' ' . $this->subscription->last_name) ?: null;
+        }
+
+        return $this->customer_name;
+    }
+
+    public function payerEmail(): ?string
+    {
+        return $this->subscription?->email ?? $this->customer_email;
+    }
+
+    /** Where the charge came from, in plain words. */
+    public function sourceLabel(): string
+    {
+        if ($this->subscription) {
+            return $this->subscription->plan_label ?: 'Subscription';
+        }
+
+        return match ($this->source) {
+            'payment_link' => 'Payment link',
+            'ebook'        => 'eBook sale',
+            'gateway'      => 'Charged in Authorize.Net',
+            default        => '—',
+        };
     }
 
     public function signedAmount(): float

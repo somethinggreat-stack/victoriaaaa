@@ -179,6 +179,8 @@ class PaymentsController extends Controller
             $q->where(function ($w) use ($search) {
                 $w->where('transaction_id', 'like', "%{$search}%")
                   ->orWhere('invoice_number', 'like', "%{$search}%")
+                  ->orWhere('customer_name', 'like', "%{$search}%")
+                  ->orWhere('customer_email', 'like', "%{$search}%")
                   ->orWhereHas('subscription', function ($s) use ($search) {
                       $s->where('email',      'like', "%{$search}%")
                         ->orWhere('first_name','like', "%{$search}%")

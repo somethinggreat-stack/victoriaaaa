@@ -149,7 +149,7 @@ class BackfillAuthorizeNetPayments extends Command
                         'status'         => $status,
                         'event_type_raw' => 'backfill.authorize_net',
                         'raw_payload'    => ['backfill' => true, 'transaction' => $details],
-                    ], $subscription, $chargedAt);
+                    ], $subscription, $chargedAt, $details);
                 }
 
                 if ($subscription) {
@@ -178,7 +178,7 @@ class BackfillAuthorizeNetPayments extends Command
 
         $this->newLine();
         $this->info(sprintf(
-            '%s%d imported · %d relinked · %d already on file · %d could not be matched to a client · %d unreadable · %d subscription(s) updated',
+            '%s%d imported · %d identified · %d already on file · %d could not be matched to a client · %d unreadable · %d subscription(s) updated',
             $dry ? '[DRY RUN — nothing saved] ' : '',
             $imported, $relinked, $skipped, $unmatched, $failed, count($touched)
         ));
@@ -195,12 +195,15 @@ class BackfillAuthorizeNetPayments extends Command
     }
 
     /**
-     * Charges already on file but attached to no client — everything the old
-     * webhook filed as "Unlinked". Looks each one up and attaches it.
+     * Charges on file with no client attached, or no name to show. Uses what we
+     * already hold (subscription, payment link, eBook order) and falls back to
+     * asking the gateway, so nothing is left reading "Unlinked".
      */
     private function relinkOrphans(AuthorizeNetApi $api, PaymentSync $sync, Carbon $from, Carbon $to, bool $dry, array &$touched): int
     {
-        $orphans = Payment::whereNull('subscription_id')
+        $orphans = Payment::where(function ($q) {
+                $q->whereNull('subscription_id')->orWhereNull('customer_name');
+            })
             ->whereNotNull('transaction_id')
             ->where(function ($q) use ($from, $to) {
                 $q->whereBetween('charged_at', [$from, $to])->orWhereNull('charged_at');
@@ -212,72 +215,90 @@ class BackfillAuthorizeNetPayments extends Command
         }
 
         $this->newLine();
-        $this->line(sprintf('  Re-checking %d charge(s) on file with no client attached...', $orphans->count()));
+        $this->line(sprintf('  Identifying %d charge(s) on file without a client...', $orphans->count()));
 
-        $relinked = 0;
-        $rows     = [];
+        $fixed = 0;
+        $rows  = [];
 
         foreach ($orphans as $payment) {
-            $details = $api->transactionDetails((string) $payment->transaction_id);
-            if (! $details) {
-                continue;
-            }
-            usleep(150000);
+            $hadSubscription = (bool) $payment->subscription_id;
+            $hadName         = (bool) $payment->customer_name;
 
-            $subscription = null;
-            if (in_array($payment->type, ['refund', 'void'], true) && ($refId = data_get($details, 'refTransId'))) {
-                $subscription = Payment::where('transaction_id', (string) $refId)
-                    ->whereIn('type', ['initial', 'recurring'])
-                    ->first()?->subscription;
-            }
+            // 1. What we already hold locally - no API call needed.
+            $sync->attribute($payment, null, ! $dry);
 
-            $subscription = $subscription ?: $sync->subscriptionFor(
-                data_get($details, 'subscription.id'),
-                data_get($details, 'order.invoiceNumber') ?: $payment->invoice_number,
-                data_get($details, 'customer.email')
-            );
+            // 2. Otherwise ask the gateway who this transaction belonged to.
+            if (! $payment->subscription_id || ! $payment->customer_name) {
+                $details = $api->transactionDetails((string) $payment->transaction_id);
 
-            if (! $subscription) {
-                continue;
-            }
+                if ($details) {
+                    usleep(150000);
 
-            $chargedAt = $payment->charged_at;
-            if ($submitted = data_get($details, 'submitTimeUTC')) {
-                try {
-                    $chargedAt = Carbon::parse($submitted);
-                } catch (\Throwable $e) {
-                    // keep what we had
+                    $subscription = null;
+                    if (in_array($payment->type, ['refund', 'void'], true) && ($refId = data_get($details, 'refTransId'))) {
+                        $subscription = Payment::where('transaction_id', (string) $refId)
+                            ->whereIn('type', ['initial', 'recurring'])
+                            ->first()?->subscription;
+                    }
+
+                    $subscription = $subscription ?: $sync->subscriptionFor(
+                        data_get($details, 'subscription.id'),
+                        data_get($details, 'order.invoiceNumber') ?: $payment->invoice_number,
+                        data_get($details, 'customer.email')
+                    );
+
+                    $chargedAt = $payment->charged_at;
+                    if ($submitted = data_get($details, 'submitTimeUTC')) {
+                        try {
+                            $chargedAt = Carbon::parse($submitted);
+                        } catch (\Throwable $e) {
+                            // keep what we had
+                        }
+                    }
+
+                    if ($subscription) {
+                        $payment->setRelation('subscription', $subscription);
+                        $payment->forceFill(['subscription_id' => $subscription->id, 'charged_at' => $chargedAt]);
+
+                        if (! $dry) {
+                            $payment->save();
+
+                            // Repair a stale billing date, but leave dunning status
+                            // alone - an old charge says nothing about the card today.
+                            if (in_array($payment->type, ['initial', 'recurring'], true)) {
+                                $sync->advanceBillingDate($subscription, $chargedAt);
+                            }
+                        }
+
+                        $touched[$subscription->id] = true;
+                    }
+
+                    $sync->attribute($payment, $details, ! $dry);
                 }
             }
 
-            if (! $dry) {
-                $payment->update([
-                    'subscription_id' => $subscription->id,
-                    'charged_at'      => $chargedAt,
-                ]);
+            $gainedClient = ! $hadSubscription && $payment->subscription_id;
+            $gainedName   = ! $hadName && $payment->customer_name;
 
-                // Repair a stale billing date, but leave dunning status alone —
-                // an old charge says nothing about the card's state today.
-                if (in_array($payment->type, ['initial', 'recurring'], true)) {
-                    $sync->advanceBillingDate($subscription, $chargedAt);
-                }
+            if (! $gainedClient && ! $gainedName) {
+                continue;
             }
 
-            $touched[$subscription->id] = true;
-            $relinked++;
+            $fixed++;
             $rows[] = [
-                $chargedAt?->format('M j, Y') ?? '—',
+                $payment->charged_at?->format('M j, Y') ?? '-',
                 $payment->type,
                 '$' . number_format((float) $payment->amount, 2),
-                trim($subscription->first_name . ' ' . $subscription->last_name),
+                $payment->payerName() ?: '- still unknown -',
+                $payment->sourceLabel(),
                 $payment->transaction_id,
             ];
         }
 
         if ($rows) {
-            $this->table(['Charged', 'Type', 'Amount', 'Now attached to', 'Transaction'], $rows);
+            $this->table(['Charged', 'Type', 'Amount', 'Now shows as', 'Source', 'Transaction'], $rows);
         }
 
-        return $relinked;
+        return $fixed;
     }
 }

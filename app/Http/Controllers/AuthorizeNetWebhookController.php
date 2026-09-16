@@ -203,7 +203,7 @@ class AuthorizeNetWebhookController extends Controller
             'status'          => 'captured',
             'event_type_raw'  => self::EVT_PAYMENT_SUCCESS,
             'raw_payload'     => $payload,
-        ], $subscription, $chargedAt);
+        ], $subscription, $chargedAt, $details ?? null);
 
         if (!$subscription) {
             Log::info('Charge recorded without a subscription match', [
@@ -354,17 +354,15 @@ class AuthorizeNetWebhookController extends Controller
             }
         }
 
-        $this->persistPayment([
-            'subscription_id' => optional($subscription)->id,
+        app(PaymentSync::class)->record([
             'transaction_id'  => $transactionId,
             'invoice_number'  => $invoiceNumber,
             'amount'          => abs((float) ($amount ?? 0)),
             'type'            => $type,
             'status'          => $status,
             'event_type_raw'  => $eventType,
-            'charged_at'      => now(),
             'raw_payload'     => $payload,
-        ]);
+        ], $subscription, now(), $details ?? null);
 
         if ($subscription) {
             SubscriptionEvent::create([

@@ -269,6 +269,11 @@ CREATE TABLE IF NOT EXISTS `subscriptions` (
 CREATE TABLE IF NOT EXISTS `payments` (
   `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
   `subscription_id` BIGINT UNSIGNED NULL DEFAULT NULL,
+  -- Who paid, when the charge has no subscription behind it (payment link,
+  -- eBook sale, or charged directly inside Authorize.Net).
+  `customer_name` VARCHAR(150) NULL DEFAULT NULL,
+  `customer_email` VARCHAR(150) NULL DEFAULT NULL,
+  `source` VARCHAR(30) NULL DEFAULT NULL,
   `transaction_id` VARCHAR(64) NULL DEFAULT NULL,
   `invoice_number` VARCHAR(64) NULL DEFAULT NULL,
   `amount` DECIMAL(10,2) NOT NULL DEFAULT 0.00,
