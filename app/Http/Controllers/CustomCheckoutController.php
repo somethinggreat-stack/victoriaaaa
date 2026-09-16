@@ -322,6 +322,11 @@ class CustomCheckoutController extends Controller
                     ],
                     'amount'      => $recurring['amount'],
                     'trialAmount' => '0.00',
+                    // Carry the invoice onto each rebill so the webhook can match it.
+                    'order'       => [
+                        'invoiceNumber' => mb_substr($invoiceNumber, 0, 20),
+                        'description'   => mb_substr($label, 0, 255),
+                    ],
                     'profile'     => [
                         'customerProfileId'        => $customerProfileId,
                         'customerPaymentProfileId' => $customerPaymentProfileId,

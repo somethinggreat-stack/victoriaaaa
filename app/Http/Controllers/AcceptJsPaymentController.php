@@ -602,6 +602,13 @@ class AcceptJsPaymentController extends Controller
                     ],
                     'amount'      => $recurringAmt,
                     'trialAmount' => '0.00',
+                    // Stamp the checkout invoice onto the subscription so every
+                    // monthly rebill arrives carrying it — that's what lets the
+                    // webhook attach the charge to this client.
+                    'order'       => [
+                        'invoiceNumber' => mb_substr($invoiceNumber, 0, 20),
+                        'description'   => mb_substr($planLabel, 0, 255),
+                    ],
                     'profile'     => [
                         'customerProfileId'        => $customerProfileId,
                         'customerPaymentProfileId' => $customerPaymentProfileId,

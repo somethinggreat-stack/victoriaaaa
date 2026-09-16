@@ -6,7 +6,9 @@ use App\Models\Payment;
 use App\Models\Subscription;
 use App\Models\SubscriptionEvent;
 use App\Models\WebhookEvent;
+use App\Services\PaymentSync;
 use Illuminate\Http\Request;
+use Illuminate\Support\Carbon;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Log;
 
@@ -135,85 +137,89 @@ class AuthorizeNetWebhookController extends Controller
 
     private function handlePaymentSuccess(?string $invoiceNumber, ?string $transactionId, $amount, array $payload, ?WebhookEvent $webhookEvent = null)
     {
-        if (!$invoiceNumber) {
-            Log::warning('authcapture without invoice number, ignoring');
-            return response('Event received', 200);
+        if ($invoiceNumber) {
+            Cache::put('paid_invoice_' . $invoiceNumber, true, now()->addMinutes(30));
         }
 
-        Cache::put('paid_invoice_' . $invoiceNumber, true, now()->addMinutes(30));
+        $sync           = app(PaymentSync::class);
+        $cachedCustomer = $invoiceNumber ? Cache::get('checkout_customer_' . $invoiceNumber) : null;
 
-        $cachedCustomer = Cache::get('checkout_customer_' . $invoiceNumber);
-
+        // ── Signup charge — the customer is still on the checkout page ──
         if ($cachedCustomer) {
-            $this->persistPayment([
-                'subscription_id' => Subscription::where('invoice_number', $invoiceNumber)->value('id'),
+            $sync->record([
                 'transaction_id'  => $transactionId,
                 'invoice_number'  => $invoiceNumber,
                 'amount'          => (float) ($amount ?? 0),
                 'type'            => 'initial',
                 'status'          => 'captured',
                 'event_type_raw'  => self::EVT_PAYMENT_SUCCESS,
-                'charged_at'      => now(),
                 'raw_payload'     => $payload,
-            ]);
+            ], Subscription::where('invoice_number', $invoiceNumber)->first(), now());
 
             return response('Payment confirmed', 200);
         }
 
-        // Recurring charge (no cached customer)
-        $subscription = Subscription::where('invoice_number', $invoiceNumber)->first();
+        // ── Renewal, or any charge we didn't start ──
+        // Match on what we already hold…
+        $subscription = $invoiceNumber ? Subscription::where('invoice_number', $invoiceNumber)->first() : null;
         if (!$subscription && $transactionId) {
             $subscription = Subscription::where('transaction_id', $transactionId)->first();
         }
 
+        // …and when that fails, ask Authorize.Net who the transaction belongs to.
+        // An ARB rebill carries no subscription id — and often no invoice number —
+        // in the webhook itself, so this lookup is what ties it to the client.
+        $chargedAt = now();
+        $payNum    = null;
+
         if (!$subscription) {
-            Log::info('Recurring charge: no local subscription match', [
+            $details = $sync->lookupTransaction($transactionId);
+
+            if ($details) {
+                $payNum        = data_get($details, 'subscription.payNum');
+                $invoiceNumber = $invoiceNumber ?: data_get($details, 'order.invoiceNumber');
+                $subscription  = $sync->subscriptionFor(
+                    data_get($details, 'subscription.id'),
+                    $invoiceNumber,
+                    data_get($details, 'customer.email')
+                );
+
+                if ($submitted = data_get($details, 'submitTimeUTC')) {
+                    try {
+                        $chargedAt = Carbon::parse($submitted);
+                    } catch (\Throwable $e) {
+                        // Keep now() if the timestamp is unreadable.
+                    }
+                }
+            }
+        }
+
+        // Record it either way — an unmatched charge still belongs in the ledger.
+        $sync->record([
+            'transaction_id'  => $transactionId,
+            'invoice_number'  => $invoiceNumber,
+            'amount'          => (float) ($amount ?? 0),
+            'type'            => $payNum ? $sync->typeForPayNum($payNum) : 'recurring',
+            'status'          => 'captured',
+            'event_type_raw'  => self::EVT_PAYMENT_SUCCESS,
+            'raw_payload'     => $payload,
+        ], $subscription, $chargedAt);
+
+        if (!$subscription) {
+            Log::info('Charge recorded without a subscription match', [
                 'invoice_number' => $invoiceNumber,
                 'transaction_id' => $transactionId,
-            ]);
-
-            $this->persistPayment([
-                'subscription_id' => null,
-                'transaction_id'  => $transactionId,
-                'invoice_number'  => $invoiceNumber,
-                'amount'          => (float) ($amount ?? 0),
-                'type'            => 'recurring',
-                'status'          => 'captured',
-                'event_type_raw'  => self::EVT_PAYMENT_SUCCESS,
-                'charged_at'      => now(),
-                'raw_payload'     => $payload,
             ]);
 
             return response('Event received', 200);
         }
 
-        $this->persistPayment([
-            'subscription_id' => $subscription->id,
-            'transaction_id'  => $transactionId,
-            'invoice_number'  => $invoiceNumber,
-            'amount'          => (float) ($amount ?? 0),
-            'type'            => 'recurring',
-            'status'          => 'captured',
-            'event_type_raw'  => self::EVT_PAYMENT_SUCCESS,
-            'charged_at'      => now(),
-            'raw_payload'     => $payload,
-        ]);
-
         SubscriptionEvent::create([
             'subscription_id' => $subscription->id,
             'event_type'      => 'payment_recovered',
             'payload'         => $payload,
-            'note'            => sprintf('Recurring payment successful. Invoice %s, Txn %s, Amount $%s', $invoiceNumber, $transactionId, $amount),
+            'note'            => sprintf('Recurring payment successful. Invoice %s, Txn %s, Amount $%s', $invoiceNumber ?: '—', $transactionId, $amount),
         ]);
-
-        if ($subscription->status === 'past_due') {
-            $subscription->update([
-                'status'               => 'active',
-                'failed_payment_count' => 0,
-                'first_failed_at'      => null,
-                'grace_period_ends_at' => null,
-            ]);
-        }
 
         return response('Event received', 200);
     }
@@ -324,6 +330,27 @@ class AuthorizeNetWebhookController extends Controller
                 ->first();
             if ($priorPayment) {
                 $subscription = $priorPayment->subscription;
+            }
+        }
+
+        // Still unknown: look the refund up so it lands on the same client as the
+        // original charge (refTransId), or on whoever the transaction names.
+        if (!$subscription) {
+            $sync    = app(PaymentSync::class);
+            $details = $sync->lookupTransaction($transactionId);
+
+            if ($details) {
+                if ($refId = data_get($details, 'refTransId')) {
+                    $subscription = Payment::where('transaction_id', (string) $refId)
+                        ->whereIn('type', ['initial', 'recurring'])
+                        ->first()?->subscription;
+                }
+
+                $subscription = $subscription ?: $sync->subscriptionFor(
+                    data_get($details, 'subscription.id'),
+                    $invoiceNumber ?: data_get($details, 'order.invoiceNumber'),
+                    data_get($details, 'customer.email')
+                );
             }
         }
 
