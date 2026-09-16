@@ -165,6 +165,14 @@ class RecurringPaymentLinkingTest extends TestCase
             }
 
             if (isset($body['getTransactionListRequest'])) {
+                // Authorize.Net turns this JSON into XML and validates it against
+                // a schema where `sorting` precedes `paging`; reversed, the real
+                // API answers E00003 and the batch reads as empty.
+                $keys = array_keys($body['getTransactionListRequest']);
+                if (array_search('sorting', $keys, true) > array_search('paging', $keys, true)) {
+                    return $this->anetError();
+                }
+
                 return $this->anet(['transactions' => [
                     ['transId' => '900001', 'submitTimeUTC' => '2026-07-27T12:00:00Z', 'transactionStatus' => 'settledSuccessfully', 'settleAmount' => 100.00],
                 ]]);

@@ -49,15 +49,27 @@ class BackfillAuthorizeNetPayments extends Command
         $batches = $api->settledBatchIds($from, $to);
         $this->line(sprintf('  %d settled batch(es) found.', count($batches)));
 
-        $imported = 0;
-        $skipped  = 0;
-        $unmatched = 0;
-        $failed   = 0;
-        $rows     = [];
-        $touched  = [];
+        $imported     = 0;
+        $skipped      = 0;
+        $unmatched    = 0;
+        $failed       = 0;
+        $emptyBatches = 0;
+        $rows         = [];
+        $touched      = [];
 
         foreach ($batches as $batchId) {
-            foreach ($api->batchTransactions($batchId) as $summary) {
+            $transactions = $api->batchTransactions($batchId);
+
+            // Never fail quietly — an empty batch usually means the API rejected
+            // the request, and silently importing nothing looks like success.
+            if (! $transactions) {
+                $emptyBatches++;
+                $this->warn(sprintf('  Batch %s returned no transactions%s',
+                    $batchId, $api->lastError() ? ' - ' . $api->lastError() : ''));
+                continue;
+            }
+
+            foreach ($transactions as $summary) {
                 $transactionId = (string) ($summary['transId'] ?? '');
                 if ($transactionId === '') {
                     continue;
@@ -163,6 +175,10 @@ class BackfillAuthorizeNetPayments extends Command
             $dry ? '[DRY RUN — nothing saved] ' : '',
             $imported, $relinked, $skipped, $unmatched, $failed, count($touched)
         ));
+
+        if ($emptyBatches > 0) {
+            $this->warn(sprintf('%d of %d batch(es) could not be read — see the warnings above.', $emptyBatches, count($batches)));
+        }
 
         if ($dry && ($imported > 0 || $relinked > 0)) {
             $this->comment('Re-run without --dry to save these.');

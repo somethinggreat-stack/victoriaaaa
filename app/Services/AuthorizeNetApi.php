@@ -20,6 +20,14 @@ class AuthorizeNetApi
     private const PAGE_LIMIT = 1000;   // Authorize.Net max per page
     private const MAX_BATCH_DAYS = 31; // Authorize.Net max settled-batch window
 
+    private ?string $lastError = null;
+
+    /** Why the most recent call came back empty, if it did. */
+    public function lastError(): ?string
+    {
+        return $this->lastError;
+    }
+
     public function isConfigured(): bool
     {
         return (string) config('services.authorize_net.api_login_id') !== ''
@@ -84,11 +92,14 @@ class AuthorizeNetApi
         $offset = 1;
 
         do {
+            // Key order matters: Authorize.Net converts this JSON to XML and
+            // validates it against a schema where `sorting` precedes `paging`.
+            // Reversed, every call fails with E00003 and returns nothing.
             $data = $this->post(['getTransactionListRequest' => [
                 'merchantAuthentication' => $this->auth(),
                 'batchId'                => $batchId,
-                'paging'                 => ['limit' => (string) self::PAGE_LIMIT, 'offset' => (string) $offset],
                 'sorting'                => ['orderBy' => 'submitTimeUTC', 'orderDescending' => false],
+                'paging'                 => ['limit' => (string) self::PAGE_LIMIT, 'offset' => (string) $offset],
             ]]);
 
             $page = data_get($data, 'transactions', []);
@@ -124,7 +135,10 @@ class AuthorizeNetApi
 
     private function post(array $payload): ?array
     {
+        $this->lastError = null;
+
         if (! $this->isConfigured()) {
+            $this->lastError = 'Authorize.Net API credentials are missing';
             Log::warning('[AuthNetApi] credentials missing — skipping lookup');
             return null;
         }
@@ -142,20 +156,26 @@ class AuthorizeNetApi
             $data = json_decode(trim($raw), true);
 
             if (! is_array($data)) {
+                $this->lastError = 'Unreadable response (HTTP ' . $response->status() . ')';
                 Log::warning('[AuthNetApi] unreadable response', ['status' => $response->status()]);
                 return null;
             }
 
             if (data_get($data, 'messages.resultCode') !== 'Ok') {
+                $this->lastError = trim(sprintf('%s %s',
+                    data_get($data, 'messages.message.0.code', ''),
+                    data_get($data, 'messages.message.0.text', 'API error')
+                ));
                 Log::warning('[AuthNetApi] API error', [
                     'request' => array_key_first($payload),
-                    'text'    => data_get($data, 'messages.message.0.text'),
+                    'text'    => $this->lastError,
                 ]);
                 return null;
             }
 
             return $data;
         } catch (\Throwable $e) {
+            $this->lastError = $e->getMessage();
             Log::error('[AuthNetApi] request failed', [
                 'request' => array_key_first($payload),
                 'message' => $e->getMessage(),
