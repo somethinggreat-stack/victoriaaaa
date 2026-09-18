@@ -12,6 +12,7 @@ use App\Http\Controllers\BurgundyOnboardingController;
 use App\Http\Controllers\Partnership\AuthController as PartnershipAuthController;
 use App\Http\Controllers\Partnership\ClientsController as PartnershipClientsController;
 use App\Http\Controllers\Partnership\DashboardController as PartnershipDashboardController;
+use App\Http\Controllers\Partnership\ImportController as PartnershipImportController;
 use App\Http\Controllers\Partnership\PaymentsController as PartnershipPaymentsController;
 use App\Http\Controllers\Partnership\ReviewController as PartnershipReviewController;
 use App\Http\Controllers\ContactController;
@@ -313,6 +314,11 @@ Route::prefix('partnership')->name('partnership.')->middleware('partnership')->g
     Route::post('/review/{client}/not-duplicate',   [PartnershipReviewController::class, 'notDuplicate'])->name('review.not-duplicate');
 
     Route::get('/payments', [PartnershipPaymentsController::class, 'index'])->name('payments');
+
+    // CSV import of the legacy client list. Exists as a web upload because the
+    // production host has no terminal, so `artisan db:seed` is unavailable there.
+    Route::get('/import',  [PartnershipImportController::class, 'show'])->name('import');
+    Route::post('/import', [PartnershipImportController::class, 'store'])->name('import.store');
 });
 
 // ============ ADMIN DASHBOARD (/victoria-admin) ============

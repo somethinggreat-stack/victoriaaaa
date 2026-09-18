@@ -134,8 +134,14 @@ label.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;l
 </head>
 <body>
 @php
-  $reviewCount = \App\Models\BurgundyClient::where('match_status','needs_review')
-      ->orWhereNotNull('possible_duplicate_of')->count();
+  // The deploy script runs `migrate --force || true`, which swallows a failed
+  // migration. If the tables are not there, show a clear setup message instead
+  // of a fatal error on every page.
+  $tablesReady = \Illuminate\Support\Facades\Schema::hasTable('burgundy_clients');
+  $reviewCount = $tablesReady
+      ? \App\Models\BurgundyClient::where('match_status', 'needs_review')
+            ->orWhereNotNull('possible_duplicate_of')->count()
+      : 0;
 @endphp
 <div class="shell">
   <aside class="sidebar">
@@ -157,6 +163,9 @@ label.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;l
       </a>
       <a href="{{ route('partnership.payments') }}" class="{{ request()->routeIs('partnership.payments*') ? 'active' : '' }}">
         <span class="ic">$</span> Payments
+      </a>
+      <a href="{{ route('partnership.import') }}" class="{{ request()->routeIs('partnership.import*') ? 'active' : '' }}">
+        <span class="ic">↑</span> Import Clients
       </a>
     </nav>
 
