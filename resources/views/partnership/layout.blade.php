@@ -134,14 +134,10 @@ label.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;l
 </head>
 <body>
 @php
-  // The deploy script runs `migrate --force || true`, which swallows a failed
-  // migration. If the tables are not there, show a clear setup message instead
-  // of a fatal error on every page.
-  $tablesReady = \Illuminate\Support\Facades\Schema::hasTable('burgundy_clients');
-  $reviewCount = $tablesReady
-      ? \App\Models\BurgundyClient::where('match_status', 'needs_review')
-            ->orWhereNotNull('possible_duplicate_of')->count()
-      : 0;
+  // Schema readiness is enforced by the partnership.schema middleware before
+  // any controller runs, so by the time this renders the tables are known good.
+  $reviewCount = \App\Models\BurgundyClient::where('match_status', 'needs_review')
+      ->orWhereNotNull('possible_duplicate_of')->count();
 @endphp
 <div class="shell">
   <aside class="sidebar">

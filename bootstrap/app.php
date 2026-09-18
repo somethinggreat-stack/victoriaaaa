@@ -17,6 +17,9 @@ return Application::configure(basePath: dirname(__DIR__))
             // Separate guard for the Burgundy × Victoria partnership dashboard.
             // Intentionally NOT the 'admin' guard — see PartnershipAuth.
             'partnership' => \App\Http\Middleware\PartnershipAuth::class,
+            // Fails clearly when a migration silently did not run, instead of
+            // letting every controller die on its first query.
+            'partnership.schema' => \App\Http\Middleware\PartnershipSchemaGuard::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'authorize-net/webhook',

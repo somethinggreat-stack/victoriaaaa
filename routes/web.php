@@ -297,7 +297,7 @@ Route::post('/burgundy-onboarding', [BurgundyOnboardingController::class, 'submi
 Route::get('/partnership-login',  [PartnershipAuthController::class, 'show'])->name('partnership.login.show');
 Route::post('/partnership-login', [PartnershipAuthController::class, 'login'])->name('partnership.login');
 
-Route::prefix('partnership')->name('partnership.')->middleware('partnership')->group(function () {
+Route::prefix('partnership')->name('partnership.')->middleware(['partnership', 'partnership.schema'])->group(function () {
     Route::post('/logout', [PartnershipAuthController::class, 'logout'])->name('logout');
 
     Route::get('/', [PartnershipDashboardController::class, 'index'])->name('dashboard');
