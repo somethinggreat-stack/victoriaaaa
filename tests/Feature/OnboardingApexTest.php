@@ -42,17 +42,23 @@ class OnboardingApexTest extends TestCase
             'credit_monitoring_password'        => 'secretpass',
             'credit_monitoring_security_answer' => 'Fluffy',
             'drivers_license'                   => UploadedFile::fake()->image('dl.png'),
-            'proof_of_address'                  => UploadedFile::fake()->create('poa.pdf', 40, 'application/pdf'),
+            // createWithContent, not create(): create() fakes the reported size
+            // but writes no bytes, and ApexClient skips zero-byte documents.
+            'proof_of_address'                  => UploadedFile::fake()->createWithContent('poa.pdf', '%PDF-1.4 test document'),
         ]);
 
         $resp->assertRedirect(route('onboarding.show'));
         $resp->assertSessionHas('success', true);
 
         Http::assertSent(function ($request) {
-            $parts = collect($request->data());
-            $text  = $parts->filter(fn ($p) => is_string($p['contents']))
-                           ->mapWithKeys(fn ($p) => [$p['name'] => $p['contents']]);
-            $files = $parts->reject(fn ($p) => is_string($p['contents']))->pluck('name')->all();
+            // ApexClient posts JSON with documents base64-encoded inline, NOT
+            // multipart — the origin WAF returns 406 on multipart file uploads.
+            $text = collect($request->data());
+
+            $files = $text->keys()
+                ->filter(fn ($k) => str_ends_with($k, '_base64'))
+                ->map(fn ($k) => substr($k, 0, -strlen('_base64')))
+                ->all();
 
             $expected = [
                 'first_name'                 => 'John',

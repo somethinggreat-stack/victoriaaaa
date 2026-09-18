@@ -12,8 +12,11 @@ return Application::configure(basePath: dirname(__DIR__))
     )
     ->withMiddleware(function (Middleware $middleware): void {
         $middleware->alias([
-            'admin'    => \App\Http\Middleware\AdminAuth::class,
-            'reviewer' => \App\Http\Middleware\ReviewerGuard::class,
+            'admin'       => \App\Http\Middleware\AdminAuth::class,
+            'reviewer'    => \App\Http\Middleware\ReviewerGuard::class,
+            // Separate guard for the Burgundy × Victoria partnership dashboard.
+            // Intentionally NOT the 'admin' guard — see PartnershipAuth.
+            'partnership' => \App\Http\Middleware\PartnershipAuth::class,
         ]);
         $middleware->validateCsrfTokens(except: [
             'authorize-net/webhook',
@@ -22,6 +25,8 @@ return Application::configure(basePath: dirname(__DIR__))
             // which expires the CSRF token (419 "Page Expired"). It's a public,
             // unauthenticated form (nothing to forge), so exempting it is safe.
             'onboarding',
+            // Same reasoning for Burgundy's intake form.
+            'burgundy-onboarding',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

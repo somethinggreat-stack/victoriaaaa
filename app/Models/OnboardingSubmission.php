@@ -9,6 +9,7 @@ use Illuminate\Support\Facades\Crypt;
 class OnboardingSubmission extends Model
 {
     protected $fillable = [
+        'partner',                        // victoria | burgundy — decides the Apex intake key
         'firstname', 'lastname', 'middlename', 'suffix',
         'email', 'phone',
         'street_address', 'city', 'state', 'zip',

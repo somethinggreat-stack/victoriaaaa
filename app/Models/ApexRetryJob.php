@@ -11,6 +11,7 @@ class ApexRetryJob extends Model
     public const DISK = 'local';
 
     protected $fillable = [
+        'partner',
         'onboarding_submission_id', 'client_name', 'email',
         'payload_encrypted',
         'drivers_license_path', 'proof_of_address_path', 'ssn_card_path',

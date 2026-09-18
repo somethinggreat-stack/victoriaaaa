@@ -6,6 +6,14 @@ use App\Http\Controllers\Admin\DashboardController;
 use App\Http\Controllers\Admin\EbooksController;
 use App\Http\Controllers\Admin\PaymentsController;
 use App\Http\Controllers\AuthorizeNetWebhookController;
+use App\Http\Controllers\BurgundyAgreementController;
+use App\Http\Controllers\BurgundyCheckoutController;
+use App\Http\Controllers\BurgundyOnboardingController;
+use App\Http\Controllers\Partnership\AuthController as PartnershipAuthController;
+use App\Http\Controllers\Partnership\ClientsController as PartnershipClientsController;
+use App\Http\Controllers\Partnership\DashboardController as PartnershipDashboardController;
+use App\Http\Controllers\Partnership\PaymentsController as PartnershipPaymentsController;
+use App\Http\Controllers\Partnership\ReviewController as PartnershipReviewController;
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CustomCheckoutController;
 use App\Http\Controllers\EbookCheckoutController;
@@ -268,6 +276,44 @@ Route::get('/ebooks/thank-you/{order}', [EbookCheckoutController::class, 'thanks
 // Authorize.Net webhook receiver (CSRF-exempt — see bootstrap/app.php)
 Route::post('/authorize-net/webhook', [AuthorizeNetWebhookController::class, 'handle'])
     ->name('authorize-net.webhook');
+
+// ============ BURGUNDY × VICTORIA PARTNERSHIP ============
+// Public client flow: one shared $100 link → contract → onboarding → both dashboards.
+Route::get('/burgundy-checkout',          [BurgundyCheckoutController::class, 'show'])->name('burgundy.checkout.show');
+Route::post('/burgundy-checkout/process', [BurgundyCheckoutController::class, 'process'])->name('burgundy.checkout.process');
+
+// Service agreement — signed right after the enrollment charge, before onboarding.
+Route::get('/burgundy-agreement',       [BurgundyAgreementController::class, 'show'])->name('burgundy.agreement.show');
+Route::post('/burgundy-agreement/sign', [BurgundyAgreementController::class, 'sign'])->name('burgundy.agreement.sign');
+
+// Burgundy's own intake form (CSRF-exempt — see bootstrap/app.php).
+Route::get('/burgundy-onboarding',  [BurgundyOnboardingController::class, 'show'])->name('burgundy.onboarding.show');
+Route::post('/burgundy-onboarding', [BurgundyOnboardingController::class, 'submit'])->name('burgundy.onboarding.submit');
+
+// Partnership dashboard. Deliberately its own login and its own guard — the
+// /victoria-admin area below admits anyone Laravel considers authenticated, so a
+// shared guard would hand this login Victoria's entire admin.
+Route::get('/partnership-login',  [PartnershipAuthController::class, 'show'])->name('partnership.login.show');
+Route::post('/partnership-login', [PartnershipAuthController::class, 'login'])->name('partnership.login');
+
+Route::prefix('partnership')->name('partnership.')->middleware('partnership')->group(function () {
+    Route::post('/logout', [PartnershipAuthController::class, 'logout'])->name('logout');
+
+    Route::get('/', [PartnershipDashboardController::class, 'index'])->name('dashboard');
+
+    Route::get('/clients',           [PartnershipClientsController::class, 'index'])->name('clients');
+    Route::post('/clients',          [PartnershipClientsController::class, 'store'])->name('clients.store');
+    Route::get('/clients/{client}',  [PartnershipClientsController::class, 'show'])->name('clients.show');
+    Route::patch('/clients/{client}', [PartnershipClientsController::class, 'update'])->name('clients.update');
+
+    Route::get('/review',                           [PartnershipReviewController::class, 'index'])->name('review');
+    Route::get('/review/search',                    [PartnershipReviewController::class, 'search'])->name('review.search');
+    Route::post('/review/{client}/merge',           [PartnershipReviewController::class, 'merge'])->name('review.merge');
+    Route::post('/review/{client}/confirm',         [PartnershipReviewController::class, 'confirm'])->name('review.confirm');
+    Route::post('/review/{client}/not-duplicate',   [PartnershipReviewController::class, 'notDuplicate'])->name('review.not-duplicate');
+
+    Route::get('/payments', [PartnershipPaymentsController::class, 'index'])->name('payments');
+});
 
 // ============ ADMIN DASHBOARD (/victoria-admin) ============
 Route::prefix('victoria-admin')->name('admin.')->group(function () {

@@ -87,7 +87,10 @@ class ApexRetryController extends Controller
             return [false, 'The stored documents for this submission are missing — the client must re-submit.'];
         }
 
-        $result = $apex->post($apex->buildFields($v, $dob), $files);
+        // Re-send under the SAME partner's intake key the submission arrived on.
+        // Without this, a retried Burgundy client would be delivered into
+        // Victoria's Apex dashboard instead of Burgundy's.
+        $result = $apex->post($apex->buildFields($v, $dob), $files, $job->partner ?? 'victoria');
 
         // Close any file streams we opened.
         foreach ($files as $f) {
@@ -112,6 +115,17 @@ class ApexRetryController extends Controller
                 try {
                     OnboardingSubmission::where('id', $job->onboarding_submission_id)
                         ->update(['crc_status' => 'sent', 'crc_id' => $result['id'] ? (string) $result['id'] : null]);
+
+                    // Keep the partnership dashboard honest — it shows Apex
+                    // delivery status per client.
+                    $client = \App\Models\BurgundyClient::where('onboarding_submission_id', $job->onboarding_submission_id)->first();
+                    if ($client) {
+                        $client->update([
+                            'apex_status' => 'sent',
+                            'apex_id'     => $result['id'] ? (string) $result['id'] : null,
+                        ]);
+                        $client->logEvent('apex_sent', 'Delivered to the Apex operations dashboard on retry.');
+                    }
                 } catch (\Throwable $e) {
                     Log::warning('Retry succeeded but could not update onboarding row', ['error' => $e->getMessage()]);
                 }

@@ -91,6 +91,13 @@ return [
         // Cloudflare/WAF for server-to-server callers (403/406). Identical handler.
         'url'     => env('APEX_API_URL', 'https://apexgrowthsolution.com/partner-intake'),
         'key'     => env('APEX_API_KEY'),
+
+        // Each partner funnel posts to the SAME endpoint with its OWN intake key.
+        // The key is what decides whose Apex dashboard the client lands in, so
+        // these must never be interchanged.
+        'partner_keys' => [
+            'burgundy' => env('APEX_BURGUNDY_API_KEY'),
+        ],
     ],
 
     // "Become Your Own Boss" mentorship — everything a new mentee needs after

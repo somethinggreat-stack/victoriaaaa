@@ -25,3 +25,7 @@ Thumbs.db
 
 # Local preview DB (throwaway)
 /storage/localpreview.sqlite
+
+# Client PII imports (SSN last-4, DOB, emails, phones). Never commit these —
+# upload the CSV straight to the server and run the seeder there.
+/database/data/*.csv

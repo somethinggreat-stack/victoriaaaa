@@ -17,6 +17,24 @@ class ApexClient
     }
 
     /**
+     * The intake key to send as X-Intake-Key.
+     *
+     * Each partner has their own key on the same endpoint, and the key alone
+     * decides whose Apex dashboard a client appears in. A missing partner key
+     * deliberately returns empty rather than falling back to Victoria's — a
+     * failed forward is recoverable from the retry queue, whereas delivering a
+     * client into the wrong partner's dashboard is not.
+     */
+    private function keyFor(?string $partner): string
+    {
+        if ($partner === null || $partner === 'victoria') {
+            return (string) config('services.apex.key');
+        }
+
+        return (string) config('services.apex.partner_keys.' . $partner, '');
+    }
+
+    /**
      * Map funnel field names → Apex field names. `$v` uses the funnel's own keys
      * (firstname, lastname, credit_monitoring_email, …); `$dob` is YYYY-MM-DD.
      */
@@ -49,18 +67,24 @@ class ApexClient
     /**
      * POST to Apex as multipart/form-data.
      *
-     * @param  array  $fields  text fields (already Apex-named, from buildFields)
-     * @param  array  $files   [apexName => ['stream' => resource, 'filename' => string]]
-     *                         `drivers_license` and `proof_of_address` are required by Apex.
+     * @param  array   $fields  text fields (already Apex-named, from buildFields)
+     * @param  array   $files   [apexName => ['stream' => resource, 'filename' => string]]
+     *                          `drivers_license` and `proof_of_address` are required by Apex.
+     * @param  ?string $partner Which partner's intake key to send under, e.g. 'burgundy'.
+     *                          Victoria and Burgundy post to the SAME endpoint with
+     *                          DIFFERENT keys — the key is what decides whose Apex
+     *                          dashboard the client lands in. Null = Victoria's own funnel.
      * @return array  ['ok'=>bool, 'status'=>int, 'id'=>?int, 'errors'=>array, 'message'=>?string, 'raw'=>string]
      */
-    public function post(array $fields, array $files): array
+    public function post(array $fields, array $files, ?string $partner = null): array
     {
         $url = (string) config('services.apex.url');
-        $key = (string) config('services.apex.key');
+        $key = $this->keyFor($partner);
 
         if ($key === '') {
-            return ['ok' => false, 'status' => 0, 'message' => 'Apex intake key not configured.', 'errors' => [], 'raw' => ''];
+            $who = $partner ? "Apex intake key for partner '{$partner}'" : 'Apex intake key';
+
+            return ['ok' => false, 'status' => 0, 'message' => $who . ' not configured.', 'errors' => [], 'raw' => ''];
         }
 
         // The /api/* path is blocked by Cloudflare/WAF for server-to-server callers
@@ -102,6 +126,7 @@ class ApexClient
             'fields_sent' => array_keys($fields),
             'docs_sent'   => array_keys(array_filter($files, fn ($f) => ! empty($f['stream']))),
             'transport'   => 'json+base64',
+            'partner'     => $partner ?? 'victoria',
             'key_present' => $key !== '',
             'key_last4'   => $key !== '' ? substr($key, -4) : null,
         ];
