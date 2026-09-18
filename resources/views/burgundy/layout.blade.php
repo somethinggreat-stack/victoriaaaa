@@ -46,7 +46,7 @@ img{max-width:100%;height:auto}
 .hero h1{margin:0 0 12px;font-size:clamp(27px,4.6vw,40px);line-height:1.13;font-weight:800;letter-spacing:-.025em}
 .hero h1 em{color:#ff9dbd}
 .hero p{margin:0;font-size:15.5px;color:rgba(255,255,255,.76);max-width:560px}
-.steps{display:flex;gap:9px;flex-wrap:wrap;margin-top:22px}
+.steps{display:flex;align-items:center;gap:9px;flex-wrap:wrap;margin-top:22px}
 .step{display:flex;align-items:center;gap:7px;background:rgba(255,255,255,.08);border:1px solid rgba(255,255,255,.14);
   border-radius:100px;padding:6px 14px;font-size:12px;font-weight:600;color:rgba(255,255,255,.72)}
 .step.on{background:var(--wine-2);border-color:var(--wine-2);color:#fff}
@@ -62,10 +62,16 @@ main{padding:38px 0 70px}
 .card h3:first-child{margin-top:0}
 .card .sub{margin:0 0 20px;font-size:13.5px;color:var(--ink-2)}
 
-.grid{display:grid;grid-template-columns:repeat(auto-fit,minmax(210px,1fr));gap:15px}
-.grid.two{grid-template-columns:repeat(auto-fit,minmax(240px,1fr))}
-.field{margin-bottom:15px}
-.field.full{grid-column:1/-1}
+/* 12-column form grid. An auto-fit grid left ragged orphan rows whenever a
+   section's field count didn't divide evenly, so every field states its own
+   span instead. `m-*` spans apply on phones, where most fields go full width. */
+.grid{display:grid;grid-template-columns:repeat(12,1fr);gap:15px 14px;align-items:start}
+.field{margin-bottom:0;grid-column:span 12;min-width:0}
+.col-3{grid-column:span 3}
+.col-4{grid-column:span 4}
+.col-6{grid-column:span 6}
+.col-8{grid-column:span 8}
+.field.full{grid-column:span 12}
 label{display:block;font-size:12px;font-weight:700;color:var(--ink-2);margin-bottom:6px}
 label .req{color:var(--wine-2)}
 .hint{font-size:11.5px;color:var(--ink-3);margin-top:5px}
@@ -77,8 +83,15 @@ input.bad,select.bad{border-color:var(--red);background:var(--red-soft)}
 .err-msg{color:var(--red);font-size:12px;font-weight:600;margin-top:5px;display:none}
 .err-msg.on{display:block}
 
-input[type=file]{width:100%;padding:11px;border:1.5px dashed var(--line-2);border-radius:10px;background:var(--bg-2);font-size:13px;font-family:inherit}
-input[type=file]:hover{border-color:var(--wine-2)}
+input[type=file]{width:100%;padding:10px;border:1.5px dashed var(--line-2);border-radius:10px;
+  background:var(--bg-2);font-size:13px;font-family:inherit;color:var(--ink-2);cursor:pointer;
+  transition:border-color .16s,background .16s}
+input[type=file]:hover{border-color:var(--wine-2);background:var(--wine-soft)}
+input[type=file]:focus{outline:0;border-color:var(--wine-2);box-shadow:0 0 0 3px var(--wine-soft)}
+input[type=file]::file-selector-button{
+  margin-right:12px;padding:8px 16px;border:0;border-radius:100px;background:var(--wine);color:#fff;
+  font-family:inherit;font-size:12.5px;font-weight:700;cursor:pointer;transition:background .18s}
+input[type=file]::file-selector-button:hover{background:var(--wine-2)}
 
 .check{display:flex;gap:10px;align-items:flex-start;margin-bottom:13px;font-size:13.5px;color:var(--ink-2)}
 .check input{margin-top:3px;width:17px;height:17px;accent-color:var(--wine);flex-shrink:0}
@@ -111,9 +124,14 @@ input[type=file]:hover{border-color:var(--wine-2)}
 .note{margin-top:15px;font-size:12px;color:rgba(255,255,255,.55);line-height:1.5}
 
 /* contract */
+/* Body font, not monospace: this is a contract people are asked to actually
+   read and be bound by, so legibility beats the document-y look — especially
+   at phone width. pre-wrap still preserves the clause breaks and indents. */
 .contract{background:var(--bg-2);border:1px solid var(--line);border-radius:var(--r);padding:20px;
-  max-height:390px;overflow-y:auto;font-size:13.5px;line-height:1.72;white-space:pre-wrap;
-  font-family:ui-monospace,SFMono-Regular,Menlo,monospace;color:var(--ink-2);margin-bottom:8px}
+  max-height:390px;overflow-y:auto;font-size:14px;line-height:1.7;white-space:pre-wrap;
+  color:var(--ink-2);margin-bottom:8px;overscroll-behavior:contain}
+.contract::-webkit-scrollbar{width:8px}
+.contract::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:100px}
 .scrollnote{font-size:12px;color:var(--ink-3);margin:0 0 20px;text-align:center}
 
 /* signature */
@@ -124,12 +142,16 @@ input[type=file]:hover{border-color:var(--wine-2)}
 .sigbar{display:flex;justify-content:space-between;align-items:center;margin-top:9px}
 .sigbar button{background:0;border:0;color:var(--wine);font-size:12.5px;font-weight:700;cursor:pointer;font-family:inherit;padding:0}
 
-/* success */
-.done{text-align:center;padding:52px 26px}
-.done .ico{width:64px;height:64px;border-radius:50%;background:var(--green-soft);color:var(--green);
+/* success — named so it cannot collide with the .step.done modifier above.
+   It previously did: a plain `.done` rule also matched `class="step done"`,
+   giving that step 52px of padding. `.steps` stretches its items to equal
+   height, so every step grew with it and the 100px radius turned them into
+   large circles. */
+.success-card{text-align:center;padding:52px 26px}
+.success-card .ico{width:64px;height:64px;border-radius:50%;background:var(--green-soft);color:var(--green);
   display:grid;place-items:center;font-size:31px;margin:0 auto 20px}
-.done h1{margin:0 0 10px;font-size:29px;font-weight:800;letter-spacing:-.025em}
-.done p{margin:0 auto 22px;font-size:15.5px;color:var(--ink-2);max-width:470px}
+.success-card h1{margin:0 0 10px;font-size:29px;font-weight:800;letter-spacing:-.025em}
+.success-card p{margin:0 auto 22px;font-size:15.5px;color:var(--ink-2);max-width:470px}
 .next{background:var(--bg-2);border-radius:var(--r);padding:20px;text-align:left;max-width:470px;margin:0 auto}
 .next strong{display:block;margin-bottom:11px;font-size:13.5px}
 .next ol{margin:0;padding-left:20px;font-size:13.5px;color:var(--ink-2)}
@@ -139,9 +161,28 @@ footer{border-top:1px solid var(--line);padding:26px 0;text-align:center;font-si
 footer a{color:var(--ink-3);text-decoration:underline}
 
 @media(max-width:640px){
-  .hero{padding:32px 0 42px}
-  .card{padding:20px}
-  main{padding:26px 0 50px}
+  .hero{padding:30px 0 38px}
+  .card{padding:20px 17px}
+  main{padding:24px 0 46px}
+  .wrap{padding:0 16px}
+
+  /* Everything stacks unless it opts back in — short fields like State/Zip and
+     the expiry trio stay side by side so the form doesn't become a mile long. */
+  .col-3,.col-4,.col-6,.col-8{grid-column:span 12}
+  .m-4{grid-column:span 4}
+  .m-6{grid-column:span 6}
+
+  .step{padding:6px 11px;font-size:11.5px}
+  .step .n{width:16px;height:16px;font-size:10px}
+  .summary{padding:20px 17px}
+  .line{font-size:13.5px}
+  .line.total{font-size:16px}
+  .line.total .r{font-size:20px}
+  .btn{padding:15px 22px;width:100%}
+  /* 17px checkboxes are hard to hit accurately — these gate the payment. */
+  .check input{width:22px;height:22px;margin-top:1px}
+  .check{gap:12px;font-size:14px;margin-bottom:15px}
+  .contract{max-height:330px;padding:16px;font-size:12.5px}
 }
 </style>
 @stack('head')

@@ -107,17 +107,17 @@
   @else
     <div class="tbl-wrap">
       <table>
-        <thead><tr><th>Client</th><th>Stage</th><th>Payment</th><th>Updated</th></tr></thead>
+        <thead><tr><th>Client</th><th>Stage</th><th>Payment</th><th class="hide-sm">Updated</th></tr></thead>
         <tbody>
         @foreach($recent as $c)
           <tr onclick="location.href='{{ route('partnership.clients.show', $c) }}'" style="cursor:pointer">
-            <td>
+            <td class="wrap">
               <span class="nm">{{ $c->full_name }}</span>
               @if($c->needsReview())<span class="pill amber" style="margin-left:6px">Review</span>@endif
             </td>
             <td>@include('partnership.partials.stage-pill', ['client' => $c])</td>
             <td>@include('partnership.partials.payment-pill', ['client' => $c])</td>
-            <td class="mut">{{ $c->updated_at?->diffForHumans() }}</td>
+            <td class="mut hide-sm">{{ $c->updated_at?->diffForHumans() }}</td>
           </tr>
         @endforeach
         </tbody>

@@ -40,23 +40,23 @@
 
       <h3>Your details</h3>
       <div class="grid">
-        <div class="field">
+        <div class="field col-6">
           <label for="first_name">First name <span class="req">*</span></label>
           <input type="text" id="first_name" name="first_name" required autocomplete="given-name">
           <div class="err-msg"></div>
         </div>
-        <div class="field">
+        <div class="field col-6">
           <label for="last_name">Last name <span class="req">*</span></label>
           <input type="text" id="last_name" name="last_name" required autocomplete="family-name">
           <div class="err-msg"></div>
         </div>
-        <div class="field">
+        <div class="field col-6">
           <label for="email">Email <span class="req">*</span></label>
           <input type="email" id="email" name="email" required autocomplete="email">
-          <div class="hint">Use the email Burgundy has on file for you if you can.</div>
+          <div class="hint">Use the email Burgundy has on file, if you can.</div>
           <div class="err-msg"></div>
         </div>
-        <div class="field">
+        <div class="field col-6">
           <label for="phone">Phone <span class="req">*</span></label>
           <input type="tel" id="phone" name="phone" required autocomplete="tel">
           <div class="err-msg"></div>
@@ -70,17 +70,17 @@
           <input type="text" id="address" name="address" required autocomplete="street-address">
           <div class="err-msg"></div>
         </div>
-        <div class="field">
+        <div class="field col-6">
           <label for="city">City <span class="req">*</span></label>
           <input type="text" id="city" name="city" required autocomplete="address-level2">
           <div class="err-msg"></div>
         </div>
-        <div class="field">
+        <div class="field col-3 m-6">
           <label for="state">State <span class="req">*</span></label>
           <input type="text" id="state" name="state" required maxlength="2" placeholder="TX" autocomplete="address-level1" style="text-transform:uppercase">
           <div class="err-msg"></div>
         </div>
-        <div class="field">
+        <div class="field col-3 m-6">
           <label for="zip">Zip <span class="req">*</span></label>
           <input type="text" id="zip" name="zip" required autocomplete="postal-code">
           <div class="err-msg"></div>
@@ -99,7 +99,7 @@
           <input type="text" id="cardNumber" name="cardNumber" required inputmode="numeric" placeholder="1234 5678 9012 3456" autocomplete="cc-number" maxlength="23">
           <div class="err-msg"></div>
         </div>
-        <div class="field">
+        <div class="field col-4 m-4">
           <label for="expMonth">Exp. month <span class="req">*</span></label>
           <select id="expMonth" name="expMonth" required autocomplete="cc-exp-month">
             <option value="">MM</option>
@@ -109,7 +109,7 @@
           </select>
           <div class="err-msg"></div>
         </div>
-        <div class="field">
+        <div class="field col-4 m-4">
           <label for="expYear">Exp. year <span class="req">*</span></label>
           <select id="expYear" name="expYear" required autocomplete="cc-exp-year">
             <option value="">YYYY</option>
@@ -119,7 +119,7 @@
           </select>
           <div class="err-msg"></div>
         </div>
-        <div class="field">
+        <div class="field col-4 m-4">
           <label for="cardCode">CVV <span class="req">*</span></label>
           <input type="text" id="cardCode" name="cardCode" required inputmode="numeric" maxlength="4" placeholder="123" autocomplete="cc-csc">
           <div class="err-msg"></div>

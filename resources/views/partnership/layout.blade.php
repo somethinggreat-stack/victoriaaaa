@@ -50,7 +50,7 @@ a{color:inherit;text-decoration:none}
 .logout{width:100%;background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.1);padding:9px 12px;border-radius:100px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
 .logout:hover{background:var(--wine-2);color:#fff;border-color:var(--wine-2)}
 
-.main{margin-left:238px;padding:0 34px 60px;min-width:0;max-width:calc(100% - 238px)}
+.main{margin-left:238px;padding:0 26px 60px;min-width:0;max-width:calc(100% - 238px)}
 .topbar{position:sticky;top:0;z-index:30;background:var(--bg);padding:22px 0 16px;border-bottom:1px solid var(--line);margin-bottom:24px;display:flex;align-items:center;justify-content:space-between;gap:16px;flex-wrap:wrap}
 .topbar h1{margin:0;font-size:23px;font-weight:800;letter-spacing:-.02em}
 .topbar p{margin:3px 0 0;font-size:13px;color:var(--ink-2)}
@@ -60,7 +60,7 @@ a{color:inherit;text-decoration:none}
 .card h2{margin:0 0 4px;font-size:15px;font-weight:700}
 .card .sub{margin:0 0 16px;font-size:12.5px;color:var(--ink-2)}
 
-.tiles{display:grid;grid-template-columns:repeat(auto-fill,minmax(158px,1fr));gap:12px;margin-bottom:22px}
+.tiles{display:grid;grid-template-columns:repeat(4,minmax(0,1fr));gap:12px;margin-bottom:22px}
 .tile{background:var(--bg-3);border:1px solid var(--line);border-radius:var(--r);padding:14px 15px;transition:border-color .18s,transform .18s}
 a.tile:hover{border-color:var(--wine-2);transform:translateY(-1px)}
 .tile .k{font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:700}
@@ -73,11 +73,20 @@ a.tile:hover{border-color:var(--wine-2);transform:translateY(-1px)}
 .tile.amber .v{color:var(--amber)}
 
 table{width:100%;border-collapse:collapse;font-size:13px}
-th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:700;padding:0 12px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
-td{padding:11px 12px;border-bottom:1px solid var(--line);vertical-align:middle}
+/* Ten columns crushed into the content width wrapped phone numbers onto three
+   lines and clipped the status dropdowns. Give the table a floor and let the
+   wrapper scroll instead. */
+.tbl-wrap table.wide{min-width:1080px}
+th{text-align:left;font-size:10.5px;text-transform:uppercase;letter-spacing:.07em;color:var(--ink-3);font-weight:700;padding:0 8px 9px;border-bottom:1px solid var(--line);white-space:nowrap}
+td{padding:10px 8px;border-bottom:1px solid var(--line);vertical-align:middle;white-space:nowrap}
+td.wrap{white-space:normal}
+td select{min-width:142px;padding:6px 8px;font-size:12px}
 tr:last-child td{border-bottom:0}
 tbody tr:hover{background:var(--wine-tint)}
-.tbl-wrap{overflow-x:auto;margin:0 -20px;padding:0 20px}
+.tbl-wrap{overflow-x:auto;margin:0 -20px;padding:0 20px;-webkit-overflow-scrolling:touch}
+.tbl-wrap::-webkit-scrollbar{height:8px}
+.tbl-wrap::-webkit-scrollbar-thumb{background:var(--line-2);border-radius:100px}
+.scroll-hint{display:none;font-size:11.5px;color:var(--ink-3);margin:0 0 10px}
 .nm{font-weight:700}
 .mut{color:var(--ink-3)}
 .mono{font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
@@ -96,6 +105,8 @@ tbody tr:hover{background:var(--wine-tint)}
 .btn.ghost:hover{background:var(--bg-2)}
 .btn.sm{padding:6px 13px;font-size:11.5px}
 .btn.danger{background:var(--red)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.btn:disabled:hover{background:var(--wine)}
 
 input[type=text],input[type=email],input[type=search],input[type=password],select,textarea{
   width:100%;padding:9px 11px;border:1px solid var(--line-2);border-radius:9px;font-family:inherit;font-size:13px;background:var(--bg-3);color:var(--ink)}
@@ -112,6 +123,10 @@ label.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;l
 .filters a:hover{border-color:var(--wine-2);color:var(--wine)}
 .filters a.on{background:var(--wine);border-color:var(--wine);color:#fff}
 
+/* Side-by-side comparison that collapses instead of overflowing on phones. */
+.dup-pair{display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin-bottom:14px}
+.dup-arrow{font-size:19px;text-align:center}
+
 .empty{text-align:center;padding:44px 20px;color:var(--ink-3)}
 .empty strong{display:block;font-size:15px;color:var(--ink-2);margin-bottom:5px}
 
@@ -123,11 +138,36 @@ label.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;l
 .pager .links .current{background:var(--ink);color:#fff}
 .pager .links .disabled{color:var(--ink-3)}
 
+@media(max-width:1100px){
+  .tiles{grid-template-columns:repeat(2,minmax(0,1fr))}
+}
 @media(max-width:900px){
-  .sidebar{position:static;width:100%;height:auto}
+  .sidebar{position:static;width:100%;height:auto;padding:14px}
   .main{margin-left:0;max-width:100%;padding:0 16px 40px}
   .nav{flex-direction:row;flex-wrap:wrap}
-  .foot{margin-top:14px}
+  .nav a{flex:0 0 auto}
+  .foot{margin-top:12px;padding-top:10px}
+  .linkbox{padding:9px}
+  .topbar{padding:16px 0 12px}
+  .topbar h1{font-size:20px}
+  .card{padding:16px}
+  .tile .v{font-size:22px}
+  .scroll-hint{display:block}
+  /* Comfortable touch targets. Checkboxes at 17px and 29px buttons are too
+     small to hit reliably on a phone. */
+  .btn{padding:11px 18px;font-size:13px}
+  .btn.sm{padding:9px 15px;font-size:12.5px}
+  .linkbox button{padding:10px}
+  .logout{padding:11px 12px}
+  input[type=checkbox]{width:20px;height:20px}
+  .filters a{padding:8px 14px}
+  .dup-pair{grid-template-columns:1fr;gap:10px}
+  .dup-arrow{transform:rotate(90deg);font-size:16px}
+  /* Least important column — drop it rather than clip it. */
+  .hide-sm{display:none}
+}
+@media(max-width:420px){
+  .tiles{grid-template-columns:1fr}
 }
 </style>
 @stack('head')

@@ -52,8 +52,9 @@
       Try a different search or filter.
     </div>
   @else
+    <p class="scroll-hint">Swipe the table sideways to see every column.</p>
     <div class="tbl-wrap">
-      <table>
+      <table class="wide">
         <thead>
           <tr>
             <th>Name</th>
@@ -79,7 +80,7 @@
               @if($c->source === 'new')<span class="pill blue" style="margin-left:6px">New</span>@endif
             </td>
             <td class="mono">{{ $c->phone ?: '—' }}</td>
-            <td class="mono" style="max-width:190px;overflow:hidden;text-overflow:ellipsis">{{ $c->email ?: '—' }}</td>
+            <td class="mono" style="max-width:158px;overflow:hidden;text-overflow:ellipsis">{{ $c->email ?: '—' }}</td>
             <td>
               <form method="POST" action="{{ route('partnership.clients.update', $c) }}">
                 @csrf @method('PATCH')

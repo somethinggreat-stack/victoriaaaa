@@ -24,7 +24,7 @@
 
   <main>
     <div class="wrap narrow">
-      <div class="card done">
+      <div class="card success-card">
         <div class="ico">✓</div>
         <h1>You're all set{{ session('client_name') ? ', ' . session('client_name') : '' }}.</h1>
         <p>Your onboarding is complete and your file has been handed to our processing team.</p>
@@ -85,21 +85,21 @@
 
       <h3>Your legal name</h3>
       <div class="grid">
-        <div class="field">
+        <div class="field col-3 m-6">
           <label for="firstname">First name <span class="req">*</span></label>
           <input type="text" id="firstname" name="firstname" required autocomplete="given-name"
                  value="{{ old('firstname', $prefill['first_name'] ?? '') }}">
         </div>
-        <div class="field">
+        <div class="field col-3 m-6">
           <label for="middlename">Middle name</label>
           <input type="text" id="middlename" name="middlename" value="{{ old('middlename') }}" autocomplete="additional-name">
         </div>
-        <div class="field">
+        <div class="field col-3 m-6">
           <label for="lastname">Last name <span class="req">*</span></label>
           <input type="text" id="lastname" name="lastname" required autocomplete="family-name"
                  value="{{ old('lastname', $prefill['last_name'] ?? '') }}">
         </div>
-        <div class="field">
+        <div class="field col-3 m-6">
           <label for="suffix">Suffix</label>
           <select id="suffix" name="suffix">
             @foreach($suffixes as $s)
@@ -112,12 +112,12 @@
 
       <h3>Contact</h3>
       <div class="grid">
-        <div class="field">
+        <div class="field col-6">
           <label for="email">Email <span class="req">*</span></label>
           <input type="email" id="email" name="email" required autocomplete="email"
                  value="{{ old('email', $prefill['email'] ?? '') }}">
         </div>
-        <div class="field">
+        <div class="field col-6">
           <label for="phone">Mobile phone <span class="req">*</span></label>
           <input type="tel" id="phone" name="phone" required autocomplete="tel" placeholder="(555) 123-4567"
                  value="{{ old('phone', $prefill['phone'] ?? '') }}">
@@ -126,12 +126,12 @@
 
       <h3>Identity</h3>
       <div class="grid">
-        <div class="field">
+        <div class="field col-6">
           <label for="birth_date">Date of birth <span class="req">*</span></label>
           <input type="text" id="birth_date" name="birth_date" required placeholder="mm/dd/yyyy"
                  inputmode="numeric" maxlength="10" value="{{ old('birth_date') }}">
         </div>
-        <div class="field">
+        <div class="field col-6">
           <label for="ssn">Social Security Number <span class="req">*</span></label>
           <input type="text" id="ssn" name="ssn" required placeholder="123-45-6789"
                  inputmode="numeric" maxlength="11" value="{{ old('ssn') }}">
@@ -150,12 +150,12 @@
           <label for="address_line2">Apartment, suite, unit</label>
           <input type="text" id="address_line2" name="address_line2" value="{{ old('address_line2') }}">
         </div>
-        <div class="field">
+        <div class="field col-6">
           <label for="city">City <span class="req">*</span></label>
           <input type="text" id="city" name="city" required autocomplete="address-level2"
                  value="{{ old('city', $prefill['city'] ?? '') }}">
         </div>
-        <div class="field">
+        <div class="field col-3 m-6">
           <label for="state">State <span class="req">*</span></label>
           <select id="state" name="state" required autocomplete="address-level1">
             <option value="">Select…</option>
@@ -164,7 +164,7 @@
             @endforeach
           </select>
         </div>
-        <div class="field">
+        <div class="field col-3 m-6">
           <label for="zip">Zip code <span class="req">*</span></label>
           <input type="text" id="zip" name="zip" required autocomplete="postal-code" maxlength="10"
                  value="{{ old('zip', $prefill['zip'] ?? '') }}">
@@ -177,12 +177,12 @@
         create one at <a href="https://www.myfreescorenow.com" target="_blank" rel="noopener">MyFreeScoreNow</a> first.
       </p>
       <div class="grid">
-        <div class="field">
+        <div class="field col-6">
           <label for="credit_monitoring_email">Monitoring login email <span class="req">*</span></label>
           <input type="email" id="credit_monitoring_email" name="credit_monitoring_email" required
                  autocomplete="off" value="{{ old('credit_monitoring_email') }}">
         </div>
-        <div class="field">
+        <div class="field col-6">
           <label for="credit_monitoring_password">Monitoring password <span class="req">*</span></label>
           <input type="text" id="credit_monitoring_password" name="credit_monitoring_password" required
                  autocomplete="off" value="{{ old('credit_monitoring_password') }}">
@@ -200,11 +200,11 @@
         Required by the bureaus to prove identity and address. PDF or photo, up to 10 MB each.
       </p>
       <div class="grid">
-        <div class="field">
+        <div class="field col-6">
           <label for="drivers_license">Driver's license or state ID <span class="req">*</span></label>
           <input type="file" id="drivers_license" name="drivers_license" required accept=".pdf,.jpg,.jpeg,.png,.webp">
         </div>
-        <div class="field">
+        <div class="field col-6">
           <label for="proof_of_address">Proof of address <span class="req">*</span></label>
           <input type="file" id="proof_of_address" name="proof_of_address" required accept=".pdf,.jpg,.jpeg,.png,.webp">
           <div class="hint">A utility bill, lease or bank statement from the last 60 days.</div>

@@ -5,7 +5,7 @@
 
 <main>
   <div class="wrap narrow">
-    <div class="card done">
+    <div class="card success-card">
       <div class="ico" style="background:var(--amber-soft);color:var(--amber)">↻</div>
       <h1>Let's pick up where you left off</h1>
       <p>

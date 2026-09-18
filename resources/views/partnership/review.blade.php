@@ -40,7 +40,7 @@
               <input type="hidden" name="target_id" id="target-{{ $c->id }}">
               <div class="results" style="position:relative"></div>
             </div>
-            <button type="submit" class="btn">Merge</button>
+            <button type="submit" class="btn merge-btn" disabled>Merge</button>
           </form>
 
           <form method="POST" action="{{ route('partnership.review.confirm', $c) }}">
@@ -69,14 +69,14 @@
       @php $other = $c->duplicateOf; @endphp
       @continue(!$other)
       <div style="border:1px solid var(--line-2);border-radius:var(--r);padding:16px;margin-bottom:14px">
-        <div style="display:grid;grid-template-columns:1fr auto 1fr;gap:16px;align-items:center;margin-bottom:14px">
+        <div class="dup-pair">
           <div>
             <div style="font-weight:700">{{ $other->full_name }}</div>
             <div class="mono mut" style="font-size:12px">{{ $other->email ?: '—' }}</div>
             <div class="mono mut" style="font-size:12px">{{ $other->phone ?: 'no phone' }}</div>
             @if($other->hasPaid())<span class="pill green" style="margin-top:6px">Paid</span>@endif
           </div>
-          <div class="mut" style="font-size:19px">↔</div>
+          <div class="dup-arrow mut">↔</div>
           <div>
             <div style="font-weight:700">{{ $c->full_name }}</div>
             <div class="mono mut" style="font-size:12px">{{ $c->email ?: '—' }}</div>
@@ -114,6 +114,8 @@ document.querySelectorAll('.client-search').forEach(function (input) {
   input.addEventListener('input', function () {
     clearTimeout(timer);
     hidden.value = '';
+    const mb = input.closest('form').querySelector('.merge-btn');
+    if (mb) mb.disabled = true;
     var q = input.value.trim();
     if (q.length < 2) { box.innerHTML = ''; return; }
 
@@ -138,6 +140,8 @@ document.querySelectorAll('.client-search').forEach(function (input) {
               input.value = opt.dataset.label;
               hidden.value = opt.dataset.id;
               box.innerHTML = '';
+              const btn = input.closest('form').querySelector('.merge-btn');
+              if (btn) btn.disabled = false;
             });
           });
         });
