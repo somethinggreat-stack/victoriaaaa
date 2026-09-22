@@ -27,6 +27,7 @@ class ApexRetryController extends Controller
             'kpis'       => [
                 'pending'   => ApexRetryJob::where('status', 'pending')->count(),
                 'succeeded' => ApexRetryJob::where('status', 'succeeded')->count(),
+                'dismissed' => ApexRetryJob::where('status', 'dismissed')->count(),
             ],
         ]);
     }
@@ -36,6 +37,41 @@ class ApexRetryController extends Controller
         [$ok, $message] = $this->attempt($apexRetry, $apex);
 
         return back()->with($ok ? 'success' : 'error', $message);
+    }
+
+    /**
+     * Drop a queued job without sending it — for test rows and abandoned
+     * submissions that should never reach Apex.
+     *
+     * Purges the stored documents at the same time. They are a client's ID and
+     * proof of address sitting on disk; once we have decided the job will never
+     * be sent there is no reason to keep them. That also makes this one-way:
+     * a dismissed job can no longer be retried.
+     */
+    public function dismiss(ApexRetryJob $apexRetry)
+    {
+        if ($apexRetry->status === 'succeeded') {
+            return back()->with('error', 'That submission already reached Apex.');
+        }
+
+        $name = $apexRetry->client_name ?: $apexRetry->email ?: 'Submission';
+
+        $apexRetry->purgeFiles();
+        $apexRetry->update([
+            'status'               => 'dismissed',
+            'drivers_license_path' => null,
+            'proof_of_address_path'=> null,
+            'ssn_card_path'        => null,
+            'last_error'           => 'Dismissed in the admin — not sent to Apex.',
+            'last_attempt_at'      => now(),
+        ]);
+
+        Log::info('[ApexRetry] Job dismissed', [
+            'job_id' => $apexRetry->id,
+            'client' => $name,
+        ]);
+
+        return back()->with('success', $name . ' dismissed. It will not be sent to Apex, and its stored documents were deleted.');
     }
 
     public function retryAll(ApexClient $apex)

@@ -9,7 +9,9 @@
   </div>
   @unless ($needsSetup)
     @if(($kpis['pending'] ?? 0) > 0)
-      <form method="POST" action="{{ route('admin.apex-retries.retry-all') }}" onsubmit="return confirm('Retry all pending submissions to Apex now?');">
+      <form method="POST" action="{{ route('admin.apex-retries.retry-all') }}" onsubmit="return confirm('Retry every pending submission to Apex now?
+
+Anything left in the list WILL be created as a real client in Apex — dismiss test rows first.');">
         @csrf
         <button type="submit" class="adm-btn" style="background:var(--pink);">↻ Retry all pending</button>
       </form>
@@ -37,6 +39,9 @@
   <div class="adm-kpis" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(160px,1fr));gap:12px;margin-bottom:20px;">
     <div class="adm-card" style="padding:16px 18px;"><div class="sub">Pending retry</div><div style="font-size:24px;font-weight:700;">{{ $kpis['pending'] }}</div></div>
     <div class="adm-card" style="padding:16px 18px;"><div class="sub">Sent after retry</div><div style="font-size:24px;font-weight:700;">{{ $kpis['succeeded'] }}</div></div>
+    @if (($kpis['dismissed'] ?? 0) > 0)
+      <div class="adm-card" style="padding:16px 18px;"><div class="sub">Dismissed</div><div style="font-size:24px;font-weight:700;color:var(--ink-3);">{{ $kpis['dismissed'] }}</div></div>
+    @endif
   </div>
 
   @if ($pending->isEmpty())
@@ -57,9 +62,16 @@
             <td><span class="ar-err">{{ $j->last_error ?: '—' }}</span></td>
             <td>{{ $j->created_at->format('M j · g:ia') }}</td>
             <td class="actions">
-              <form method="POST" action="{{ route('admin.apex-retries.retry', $j) }}">
+              <form class="adm-inline-form" method="POST" action="{{ route('admin.apex-retries.retry', $j) }}">
                 @csrf
                 <button class="adm-btn" type="submit">↻ Retry</button>
+              </form>
+              <form class="adm-inline-form" method="POST" action="{{ route('admin.apex-retries.dismiss', $j) }}"
+                    onsubmit="return confirm('Dismiss {{ addslashes($j->client_name ?: $j->email ?: 'this submission') }}?
+
+It will never be sent to Apex, and its stored ID and proof of address will be deleted. This cannot be undone.');">
+                @csrf
+                <button class="adm-btn ghost" type="submit" title="Never send this to Apex, and delete its stored documents">Dismiss</button>
               </form>
             </td>
           </tr>

@@ -374,6 +374,7 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
         Route::get('/apex-retries',                     [ApexRetryController::class, 'index'])->name('apex-retries');
         Route::post('/apex-retries/retry-all',          [ApexRetryController::class, 'retryAll'])->name('apex-retries.retry-all');
         Route::post('/apex-retries/{apexRetry}/retry',  [ApexRetryController::class, 'retry'])->name('apex-retries.retry');
+        Route::post('/apex-retries/{apexRetry}/dismiss', [ApexRetryController::class, 'dismiss'])->name('apex-retries.dismiss');
 
         // ─── One-time payment links (create + track) ───
         Route::get('/payment-links',                   [PaymentLinksController::class, 'index'])->name('payment-links');
