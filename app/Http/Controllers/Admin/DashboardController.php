@@ -173,8 +173,18 @@ class DashboardController extends Controller
         if ($status = $request->query('status')) {
             $q->where('status', $status);
         }
+
+        // Apex delivery state. `crc_status` is the legacy column name, kept
+        // because it predates the switch from Credit Repair Cloud to Apex.
+        if ($apex = $request->query('apex')) {
+            $q->where('crc_status', $apex);
+        }
+
         return view('admin.onboarding', [
-            'rows' => $q->latest()->paginate(25)->withQueryString(),
+            'rows'       => $q->latest()->paginate(25)->withQueryString(),
+            // Counted across everything, not just this page, so the warning is
+            // still right when a filter is applied.
+            'apexFailed' => OnboardingSubmission::where('crc_status', 'failed')->count(),
         ]);
     }
 

@@ -358,6 +358,8 @@ table.adm-table .actions { white-space: nowrap; }
 .badge.active,
 .badge.converted { background: #f0fdf4; color: #157a3d; }
 .badge.archived  { background: var(--bg-2); color: var(--ink-3); }
+/* Data cells that must never break mid-value (SSN, dates, phone). */
+.adm-table td.nw, .adm-table th.nw { white-space: nowrap; }
 .badge.failed    { background: #fee2e2; color: #991b1b; }
 .badge.sent      { background: #f0fdf4; color: #157a3d; }
 .badge.pending   { background: #fef3c7; color: #92400e; }
