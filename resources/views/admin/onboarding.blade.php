@@ -43,7 +43,7 @@
             <span class="sub">{{ $r->phone }}</span>
           </td>
           <td>{{ $r->city ?: '—' }}@if($r->state), {{ $r->state }}@endif</td>
-          <td><code>{{ $r->masked_ssn }}</code></td>
+          <td><code>{{ $r->formatted_ssn }}</code></td>
           <td>{{ optional($r->birth_date)->format('M j, Y') }}</td>
           <td>
             <form class="status-form" method="POST" action="{{ route('admin.onboarding.status', $r) }}">

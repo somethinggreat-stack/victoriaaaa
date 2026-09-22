@@ -18,6 +18,7 @@ use App\Http\Controllers\Partnership\ReviewController as PartnershipReviewContro
 use App\Http\Controllers\ContactController;
 use App\Http\Controllers\CustomCheckoutController;
 use App\Http\Controllers\EbookCheckoutController;
+use App\Http\Controllers\FinishOnboardingController;
 use App\Http\Controllers\FundingController;
 use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MentorshipController;
@@ -230,6 +231,13 @@ Route::get('/mentorship-welcome/{token?}', [MentorshipWelcomeController::class, 
 // Post-payment onboarding form — submits new clients to Credit Repair Cloud
 Route::get('/onboarding',  [OnboardingController::class, 'show'])->name('onboarding.show');
 Route::post('/onboarding', [OnboardingController::class, 'submit'])->name('onboarding.submit');
+
+// Recover an onboarding whose Apex forward failed, WITHOUT making the client
+// redo the whole form. Signed links only — no token column, and they expire.
+Route::get('/finish-onboarding/{submission}',  [FinishOnboardingController::class, 'show'])
+    ->middleware('signed')->name('onboarding.finish');
+Route::post('/finish-onboarding/{submission}', [FinishOnboardingController::class, 'submit'])
+    ->middleware('signed')->name('onboarding.finish.submit');
 
 // Contact form + booking page
 Route::get('/contact',  [ContactController::class, 'show'])->name('contact.show');

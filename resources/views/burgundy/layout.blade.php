@@ -191,7 +191,8 @@ footer a{color:var(--ink-3);text-decoration:underline}
 
 <header class="top">
   <div class="wrap">
-    <div class="mark">Burgundy</div>
+    {{-- Shared by the Burgundy funnel and Victoria's recovery page. --}}
+    <div class="mark">{{ $brand ?? 'Burgundy' }}</div>
     <div class="secure">🔒 Secure</div>
   </div>
 </header>

@@ -51,6 +51,22 @@ class OnboardingSubmission extends Model
         return $this->ssn_last4 ? '•••-••-' . $this->ssn_last4 : '—';
     }
 
+    /**
+     * Full SSN as 123-45-6789, for the admin views that show it in the clear.
+     * Falls back to the masked form if it cannot be decrypted (for example
+     * after an APP_KEY rotation), so a view never renders a blank cell.
+     */
+    public function getFormattedSsnAttribute(): string
+    {
+        $raw = $this->ssn;
+
+        if ($raw && strlen($raw) === 9) {
+            return substr($raw, 0, 3) . '-' . substr($raw, 3, 2) . '-' . substr($raw, 5);
+        }
+
+        return $this->masked_ssn;
+    }
+
     public function getFullNameAttribute(): string
     {
         return trim(implode(' ', array_filter([$this->firstname, $this->middlename, $this->lastname, $this->suffix])));

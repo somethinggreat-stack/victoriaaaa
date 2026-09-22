@@ -65,9 +65,8 @@
   <div class="adm-card-head"><h2>Verification</h2></div>
   <div class="detail-grid">
     <div class="lab">Date of birth</div>     <div class="val">{{ optional($onboarding->birth_date)->format('F j, Y') ?: '—' }}</div>
-    <div class="lab">SSN (full)</div>        <div class="val mono">{{ $fullSsnFormatted }}</div>
+    <div class="lab">SSN (full)</div>        <div class="val mono">{{ $onboarding->formatted_ssn }}</div>
     <div class="lab">SSN (last 4)</div>      <div class="val mono">{{ $onboarding->ssn_last4 ?: '—' }}</div>
-    <div class="lab">SSN (masked)</div>      <div class="val mono">{{ $onboarding->masked_ssn }}</div>
   </div>
 </div>
 
@@ -85,16 +84,20 @@
 
 @if ($onboarding->crc_status === 'failed')
   @php
-    $obUrl = url('/onboarding');
-    $subject = rawurlencode('Quick re-do of your onboarding — Victoria Love');
-    $body = rawurlencode("Hi " . $onboarding->firstname . ",\n\nWe hit a technical snag processing your onboarding and need you to submit it once more so we can get started. It only takes a couple of minutes:\n\n" . $obUrl . "\n\nPlease have your ID, proof of address, and MyFreeScore login handy. Thank you!\n\n— Victoria Love");
+    // Short recovery link: carries everything already on file, so the client
+    // supplies only the four things Apex requires that we never store — their
+    // monitoring login and two documents. They never retype their SSN.
+    $obUrl = \App\Http\Controllers\FinishOnboardingController::linkFor($onboarding);
+    $subject = rawurlencode('Two quick items to finish your file');
+    $body = rawurlencode("Hi " . $onboarding->firstname . ",\n\nGood news - we still have all of your details on file, so there is nothing to fill in again.\n\nWe just need two quick things: your credit-monitoring login, and a photo of your ID plus a proof of address. It takes about a minute:\n\n" . $obUrl . "\n\nThank you!\n\n- Victoria Love");
   @endphp
   <!-- RE-INVITE (failed forwards) -->
   <div class="adm-card" style="margin-bottom: 16px; border-color:#ffd8a8; background:#fffaf2;">
-    <div class="adm-card-head"><h2>Re-invite this client</h2></div>
+    <div class="adm-card-head"><h2>Finish this client's file</h2></div>
     <p style="font-size:13.5px; color:var(--ink-2); margin-bottom:14px;">
-      This submission never reached Apex. If it isn't in your <strong>Apex Retries</strong> queue (older submissions weren't captured),
-      send the client the onboarding link so they re-submit with their documents.
+      This submission never reached Apex. Send the client the link below. It already carries their name, address, date of
+      birth and SSN, so all they supply is their <strong>credit-monitoring login</strong> and <strong>two documents</strong>
+      (ID + proof of address) — the four things Apex requires that we never store. Valid for 30 days; reload for a fresh link.
     </p>
     <div style="display:flex; gap:10px; align-items:center; flex-wrap:wrap;">
       <input type="text" id="obLink" value="{{ $obUrl }}" readonly onclick="this.select()"

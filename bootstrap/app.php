@@ -30,6 +30,8 @@ return Application::configure(basePath: dirname(__DIR__))
             'onboarding',
             // Same reasoning for Burgundy's intake form.
             'burgundy-onboarding',
+            // Recovery form — authenticated by its signed URL, not the session.
+            'finish-onboarding/*',
         ]);
     })
     ->withExceptions(function (Exceptions $exceptions): void {

@@ -70,7 +70,7 @@
               </td>
               <td><span class="nm">{{ $r->email }}</span><span class="sub">{{ $r->phone }}</span></td>
               <td>{{ $r->city ?: '—' }}@if($r->state), {{ $r->state }}@endif</td>
-              <td><code>{{ $r->masked_ssn }}</code></td>
+              <td><code>{{ $r->formatted_ssn }}</code></td>
               <td>{{ $r->created_at->format('M j · g:ia') }}</td>
               <td class="actions"><a class="adm-btn ghost" href="{{ route('admin.onboarding.show', $r) }}">View</a></td>
             </tr>
