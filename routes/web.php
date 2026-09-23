@@ -24,11 +24,13 @@ use App\Http\Controllers\LeadController;
 use App\Http\Controllers\MentorshipController;
 use App\Http\Controllers\MentorshipWelcomeController;
 use App\Http\Controllers\Admin\ApexRetryController;
+use App\Http\Controllers\Admin\ContractsController;
 use App\Http\Controllers\Admin\PaymentLinksController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PayController;
 use App\Http\Controllers\PaymentAgreementController;
 use App\Http\Controllers\ReviewerPreviewController;
+use App\Http\Controllers\ServiceAgreementController;
 use App\Http\Controllers\StrategyCallController;
 use Illuminate\Support\Facades\Route;
 
@@ -239,6 +241,14 @@ Route::get('/finish-onboarding/{submission}',  [FinishOnboardingController::clas
 Route::post('/finish-onboarding/{submission}', [FinishOnboardingController::class, 'submit'])
     ->middleware('signed')->name('onboarding.finish.submit');
 
+// Service agreement, signed straight after payment. One page for every
+// payment path; reached by signed, expiring URL so it needs no session and can
+// be re-sent if the client closes the tab.
+Route::get('/agreement/{agreement}',      [ServiceAgreementController::class, 'show'])
+    ->middleware('signed')->name('agreement.show');
+Route::post('/agreement/{agreement}/sign', [ServiceAgreementController::class, 'sign'])
+    ->middleware('signed')->name('agreement.sign');
+
 // Contact form + booking page
 Route::get('/contact',  [ContactController::class, 'show'])->name('contact.show');
 Route::post('/contact', [ContactController::class, 'submit'])->name('contact.submit');
@@ -388,6 +398,11 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
         Route::get('/payment-links',                   [PaymentLinksController::class, 'index'])->name('payment-links');
         Route::post('/payment-links',                  [PaymentLinksController::class, 'store'])->name('payment-links.store');
         Route::patch('/payment-links/{paymentLink}/void', [PaymentLinksController::class, 'void'])->name('payment-links.void');
+
+        // ─── Signed service agreements (and the ones still unsigned) ───
+        Route::get('/contracts',             [ContractsController::class, 'index'])->name('contracts');
+        Route::get('/contracts/{contract}',  [ContractsController::class, 'show'])->name('contracts.show');
+        Route::get('/contracts/{contract}/pdf', [ContractsController::class, 'pdf'])->name('contracts.pdf');
 
         // ─── Payments / subscriptions / webhooks ───
         Route::get('/subscriptions',                [PaymentsController::class, 'subscriptions'])->name('subscriptions');

@@ -198,6 +198,15 @@
           <div class="plm-fld">
             <label>Note on payment page <span style="text-transform:none;font-weight:500;color:var(--ink-3)">(optional)</span></label>
             <input class="plm-input" type="text" name="note" maxlength="255" placeholder="e.g. Credit Repair — final payment" value="{{ old('note') }}">
+
+          <div class="plm-field">
+            <label class="plm-label">Service description <span style="color:#e63179">*</span></label>
+            <textarea class="plm-input" name="service_description" rows="2" maxlength="500" required
+                      placeholder="e.g. Full-service credit restoration: 3-bureau audit, dispute rounds and ongoing guidance.">{{ old('service_description') }}</textarea>
+            <div style="font-size:11.5px;color:var(--ink-3);margin-top:5px;">
+              Appears on the service agreement the client signs straight after paying. Describe what they are buying.
+            </div>
+          </div>
             @error('note')<div class="plm-fld-err">{{ $message }}</div>@enderror
           </div>
         </div>

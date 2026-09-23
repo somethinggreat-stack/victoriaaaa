@@ -7,8 +7,9 @@ use Illuminate\Database\Eloquent\Model;
 class PaymentLink extends Model
 {
     protected $fillable = [
-        'token', 'client_name', 'email', 'amount', 'note', 'status',
+        'token', 'client_name', 'email', 'amount', 'note', 'service_description', 'status',
         'invoice_number', 'transaction_id', 'auth_code', 'payer_email', 'paid_at',
+        'payment_agreement_id',
     ];
 
     protected $casts = [

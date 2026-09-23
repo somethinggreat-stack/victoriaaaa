@@ -66,7 +66,12 @@ class PaymentLinksController extends Controller
             'amount'      => ['required', 'numeric', 'min:1', 'max:100000'],
             'email'       => ['nullable', 'email', 'max:150'],
             'note'        => ['nullable', 'string', 'max:255'],
+            // Goes onto the contract the client signs after paying, so it has
+            // to describe the work — a link alone says nothing about it.
+            'service_description' => ['required', 'string', 'min:5', 'max:500'],
         ], [
+            'service_description.required' => 'Describe the service — this is what the client signs for.',
+            'service_description.min'      => 'Please describe the service in a little more detail.',
             'amount.min' => 'Amount must be at least $1.00.',
             'amount.max' => 'Amount is too large — please split it into smaller links.',
         ]);
@@ -82,6 +87,7 @@ class PaymentLinksController extends Controller
             'email'       => $validated['email'] ?? null,
             'amount'      => number_format((float) $validated['amount'], 2, '.', ''),
             'note'        => $validated['note'] ?? null,
+            'service_description' => trim($validated['service_description']),
             'status'      => 'unpaid',
         ]);
 

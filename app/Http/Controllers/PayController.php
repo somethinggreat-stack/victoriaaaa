@@ -3,6 +3,7 @@
 namespace App\Http\Controllers;
 
 use App\Models\PaymentLink;
+use App\Services\ServiceAgreements;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Http;
 use Illuminate\Support\Facades\Log;
@@ -202,11 +203,29 @@ class PayController extends Controller
                 ]);
             }
 
+            // A payment link had no contract at all. Open one and send the
+            // client to sign it rather than leaving them on an inline receipt.
+            $agreement = ServiceAgreements::start([
+                'source'              => 'payment_link',
+                'source_id'           => $link->id,
+                'partner'             => 'victoria',
+                'plan_key'            => 'payment-link',
+                'plan_label'          => $link->service_description ?: ($link->note ?: 'Credit services'),
+                'service_description' => $link->service_description,
+                'charged_today'       => (float) $link->amount,
+                'recurring_amount'    => null,
+                'client_name'         => $link->client_name,
+                'client_phone'        => $validated['phone'] ?? null,
+                'email'               => $validated['email'],
+                'invoice_number'      => $invoiceNumber,
+            ]);
+
             return response()->json([
                 'success'     => true,
                 'message'     => 'Payment successful.',
                 'invoice'     => $invoiceNumber,
                 'transaction' => $transId,
+                'redirect'    => $agreement ? ServiceAgreements::signingUrl($agreement) : null,
             ]);
 
         } catch (\Throwable $e) {

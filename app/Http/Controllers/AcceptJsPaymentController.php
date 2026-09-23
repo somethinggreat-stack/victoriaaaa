@@ -4,6 +4,7 @@ namespace App\Http\Controllers;
 
 use App\Models\PaymentAgreement;
 use App\Models\Subscription;
+use App\Services\ServiceAgreements;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -491,6 +492,8 @@ class AcceptJsPaymentController extends Controller
             // Telegram). Credit-repair buyers get the client intake form — they
             // must never be sent to each other's flow.
             if (in_array($planKey, MentorshipWelcomeController::MENTORSHIP_PLANS, true)) {
+                // Mentorship signs its payment agreement BEFORE checkout, so the
+                // buyer has already committed in writing — do not ask again.
                 session([
                     'mentorship_purchase_success' => true,
                     'mentorship_first_name'       => $validated['first_name'],
@@ -498,7 +501,28 @@ class AcceptJsPaymentController extends Controller
                 ]);
                 $redirectUrl = route('mentorship.welcome');
             } else {
-                $redirectUrl = url('/onboarding');
+                // Credit-repair buyers sign the service agreement, then continue
+                // to onboarding. Amounts come from this sale, never the catalogue.
+                $agreement = ServiceAgreements::start([
+                    'source'           => 'subscription',
+                    'source_id'        => $subscription?->id,
+                    'partner'          => 'victoria',
+                    'plan_key'         => $planKey,
+                    'plan_label'       => $planLabel,
+                    'charged_today'    => (float) $amount,
+                    'recurring_amount' => $recurringAmt !== null ? (float) $recurringAmt : null,
+                    'recurring_count'  => $recurringCount,
+                    'client_name'      => trim($validated['first_name'] . ' ' . $validated['last_name']),
+                    'client_phone'     => $validated['phone'] ?? null,
+                    'email'            => $validated['email'],
+                    'invoice_number'   => $invoiceNumber,
+                    'subscription_id'  => $subscription?->id,
+                    'next_url'         => url('/onboarding'),
+                ]);
+
+                $redirectUrl = $agreement
+                    ? ServiceAgreements::signingUrl($agreement)
+                    : url('/onboarding');
             }
 
             return response()->json([

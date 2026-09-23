@@ -268,6 +268,9 @@
     .then(r => r.json().then(j => ({ok:r.ok, body:j})))
     .then(({ok, body}) => {
       if (ok && body.success) {
+        // Payment is followed by the service agreement. Only fall back to the
+        // inline receipt if the agreement could not be opened.
+        if (body.redirect) { window.location.href = body.redirect; return; }
         const fn = (form.querySelector('input[name="first_name"]').value || '').trim();
         document.getElementById('lcSuccessName').textContent = fn ? (fn + ', your payment') : 'your payment';
         document.getElementById('lcGrid').style.display = 'none';

@@ -721,6 +721,7 @@ table.adm-table .actions { white-space: nowrap; }
         <a href="{{ route('admin.payments') }}"       class="@if($current==='admin.payments') active @endif"><span class="ic">$</span> Payments</a>
         <a href="{{ route('admin.onboarding') }}"     class="@if(str_starts_with($current,'admin.onboarding')) active @endif"><span class="ic">⚑</span> Paid Credit Repair Clients</a>
         <a href="{{ route('admin.payment-links') }}"  class="@if(str_starts_with($current,'admin.payment-links')) active @endif"><span class="ic">🔗</span> Payment Links</a>
+        <a href="{{ route('admin.contracts') }}"  class="@if(str_starts_with($current,'admin.contracts')) active @endif"><span class="ic">✎</span> Contracts</a>
       @endunless
 
       @if (\Illuminate\Support\Facades\Route::has('admin.strategy-calls'))
