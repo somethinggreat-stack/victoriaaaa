@@ -5,6 +5,8 @@ namespace App\Http\Controllers;
 use App\Models\BurgundyClient;
 use App\Models\PaymentAgreement;
 use App\Models\Subscription;
+use App\Services\ServiceAgreement;
+use App\Support\PartnershipPlans;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Log;
 
@@ -23,7 +25,7 @@ use Illuminate\Support\Facades\Log;
  */
 class BurgundyAgreementController extends Controller
 {
-    public const TERMS_VERSION = 'burgundy-v1';
+    public const TERMS_VERSION = ServiceAgreement::TERMS_VERSION;
 
     public function show(Request $request)
     {
@@ -35,15 +37,15 @@ class BurgundyAgreementController extends Controller
         }
 
         $customer = (array) session('burgundy_customer', []);
+        $name     = trim(($customer['first_name'] ?? '') . ' ' . ($customer['last_name'] ?? ''));
+        $sale     = $this->saleTerms($name);
 
         return view('burgundy.agreement', [
-            'enrollment' => (string) config('partnership.plan.enrollment', '100.00'),
-            'monthly'    => (string) config('partnership.plan.monthly', '100.00'),
-            'planLabel'  => (string) config('partnership.plan.label', 'Credit Restoration Program'),
-            'fullName'   => trim(($customer['first_name'] ?? '') . ' ' . ($customer['last_name'] ?? '')),
-            'terms'      => $this->contractText(
-                trim(($customer['first_name'] ?? '') . ' ' . ($customer['last_name'] ?? '')) ?: '__________',
-            ),
+            'enrollment' => number_format($sale['charged_today'], 2, '.', ''),
+            'monthly'    => number_format((float) ($sale['recurring_amount'] ?? 0), 2, '.', ''),
+            'planLabel'  => $sale['plan_label'],
+            'fullName'   => $name,
+            'terms'      => ServiceAgreement::build($sale),
         ]);
     }
 
@@ -73,20 +75,22 @@ class BurgundyAgreementController extends Controller
         $customer  = (array) session('burgundy_customer', []);
         $invoice   = (string) session('burgundy_invoice', '');
         $clientId  = session('burgundy_client_id');
-        $enrollment = (float) config('partnership.plan.enrollment', 100);
-        $monthly    = (float) config('partnership.plan.monthly', 100);
+
+        // Priced from the subscription, so the signed document can never quote
+        // a figure other than the one the card was charged.
+        $sale = $this->saleTerms(trim($validated['full_name']));
 
         try {
             $agreement = PaymentAgreement::create([
-                'plan_key'           => (string) config('partnership.plan.key', 'burgundy-100'),
-                'plan_label'         => (string) config('partnership.plan.label', 'Credit Restoration Program'),
-                'deposit_amount'     => number_format($enrollment, 2, '.', ''),
-                'installment_amount' => number_format($monthly, 2, '.', ''),
+                'plan_key'           => $sale['plan_key'],
+                'plan_label'         => $sale['plan_label'],
+                'deposit_amount'     => number_format($sale['charged_today'], 2, '.', ''),
+                'installment_amount' => number_format((float) ($sale['recurring_amount'] ?? 0), 2, '.', ''),
                 'installment_count'  => null,   // open-ended — runs until cancelled
-                'total_amount'       => number_format($enrollment, 2, '.', ''), // only the enrollment is committed
+                'total_amount'       => number_format($sale['charged_today'], 2, '.', ''), // only the enrollment is committed
                 'full_name'          => trim($validated['full_name']),
                 'signature_data'     => $validated['signature_data'],
-                'contract_text'      => $this->contractText(trim($validated['full_name'])),
+                'contract_text'      => ServiceAgreement::build($sale),
                 'terms_version'      => self::TERMS_VERSION,
                 'email'              => $customer['email'] ?? null,
                 'invoice_number'     => $invoice ?: null,
@@ -138,47 +142,43 @@ class BurgundyAgreementController extends Controller
     }
 
     /**
-     * Verbatim snapshot of what the client agreed to. Stored with the signature
-     * so the document can be reproduced exactly, whatever the page says later.
+     * The terms of THIS sale, read from the subscription created at checkout.
+     *
+     * Config is only a fallback for the rare case where the subscription row
+     * could not be written — it is never the primary source, because a price
+     * change in config must not alter what an existing client agreed to.
      */
-    private function contractText(string $name): string
+    private function saleTerms(string $name): array
     {
-        $enrollment = '$' . number_format((float) config('partnership.plan.enrollment', 100), 2);
-        $monthly    = '$' . number_format((float) config('partnership.plan.monthly', 100), 2);
-        $date       = now()->format('F j, Y');
+        $invoice      = (string) session('burgundy_invoice', '');
+        $subscription = $invoice ? Subscription::where('invoice_number', $invoice)->first() : null;
 
-        return implode("\n", [
-            'CREDIT RESTORATION SERVICE AGREEMENT',
-            "Date: {$date}",
-            '',
-            "This Agreement is entered into between Victoria Love Credit (\"Company\") and {$name} (\"Client\").",
-            '',
-            '1. SERVICES. Company will review Client\'s credit reports from the three major credit bureaus and, on Client\'s behalf, dispute items Client believes to be inaccurate, incomplete or unverifiable, and provide ongoing credit guidance for as long as this Agreement remains active.',
-            '',
-            '2. FEES AND BILLING SCHEDULE.',
-            "   • An enrollment fee of {$enrollment}, charged today, {$date}.",
-            "   • Thereafter {$monthly} per month, beginning approximately 30 days from today and recurring monthly until cancelled.",
-            '   • There is no minimum term and no total contract amount. Client pays only for the months in which the Agreement is active.',
-            '',
-            '3. AUTHORIZATION TO CHARGE. Client authorizes Company to charge the payment method provided at checkout for the enrollment fee and for each monthly fee on its due date, processed securely through Authorize.Net. This authorization remains in effect until Client cancels as described below.',
-            '',
-            '4. CANCELLATION.',
-            '   • Client may cancel at any time, for any reason, by written notice to Company.',
-            '   • Cancellation takes effect at the end of the current billing month; no further monthly charges will be made after Company receives notice.',
-            '   • Fees already charged for months in which services were provided are non-refundable, except as stated in Section 5.',
-            '',
-            '5. YOUR RIGHT TO CANCEL WITHIN THREE DAYS. Client may cancel this Agreement, without any penalty or obligation, at any time before midnight of the third business day after the date this Agreement is signed. If Client cancels within that period, any amount paid will be refunded in full within 10 business days. To cancel, Client must send written notice to Company stating the intention to cancel.',
-            '',
-            '6. NO GUARANTEE. Company does not guarantee any specific credit score increase, the removal of any particular item, approval for any loan or credit product, or any particular outcome or timeframe. Results depend on the accuracy of the information reported and the responses of the credit bureaus and furnishers.',
-            '',
-            '7. CLIENT RESPONSIBILITIES. Client agrees to provide accurate and complete information, to forward correspondence received from the credit bureaus promptly, and to keep the payment method on file current.',
-            '',
-            '8. YOUR RIGHTS. Client has the right to dispute inaccurate information in their credit report by contacting the credit bureaus directly, at no cost. Client has the right to obtain a copy of their credit report from each bureau, and accurate negative information may generally be reported for up to seven years, or ten years for bankruptcies.',
-            '',
-            '9. ELECTRONIC SIGNATURE. By typing my full legal name and drawing my signature below, I acknowledge that I have read, understand, and agree to be legally bound by this Agreement, and that my electronic signature is the legal equivalent of my handwritten signature.',
-            '',
-            "Signed by: {$name}",
-            "Signed at: {$date}",
+        if ($subscription) {
+            return [
+                'client_name'      => $name,
+                'plan_key'         => (string) $subscription->plan_key,
+                'plan_label'       => (string) ($subscription->plan_label ?: 'Credit Restoration Program'),
+                'charged_today'    => (float) $subscription->amount,
+                'recurring_amount' => $subscription->recurring_amount !== null
+                    ? (float) $subscription->recurring_amount
+                    : null,
+                'recurring_count'  => null,
+            ];
+        }
+
+        Log::warning('[Burgundy] Agreement priced from config — no subscription for invoice', [
+            'invoice' => $invoice ?: '(none)',
         ]);
+
+        $plan = PartnershipPlans::tier(session('burgundy_tier'));
+
+        return [
+            'client_name'      => $name,
+            'plan_key'         => (string) $plan['key'],
+            'plan_label'       => (string) $plan['label'],
+            'charged_today'    => (float) $plan['enrollment'],
+            'recurring_amount' => (float) $plan['monthly'],
+            'recurring_count'  => null,
+        ];
     }
 }

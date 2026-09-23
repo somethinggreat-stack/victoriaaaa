@@ -288,8 +288,16 @@ Route::post('/authorize-net/webhook', [AuthorizeNetWebhookController::class, 'ha
 
 // ============ BURGUNDY × VICTORIA PARTNERSHIP ============
 // Public client flow: one shared $100 link → contract → onboarding → both dashboards.
-Route::get('/burgundy-checkout',          [BurgundyCheckoutController::class, 'show'])->name('burgundy.checkout.show');
-Route::post('/burgundy-checkout/process', [BurgundyCheckoutController::class, 'process'])->name('burgundy.checkout.process');
+// Two prices run side by side and must not be confused. The legacy URL is
+// unchanged because it is already out with Burgundy's transferring clients.
+Route::get('/burgundy-checkout',  fn () => app(BurgundyCheckoutController::class)->show('legacy'))
+    ->name('burgundy.checkout.show');
+Route::get('/burgundy-new-client', fn () => app(BurgundyCheckoutController::class)->show('new'))
+    ->name('burgundy.checkout.new');
+
+Route::post('/burgundy-checkout/process/{tier}', [BurgundyCheckoutController::class, 'process'])
+    ->where('tier', 'legacy|new')
+    ->name('burgundy.checkout.process');
 
 // Service agreement — signed right after the enrollment charge, before onboarding.
 Route::get('/burgundy-agreement',       [BurgundyAgreementController::class, 'show'])->name('burgundy.agreement.show');

@@ -47,6 +47,8 @@ a{color:inherit;text-decoration:none}
 .linkbox input{width:100%;background:rgba(0,0,0,.3);border:1px solid rgba(255,255,255,.12);color:rgba(255,255,255,.8);border-radius:6px;padding:6px 7px;font-size:10.5px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace}
 .linkbox button{width:100%;margin-top:6px;background:var(--wine-2);color:#fff;border:0;border-radius:100px;padding:7px;font-size:11.5px;font-weight:700;cursor:pointer;font-family:inherit}
 .linkbox button:hover{background:var(--wine)}
+.linkcopy{display:flex;align-items:center;justify-content:space-between;gap:8px;text-align:left}
+.linkcopy small{font-weight:600;opacity:.75;font-size:10px;text-transform:uppercase;letter-spacing:.06em}
 .logout{width:100%;background:rgba(255,255,255,.06);color:rgba(255,255,255,.85);border:1px solid rgba(255,255,255,.1);padding:9px 12px;border-radius:100px;font-size:12.5px;font-weight:600;cursor:pointer;font-family:inherit}
 .logout:hover{background:var(--wine-2);color:#fff;border-color:var(--wine-2)}
 
@@ -206,10 +208,16 @@ label.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;l
     </nav>
 
     <div class="foot">
+      {{-- Both prices, never just one: a single box here would eventually get
+           sent to the wrong kind of client. --}}
       <div class="linkbox">
-        <label>Checkout link — $100</label>
-        <input type="text" id="coLink" readonly value="{{ route('burgundy.checkout.show') }}" onclick="this.select()">
-        <button type="button" onclick="copyCo(this)">Copy link</button>
+        <label>Checkout links</label>
+        @foreach(\App\Support\PartnershipPlans::all() as $tierKey => $tierPlan)
+          <button type="button" class="linkcopy" data-url="{{ route($tierPlan['route']) }}" onclick="copyCo(this)">
+            <span>${{ number_format((float) $tierPlan['enrollment'], 0) }} + ${{ number_format((float) $tierPlan['monthly'], 0) }}/mo</span>
+            <small>{{ $tierKey === 'new' ? 'New clients' : 'Legacy' }}</small>
+          </button>
+        @endforeach
       </div>
       <form method="POST" action="{{ route('partnership.logout') }}">@csrf
         <button type="submit" class="logout">Log out</button>
@@ -235,11 +243,10 @@ label.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;l
 
 <script>
 function copyCo(btn){
-  var i = document.getElementById('coLink');
-  i.select(); i.setSelectionRange(0, 99999);
-  navigator.clipboard.writeText(i.value).then(function(){
-    var t = btn.textContent; btn.textContent = 'Copied';
-    setTimeout(function(){ btn.textContent = t; }, 1400);
+  navigator.clipboard.writeText(btn.dataset.url).then(function(){
+    var inner = btn.innerHTML;
+    btn.textContent = 'Copied';
+    setTimeout(function(){ btn.innerHTML = inner; }, 1400);
   });
 }
 </script>

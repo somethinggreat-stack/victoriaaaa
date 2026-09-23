@@ -5,6 +5,7 @@ namespace App\Http\Controllers\Partnership;
 use App\Http\Controllers\Controller;
 use App\Models\BurgundyClient;
 use App\Services\BurgundyLedger;
+use App\Support\PartnershipPlans;
 
 class DashboardController extends Controller
 {
@@ -27,7 +28,13 @@ class DashboardController extends Controller
             'm'              => $ledger->metrics(),
             'recent'         => $recent,
             'needsAttention' => $needsAttention,
-            'checkoutUrl'    => route('burgundy.checkout.show'),
+            'plans'          => collect(PartnershipPlans::all())->map(fn ($p) => [
+                'label'      => $p['label'],
+                'audience'   => $p['audience'],
+                'enrollment' => $p['enrollment'],
+                'monthly'    => $p['monthly'],
+                'url'        => route($p['route']),
+            ])->all(),
         ]);
     }
 }

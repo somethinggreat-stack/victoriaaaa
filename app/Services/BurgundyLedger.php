@@ -5,6 +5,7 @@ namespace App\Services;
 use App\Models\BurgundyClient;
 use App\Models\Payment;
 use App\Models\Subscription;
+use App\Support\PartnershipPlans;
 use Illuminate\Database\Eloquent\Builder;
 
 /**
@@ -19,15 +20,10 @@ use Illuminate\Database\Eloquent\Builder;
  */
 class BurgundyLedger
 {
-    private function planKey(): string
-    {
-        return (string) config('partnership.plan.key', 'burgundy-100');
-    }
-
-    /** Subscriptions belonging to the partnership plan. */
+    /** Subscriptions on any partnership plan — currently $100 legacy and $149 new. */
     public function subscriptions(): Builder
     {
-        return Subscription::where('plan_key', $this->planKey());
+        return Subscription::whereIn('plan_key', PartnershipPlans::keys());
     }
 
     /** Every charge, refund and void against those subscriptions. */
@@ -63,7 +59,13 @@ class BurgundyLedger
             ->sum('amount');
 
         $activeSubs = $this->subscriptions()->where('status', 'active')->count();
-        $monthly    = (float) config('partnership.plan.monthly', 100);
+
+        // Summed from each subscription's own recurring amount. Multiplying a
+        // count by one price silently under-reports as soon as two tiers run
+        // side by side.
+        $monthlyRevenue = (float) $this->subscriptions()
+            ->where('status', 'active')
+            ->sum('recurring_amount');
 
         return [
             'legacy_clients'     => (clone $clients)->where('source', 'legacy')->count(),
@@ -87,7 +89,7 @@ class BurgundyLedger
             'possible_duplicates'=> (clone $clients)->whereNotNull('possible_duplicate_of')->count(),
 
             // Money
-            'monthly_revenue'    => $activeSubs * $monthly,
+            'monthly_revenue'    => $monthlyRevenue,
             'payments_collected' => $collected,
             'net_collected'      => $collected - $refunded,
             'refunded'           => $refunded,

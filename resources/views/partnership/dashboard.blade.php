@@ -87,14 +87,34 @@
   </a>
 </div>
 
-{{-- ── The link Burgundy actually sends ── --}}
+{{-- ── The links Burgundy actually sends ── --}}
 <div class="card">
-  <h2>The $100 checkout link</h2>
-  <p class="sub">Send this to any client who wants to continue. After paying they sign the agreement, then complete onboarding — and land in both dashboards automatically.</p>
-  <div style="display:flex;gap:9px;flex-wrap:wrap;align-items:center">
-    <input type="text" readonly value="{{ $checkoutUrl }}" onclick="this.select()" style="flex:1;min-width:270px" class="mono">
-    <a href="{{ $checkoutUrl }}" target="_blank" rel="noopener" class="btn ghost sm">Preview</a>
+  <h2>Checkout links</h2>
+  <p class="sub">
+    Two prices are live. Send the right one — the link decides what the client is charged,
+    and it is stamped onto their subscription for good.
+  </p>
+
+  <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(300px,1fr));gap:14px">
+    @foreach($plans as $tier => $p)
+      <div style="border:1px solid {{ $tier === 'new' ? 'var(--wine-2)' : 'var(--line-2)' }};border-radius:var(--r);padding:16px">
+        <div style="display:flex;align-items:baseline;justify-content:space-between;gap:10px;margin-bottom:3px">
+          <strong style="font-size:15px">${{ number_format((float) $p['enrollment'], 0) }} + ${{ number_format((float) $p['monthly'], 0) }}/mo</strong>
+          @if($tier === 'new')<span class="pill wine">New clients</span>@else<span class="pill grey">Legacy</span>@endif
+        </div>
+        <div class="mut" style="font-size:12.5px;margin-bottom:11px">{{ $p['audience'] }}</div>
+        <input type="text" readonly value="{{ $p['url'] }}" onclick="this.select()" class="mono" style="margin-bottom:8px">
+        <div style="display:flex;gap:7px">
+          <button type="button" class="btn sm" onclick="copyUrl(this)" data-url="{{ $p['url'] }}">Copy</button>
+          <a href="{{ $p['url'] }}" target="_blank" rel="noopener" class="btn ghost sm">Preview</a>
+        </div>
+      </div>
+    @endforeach
   </div>
+
+  <p class="sub" style="margin:14px 0 0">
+    After paying, the client signs the service agreement and then completes onboarding — and lands in both dashboards automatically.
+  </p>
 </div>
 
 {{-- ── Recently touched ── --}}
@@ -127,3 +147,14 @@
 </div>
 
 @endsection
+
+@push('scripts')
+<script>
+function copyUrl(btn){
+  navigator.clipboard.writeText(btn.dataset.url).then(function(){
+    var t = btn.textContent; btn.textContent = 'Copied';
+    setTimeout(function(){ btn.textContent = t; }, 1400);
+  });
+}
+</script>
+@endpush

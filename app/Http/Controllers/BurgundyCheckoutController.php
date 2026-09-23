@@ -5,6 +5,7 @@ namespace App\Http\Controllers;
 use App\Models\BurgundyClient;
 use App\Models\Subscription;
 use App\Services\BurgundyClientMatcher;
+use App\Support\PartnershipPlans;
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\Http;
@@ -29,16 +30,23 @@ use Illuminate\Support\Str;
  */
 class BurgundyCheckoutController extends Controller
 {
-    public function show()
+    /**
+     * @param  string  $tier  'legacy' ($100, the transferring book) or 'new' ($149).
+     */
+    public function show(string $tier = 'legacy')
     {
+        $plan = PartnershipPlans::tier($tier);
+
         return view('burgundy.checkout', [
-            'enrollment' => (string) config('partnership.plan.enrollment', '100.00'),
-            'monthly'    => (string) config('partnership.plan.monthly', '100.00'),
-            'planLabel'  => (string) config('partnership.plan.label', 'Credit Restoration Program'),
+            'tier'       => $tier,
+            'enrollment' => (string) $plan['enrollment'],
+            'monthly'    => (string) $plan['monthly'],
+            'planLabel'  => (string) $plan['label'],
+            'postUrl'    => route('burgundy.checkout.process', ['tier' => $tier]),
         ]);
     }
 
-    public function process(Request $request, BurgundyClientMatcher $matcher)
+    public function process(Request $request, BurgundyClientMatcher $matcher, string $tier = 'legacy')
     {
         $validated = $request->validate([
             'cardNumber'    => 'required|string|min:13|max:25',
@@ -58,10 +66,14 @@ class BurgundyCheckoutController extends Controller
             'agree_privacy' => 'required|accepted',
         ]);
 
-        $planKey    = (string) config('partnership.plan.key', 'burgundy-100');
-        $planLabel  = (string) config('partnership.plan.label', 'Credit Restoration Program');
-        $enrollment = number_format((float) config('partnership.plan.enrollment', 100), 2, '.', '');
-        $monthly    = number_format((float) config('partnership.plan.monthly', 100), 2, '.', '');
+        // Resolved from the tier in the URL, then stamped onto the subscription.
+        // A client's price is therefore fixed at the moment they sign up and is
+        // never re-derived from config afterwards.
+        $plan       = PartnershipPlans::tier($tier);
+        $planKey    = (string) $plan['key'];
+        $planLabel  = (string) $plan['label'];
+        $enrollment = number_format((float) $plan['enrollment'], 2, '.', '');
+        $monthly    = number_format((float) $plan['monthly'], 2, '.', '');
 
         $invoiceNumber = 'BG-' . time() . '-' . strtoupper(Str::random(4));
 
@@ -190,6 +202,7 @@ class BurgundyCheckoutController extends Controller
             // Hand off to the agreement, then onboarding.
             session([
                 'burgundy_paid'        => true,
+                'burgundy_tier'        => $tier,
                 'burgundy_client_id'   => $client?->id,
                 'burgundy_invoice'     => $invoiceNumber,
                 'burgundy_first_name'  => $validated['first_name'],
@@ -415,8 +428,9 @@ class BurgundyCheckoutController extends Controller
             $client->update($updates);
 
             $client->logEvent('paid', sprintf(
-                'Paid $%s enrollment. Invoice %s.',
-                number_format((float) config('partnership.plan.enrollment', 100), 2),
+                'Paid $%s enrollment on %s. Invoice %s.',
+                number_format((float) ($subscription?->amount ?? 0), 2),
+                $subscription?->plan_key ?: 'unknown plan',
                 $invoiceNumber,
             ), ['invoice' => $invoiceNumber, 'transaction_id' => $transId]);
 

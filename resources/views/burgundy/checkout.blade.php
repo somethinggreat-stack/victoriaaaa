@@ -35,7 +35,7 @@
 
     <div id="alertBox"></div>
 
-    <form id="payForm" class="card" method="POST" action="{{ route('burgundy.checkout.process') }}" autocomplete="on" novalidate>
+    <form id="payForm" class="card" method="POST" action="{{ $postUrl }}" autocomplete="on" novalidate>
       @csrf
 
       <h3>Your details</h3>

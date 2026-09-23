@@ -13,12 +13,41 @@ return [
     'email'    => env('PARTNERSHIP_EMAIL', ''),
     'password' => env('PARTNERSHIP_PASSWORD', ''),
 
-    // Monthly subscription the partnership sells. Single source of truth for
-    // the checkout, the contract and the dashboard's revenue figures.
-    'plan' => [
-        'key'       => 'burgundy-100',
-        'label'     => 'Credit Restoration Program',
-        'enrollment' => '100.00',   // charged today
-        'monthly'    => '100.00',   // charged every month thereafter
+    /*
+    |--------------------------------------------------------------------------
+    | Partnership plans
+    |--------------------------------------------------------------------------
+    |
+    | Two prices run side by side and must not be confused:
+    |
+    |   legacy — the 56 clients transferring across from Burgundy's old book.
+    |            They were promised $100, and that price stays live until the
+    |            whole list has transitioned.
+    |   new    — anyone signing up from today.
+    |
+    | The plan key is stamped onto the subscription, so a client's price is a
+    | property of their subscription rather than of this file. Changing a price
+    | here never re-prices somebody who already signed.
+    |
+    */
+    'plans' => [
+        'legacy' => [
+            'key'        => 'burgundy-100',
+            'label'      => 'Credit Restoration Program',
+            'enrollment' => '100.00',
+            'monthly'    => '100.00',
+            'audience'   => 'Legacy clients transferring from Burgundy',
+            'route'      => 'burgundy.checkout.show',
+        ],
+        'new' => [
+            'key'        => 'burgundy-149',
+            'label'      => 'Credit Restoration Program',
+            'enrollment' => '149.00',
+            'monthly'    => '149.00',
+            'audience'   => 'New clients',
+            'route'      => 'burgundy.checkout.new',
+        ],
     ],
+
+    'default_plan' => 'legacy',
 ];
