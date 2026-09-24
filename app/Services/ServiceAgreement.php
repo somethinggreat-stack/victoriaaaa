@@ -41,6 +41,9 @@ class ServiceAgreement
         $today   = (float) ($sale['charged_today'] ?? 0);
         $monthly = isset($sale['recurring_amount']) ? (float) $sale['recurring_amount'] : null;
         $count   = $sale['recurring_count'] ?? null;
+        // 'week' or 'month'. Getting this wrong misstates the whole commitment.
+        $every   = ($sale['recurring_interval'] ?? 'month') === 'week' ? 'week' : 'month';
+        $plural  = $every . 's';
         $desc    = trim((string) ($sale['service_description'] ?? '')) ?: null;
 
         $date = ($sale['signed_on'] ?? null)
@@ -64,8 +67,8 @@ class ServiceAgreement
 
         if ($monthly !== null && $monthly > 0) {
             $lines[] = $count
-                ? 'Then:           ' . $money($monthly) . " per month for {$count} month" . ($count === 1 ? '' : 's')
-                : 'Then:           ' . $money($monthly) . ' per month until you cancel';
+                ? 'Then:           ' . $money($monthly) . " per {$every} for {$count} " . ($count === 1 ? $every : $plural)
+                : 'Then:           ' . $money($monthly) . " per {$every} until you cancel";
             $lines[] = $count
                 ? 'Total:          ' . $money($today + ($monthly * $count))
                 : 'Minimum term:   None — cancel any time';
@@ -92,11 +95,13 @@ class ServiceAgreement
         $lines[] = "   Client has been charged {$money($today)} today, {$date}.";
 
         if ($monthly !== null && $monthly > 0) {
+            $starts = $every === 'week' ? 'one week' : '30 days';
             $lines[] = $count
-                ? "   Client will then be charged {$money($monthly)} per month for {$count} month"
-                  . ($count === 1 ? '' : 's') . ', beginning approximately 30 days from today.'
-                : "   Client will then be charged {$money($monthly)} per month, beginning approximately"
-                  . ' 30 days from today, and continuing each month until Client cancels.';
+                ? "   Client will then be charged {$money($monthly)} per {$every} for {$count} "
+                  . ($count === 1 ? $every : $plural) . ", beginning approximately {$starts} from today,"
+                  . ' for a total of ' . $money($today + ($monthly * $count)) . '.'
+                : "   Client will then be charged {$money($monthly)} per {$every}, beginning approximately"
+                  . " {$starts} from today, and continuing each {$every} until Client cancels.";
             $lines[] = '   These are the only amounts Company will charge. Any change to the fee above';
             $lines[] = '   requires Client\'s agreement in advance.';
         } else {
@@ -117,8 +122,8 @@ class ServiceAgreement
         $lines[] = '   for any reason, by written notice to Company.';
 
         if ($monthly !== null && $monthly > 0) {
-            $lines[] = '   Cancellation takes effect at the end of the current billing month. No further';
-            $lines[] = '   monthly charges are made once Company has received notice.';
+            $lines[] = "   Cancellation takes effect at the end of the current billing {$every}. No further";
+            $lines[] = '   charges are made once Company has received notice.';
         }
         $lines[] = '';
 

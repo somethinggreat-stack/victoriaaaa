@@ -93,6 +93,8 @@ class ContractsController extends Controller
             'charged_today'       => ['required', 'numeric', 'min:0', 'max:100000'],
             'recurring_amount'    => ['nullable', 'numeric', 'min:0', 'max:100000'],
             'recurring_count'     => ['nullable', 'integer', 'min:1', 'max:120'],
+            // Only meaningful alongside a recurring amount; defaults to monthly.
+            'recurring_interval'  => ['nullable', 'in:week,month'],
             'partner'             => ['required', 'in:victoria,burgundy'],
         ], [
             'service_description.required' => 'Describe the service — this is what the client signs for.',
@@ -114,6 +116,7 @@ class ContractsController extends Controller
                 ? (float) $recurring
                 : null,
             'recurring_count'     => $validated['recurring_count'] ?? null,
+            'recurring_interval'  => $validated['recurring_interval'] ?? 'month',
             'client_name'         => trim($validated['client_name']),
             'client_phone'        => $validated['client_phone'] ?? null,
             'email'               => $validated['email'] ?? null,

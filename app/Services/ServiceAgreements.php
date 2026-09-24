@@ -55,6 +55,7 @@ class ServiceAgreements
                 'deposit_amount'      => number_format($today, 2, '.', ''),
                 'installment_amount'  => $recurring !== null ? number_format($recurring, 2, '.', '') : null,
                 'installment_count'   => $count,
+                'recurring_interval'  => ($sale['recurring_interval'] ?? 'month') === 'week' ? 'week' : 'month',
                 'total_amount'        => number_format($total, 2, '.', ''),
                 'terms_version'       => ServiceAgreement::TERMS_VERSION,
                 'next_url'            => $sale['next_url'] ?? null,
@@ -102,6 +103,7 @@ class ServiceAgreements
                 ? (float) $agreement->installment_amount
                 : null,
             'recurring_count'     => $agreement->installment_count,
+            'recurring_interval'  => $agreement->recurring_interval ?? 'month',
             'signed_on'           => $agreement->signed_at ?: $agreement->created_at,
         ];
     }

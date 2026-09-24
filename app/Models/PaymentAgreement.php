@@ -15,6 +15,7 @@ class PaymentAgreement extends Model
         'deposit_amount',
         'installment_amount',
         'installment_count',
+        'recurring_interval',
         'total_amount',
         'full_name',
         'signature_data',
@@ -60,9 +61,11 @@ class PaymentAgreement extends Model
         if ($this->installment_amount && (float) $this->installment_amount > 0) {
             $each = '$' . number_format((float) $this->installment_amount, 2);
 
+            $every = $this->recurring_interval === 'week' ? 'wk' : 'mo';
+
             return $this->installment_count
-                ? "{$today} today, then {$each} x {$this->installment_count}"
-                : "{$today} today, then {$each}/mo";
+                ? "{$today} today, then {$each}/{$every} x {$this->installment_count}"
+                : "{$today} today, then {$each}/{$every}";
         }
 
         return $today . ' one-time';

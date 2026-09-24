@@ -55,14 +55,22 @@
                placeholder="1200.00" value="{{ old('charged_today') }}">
       </div>
       <div>
-        <label class="plm-label">Monthly after that</label>
+        <label class="plm-label">Then, each time</label>
         <input class="plm-input" type="number" name="recurring_amount" step="0.01" min="0" max="100000"
                placeholder="leave blank if one-time" value="{{ old('recurring_amount') }}">
       </div>
       <div>
-        <label class="plm-label">For how many months</label>
+        <label class="plm-label">How often</label>
+        <select class="plm-input" name="recurring_interval">
+          <option value="month" @selected(old('recurring_interval','month')==='month')>Every month</option>
+          <option value="week"  @selected(old('recurring_interval')==='week')>Every week</option>
+        </select>
+      </div>
+      <div>
+        <label class="plm-label">How many times</label>
         <input class="plm-input" type="number" name="recurring_count" min="1" max="120"
                placeholder="blank = until they cancel" value="{{ old('recurring_count') }}">
+        <div style="font-size:11.5px;color:var(--ink-3);margin-top:5px;">e.g. 4 for "$250/week x 4 weeks".</div>
       </div>
     </div>
 

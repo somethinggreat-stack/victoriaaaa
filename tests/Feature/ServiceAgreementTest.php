@@ -307,6 +307,45 @@ class ServiceAgreementTest extends TestCase
             ->assertHeader('content-type', 'application/pdf');
     }
 
+    public function test_a_weekly_plan_is_described_as_weekly_not_monthly(): void
+    {
+        // Couples Fast Track: $500 to start, then $250/week x 4. Calling that
+        // "per month" would overstate the term fourfold and put a figure in the
+        // contract that never matches the client's statement.
+        $this->actingAs($this->admin())->post(route('admin.contracts.store'), [
+            'client_name'         => 'Mija McMann',
+            'service_description' => 'Couples Fast Track — credit restoration for two people.',
+            'charged_today'       => '500.00',
+            'recurring_amount'    => '250.00',
+            'recurring_interval'  => 'week',
+            'recurring_count'     => 4,
+            'partner'             => 'victoria',
+        ]);
+
+        $a = PaymentAgreement::where('source', 'manual')->first();
+        $this->assertSame('week', $a->recurring_interval);
+
+        $page = $this->get(ServiceAgreements::signingUrl($a));
+        $page->assertOk()
+            ->assertSee('$500.00')
+            ->assertSee('$250.00/wk')
+            ->assertSee('$1,500.00')          // 500 + (250 x 4)
+            ->assertDontSee('/mo');
+
+        $text = \App\Services\ServiceAgreement::build(ServiceAgreements::saleFor($a));
+        $this->assertStringContainsString('$250.00 per week for 4 weeks', $text);
+        $this->assertStringContainsString('Total:          $1,500.00', $text);
+        $this->assertStringNotContainsString('per month', $text);
+    }
+
+    public function test_recurring_still_defaults_to_monthly(): void
+    {
+        $a = $this->pending();   // no interval given
+
+        $this->assertSame('month', $a->recurring_interval);
+        $this->get(ServiceAgreements::signingUrl($a))->assertOk()->assertSee('/mo');
+    }
+
     // ── Admin ────────────────────────────────────────────────────────────────
 
     public function test_the_admin_warns_about_clients_who_paid_but_never_signed(): void

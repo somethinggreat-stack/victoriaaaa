@@ -32,16 +32,24 @@
             // Built in PHP rather than inline directives: Blade silently skips a
             // directive glued to a word character ("monthly@if"), which leaves the
             // matching @endif to close the wrong block.
-            $forMonths = $agreement->installment_count
-              ? ', for ' . $agreement->installment_count . ' month' . ($agreement->installment_count == 1 ? '' : 's')
-              : '';
+            $every = $agreement->recurring_interval === 'week' ? 'week' : 'month';
+            $howOften = 'Then every ' . $every;
+            if ($agreement->installment_count) {
+                $howOften .= ', ' . $agreement->installment_count . ' time'
+                           . ($agreement->installment_count == 1 ? '' : 's');
+            }
           @endphp
-          <span class="l">Then monthly{{ $forMonths }}</span>
-          <span class="r">${{ number_format((float) $agreement->installment_amount, 2) }}/mo</span>
+          <span class="l">{{ $howOften }}</span>
+          <span class="r">${{ number_format((float) $agreement->installment_amount, 2) }}/{{ $every === 'week' ? 'wk' : 'mo' }}</span>
         </div>
-        @unless ($agreement->installment_count)
+        @if ($agreement->installment_count)
+          <div class="line total">
+            <span class="l">Total</span>
+            <span class="r">${{ number_format((float) $agreement->deposit_amount + ((float) $agreement->installment_amount * $agreement->installment_count), 2) }}</span>
+          </div>
+        @else
           <div class="line"><span class="l">Minimum term</span><span class="r">None — cancel any time</span></div>
-        @endunless
+        @endif
       @else
         <div class="line"><span class="l">Ongoing</span><span class="r">Nothing further</span></div>
       @endif
