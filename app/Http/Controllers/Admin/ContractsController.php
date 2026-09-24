@@ -8,6 +8,7 @@ use App\Services\ServiceAgreement;
 use App\Services\ServiceAgreements;
 use Barryvdh\DomPDF\Facade\Pdf;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Schema;
 use Illuminate\Support\Str;
 
 /**
@@ -21,8 +22,28 @@ use Illuminate\Support\Str;
  */
 class ContractsController extends Controller
 {
+    /**
+     * The deploy runs `migrate --force || true`, so a migration that fails is
+     * swallowed and the deploy still reports success. Check the schema before
+     * querying it, otherwise every visit dies with a raw SQL exception.
+     */
+    private function ready(): bool
+    {
+        try {
+            return Schema::hasTable('payment_agreements')
+                && Schema::hasColumn('payment_agreements', 'status')
+                && Schema::hasColumn('payment_agreements', 'source');
+        } catch (\Throwable $e) {
+            return false;
+        }
+    }
+
     public function index(Request $request)
     {
+        if (! $this->ready()) {
+            return response()->view('admin.contracts-setup', [], 503);
+        }
+
         $q = PaymentAgreement::query();
 
         if ($search = trim((string) $request->query('q', ''))) {
@@ -60,6 +81,10 @@ class ContractsController extends Controller
      */
     public function store(Request $request)
     {
+        if (! $this->ready()) {
+            return response()->view('admin.contracts-setup', [], 503);
+        }
+
         $validated = $request->validate([
             'client_name'         => ['required', 'string', 'max:150'],
             'email'               => ['nullable', 'email', 'max:150'],
