@@ -21,7 +21,7 @@ class ServiceAgreementController extends Controller
 {
     public function show(Request $request, PaymentAgreement $agreement)
     {
-        if ($agreement->status === 'signed') {
+        if ($agreement->fullySigned()) {
             return view('agreement.signed', [
                 'agreement' => $agreement,
                 'brand'     => $this->brand($agreement),
@@ -42,42 +42,81 @@ class ServiceAgreementController extends Controller
 
     public function sign(Request $request, PaymentAgreement $agreement)
     {
-        if ($agreement->status === 'signed') {
+        if ($agreement->fullySigned()) {
             return response()->json([
                 'success'  => true,
                 'redirect' => $agreement->next_url ?: ServiceAgreements::signingUrl($agreement, 1),
             ]);
         }
 
-        $validated = $request->validate([
-            'full_name'      => 'required|string|min:3|max:150',
-            'signature_data' => 'required|string|max:2000000',
-            'agree_terms'    => 'required|accepted',
-        ]);
+        // A joint agreement can be signed by either party first, together or
+        // separately, so each block is optional on its own — but at least one
+        // outstanding signature must arrive.
+        $rules = [
+            'full_name'               => 'nullable|string|min:3|max:150',
+            'signature_data'          => 'nullable|string|max:2000000',
+            'cosigner_full_name'      => 'nullable|string|min:3|max:150',
+            'cosigner_signature_data' => 'nullable|string|max:2000000',
+            'agree_terms'             => 'required|accepted',
+        ];
 
-        if (! str_starts_with($validated['signature_data'], 'data:image')) {
+        $validated = $request->validate($rules);
+
+        $wantsPrimary  = ! $agreement->primarySigned()
+            && $this->isDrawn($validated['signature_data'] ?? null)
+            && trim((string) ($validated['full_name'] ?? '')) !== '';
+
+        $wantsCosigner = $agreement->requires_cosigner
+            && ! $agreement->cosignerSigned()
+            && $this->isDrawn($validated['cosigner_signature_data'] ?? null)
+            && trim((string) ($validated['cosigner_full_name'] ?? '')) !== '';
+
+        if (! $wantsPrimary && ! $wantsCosigner) {
             return response()->json([
                 'success' => false,
-                'message' => 'Please draw your signature before submitting.',
+                'message' => $agreement->requires_cosigner
+                    ? 'Please type a name and draw a signature for whoever is signing.'
+                    : 'Please draw your signature before submitting.',
             ], 422);
         }
 
-        $name = trim($validated['full_name']);
+        $updates = [];
+
+        if ($wantsPrimary) {
+            $updates += [
+                'full_name'      => trim($validated['full_name']),
+                'signature_data' => $validated['signature_data'],
+                'ip_address'     => $request->ip(),
+                'user_agent'     => substr((string) $request->userAgent(), 0, 512),
+                'signed_at'      => now(),
+            ];
+        }
+
+        if ($wantsCosigner) {
+            $updates += [
+                'cosigner_full_name'      => trim($validated['cosigner_full_name']),
+                'cosigner_signature_data' => $validated['cosigner_signature_data'],
+                'cosigner_ip_address'     => $request->ip(),
+                'cosigner_user_agent'     => substr((string) $request->userAgent(), 0, 512),
+                'cosigner_signed_at'      => now(),
+            ];
+        }
+
+        $agreement->fill($updates)->save();
+        $agreement->refresh();
+
+        $complete = $agreement->fullySigned();
 
         $agreement->update([
-            'status'         => 'signed',
-            'full_name'      => $name,
-            'signature_data' => $validated['signature_data'],
-            // Frozen verbatim, so the document can be reproduced exactly even
-            // after the wording changes.
-            'contract_text'  => ServiceAgreement::build(ServiceAgreements::saleFor($agreement, $name)),
-            'ip_address'     => $request->ip(),
-            'user_agent'     => substr((string) $request->userAgent(), 0, 512),
-            'signed_at'      => now(),
+            'status' => $complete ? 'signed' : 'partial',
+            // Frozen only once everybody has signed, so the stored document
+            // always carries every name that is bound by it.
+            'contract_text' => $complete
+                ? ServiceAgreement::build(ServiceAgreements::saleFor($agreement, $agreement->full_name))
+                : $agreement->contract_text,
         ]);
 
-        // Cross-reference a payment link so the admin can see it is signed.
-        if ($agreement->source === 'payment_link' && $agreement->source_id) {
+        if ($complete && $agreement->source === 'payment_link' && $agreement->source_id) {
             try {
                 PaymentLink::where('id', $agreement->source_id)
                     ->update(['payment_agreement_id' => $agreement->id]);
@@ -86,16 +125,27 @@ class ServiceAgreementController extends Controller
             }
         }
 
-        Log::info('[Agreement] Signed', [
+        Log::info('[Agreement] Signature recorded', [
             'agreement_id' => $agreement->id,
-            'source'       => $agreement->source,
-            'invoice'      => $agreement->invoice_number,
+            'complete'     => $complete,
+            'awaiting'     => $agreement->awaitingSignatureFrom(),
         ]);
 
         return response()->json([
             'success'  => true,
-            'redirect' => $agreement->next_url ?: ServiceAgreements::signingUrl($agreement, 1),
+            'complete' => $complete,
+            // Not finished means back to the same page, which now shows who is
+            // still outstanding and offers the link to pass on.
+            'redirect' => $complete
+                ? ($agreement->next_url ?: ServiceAgreements::signingUrl($agreement, 1))
+                : ServiceAgreements::signingUrl($agreement, 30),
         ]);
+    }
+
+    /** A signature pad submits a data URL; anything else is not a signature. */
+    private function isDrawn(?string $data): bool
+    {
+        return is_string($data) && str_starts_with($data, 'data:image');
     }
 
     private function brand(PaymentAgreement $agreement): string

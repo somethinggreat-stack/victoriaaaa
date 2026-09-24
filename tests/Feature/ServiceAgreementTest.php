@@ -346,6 +346,165 @@ class ServiceAgreementTest extends TestCase
         $this->get(ServiceAgreements::signingUrl($a))->assertOk()->assertSee('/mo');
     }
 
+    // ── Joint agreements: one document, two signatures ───────────────────────
+
+    private function couple(): PaymentAgreement
+    {
+        $this->actingAs($this->admin())->post(route('admin.contracts.store'), [
+            'client_name'         => 'Mija McMann',
+            'email'               => 'mijabarbie@icloud.com',
+            'service_description' => 'Couples Fast Track — credit restoration for two people.',
+            'charged_today'       => '500.00',
+            'recurring_amount'    => '250.00',
+            'recurring_interval'  => 'week',
+            'recurring_count'     => 4,
+            'partner'             => 'victoria',
+            'requires_cosigner'   => '1',
+            'cosigner_name'       => 'Brice Wilson',
+        ]);
+
+        return PaymentAgreement::where('source', 'manual')->firstOrFail();
+    }
+
+    public function test_a_joint_agreement_names_both_people_and_says_the_price_covers_both(): void
+    {
+        $a = $this->couple();
+
+        $this->assertTrue($a->requires_cosigner);
+        $this->assertSame('Brice Wilson', $a->cosigner_name);
+
+        $page = $this->get(ServiceAgreements::signingUrl($a));
+        $page->assertOk()
+            ->assertSee('Mija McMann')
+            ->assertSee('Brice Wilson')
+            ->assertSee('This agreement covers two people.')
+            ->assertSee('not per person');
+
+        $text = \App\Services\ServiceAgreement::build(ServiceAgreements::saleFor($a));
+        $this->assertStringContainsString('Mija McMann and Brice Wilson', $text);
+        $this->assertStringContainsString('not per person', $text);
+    }
+
+    public function test_one_signature_is_not_enough_to_complete_a_joint_agreement(): void
+    {
+        $a = $this->couple();
+
+        $this->post($this->signUrl($a), [
+            'full_name'      => 'Mija McMann',
+            'signature_data' => 'data:image/png;base64,iVBORw0KGgo=',
+            'agree_terms'    => '1',
+        ])->assertOk()->assertJson(['complete' => false]);
+
+        $a->refresh();
+        $this->assertSame('partial', $a->status);
+        $this->assertFalse($a->fullySigned());
+        $this->assertSame('Brice Wilson', $a->awaitingSignatureFrom());
+    }
+
+    public function test_the_second_person_can_sign_later_from_the_same_link(): void
+    {
+        $a = $this->couple();
+
+        $this->post($this->signUrl($a), [
+            'full_name'      => 'Mija McMann',
+            'signature_data' => 'data:image/png;base64,iVBORw0KGgo=',
+            'agree_terms'    => '1',
+        ]);
+
+        // Re-opening shows the first signature as done and asks only for the second.
+        $this->get(ServiceAgreements::signingUrl($a->fresh()))
+            ->assertOk()
+            ->assertSee('Signed')
+            ->assertSee('Brice Wilson');
+
+        $this->post($this->signUrl($a->fresh()), [
+            'cosigner_full_name'      => 'Brice Wilson',
+            'cosigner_signature_data' => 'data:image/png;base64,ZZZZZZZZ',
+            'agree_terms'             => '1',
+        ])->assertOk()->assertJson(['complete' => true]);
+
+        $a->refresh();
+        $this->assertSame('signed', $a->status);
+        $this->assertTrue($a->fullySigned());
+        $this->assertNull($a->awaitingSignatureFrom());
+        $this->assertNotNull($a->cosigner_signed_at);
+    }
+
+    public function test_both_can_sign_together_in_one_go(): void
+    {
+        $a = $this->couple();
+
+        $this->post($this->signUrl($a), [
+            'full_name'               => 'Mija McMann',
+            'signature_data'          => 'data:image/png;base64,iVBORw0KGgo=',
+            'cosigner_full_name'      => 'Brice Wilson',
+            'cosigner_signature_data' => 'data:image/png;base64,ZZZZZZZZ',
+            'agree_terms'             => '1',
+        ])->assertOk()->assertJson(['complete' => true]);
+
+        $a->refresh();
+        $this->assertSame('signed', $a->status);
+        // The frozen document carries both names.
+        $this->assertStringContainsString('Mija McMann', $a->contract_text);
+        $this->assertStringContainsString('Brice Wilson', $a->contract_text);
+    }
+
+    public function test_a_signature_already_given_cannot_be_replaced(): void
+    {
+        $a = $this->couple();
+
+        $this->post($this->signUrl($a), [
+            'full_name'      => 'Mija McMann',
+            'signature_data' => 'data:image/png;base64,iVBORw0KGgo=',
+            'agree_terms'    => '1',
+        ]);
+        $first = $a->fresh()->signature_data;
+
+        // Someone reopens the link and tries to re-sign as the first party.
+        $this->post($this->signUrl($a->fresh()), [
+            'full_name'      => 'Somebody Else',
+            'signature_data' => 'data:image/png;base64,TAMPERED',
+            'agree_terms'    => '1',
+        ]);
+
+        $a->refresh();
+        $this->assertSame('Mija McMann', $a->full_name);
+        $this->assertSame($first, $a->signature_data);
+    }
+
+    public function test_a_partly_signed_agreement_still_counts_as_awaiting_in_the_admin(): void
+    {
+        $a = $this->couple();
+        $this->post($this->signUrl($a), [
+            'full_name'      => 'Mija McMann',
+            'signature_data' => 'data:image/png;base64,iVBORw0KGgo=',
+            'agree_terms'    => '1',
+        ]);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.contracts'))
+            ->assertOk()
+            ->assertSee('1 client paid but never signed.')
+            ->assertSee('1 of 2 signed');
+    }
+
+    public function test_a_joint_pdf_carries_both_signatures(): void
+    {
+        $a = $this->couple();
+        $this->post($this->signUrl($a), [
+            'full_name'               => 'Mija McMann',
+            'signature_data'          => 'data:image/png;base64,iVBORw0KGgo=',
+            'cosigner_full_name'      => 'Brice Wilson',
+            'cosigner_signature_data' => 'data:image/png;base64,iVBORw0KGgo=',
+            'agree_terms'             => '1',
+        ]);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.contracts.pdf', $a->fresh()))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
+    }
+
     // ── Admin ────────────────────────────────────────────────────────────────
 
     public function test_the_admin_warns_about_clients_who_paid_but_never_signed(): void

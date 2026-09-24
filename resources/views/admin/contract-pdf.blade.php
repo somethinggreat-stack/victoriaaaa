@@ -30,13 +30,31 @@
 <div class="terms">{{ $text }}</div>
 
 <div class="sig">
-  <div class="label">Client signature</div>
+  <div class="label">{{ $contract->requires_cosigner ? 'Client signatures' : 'Client signature' }}</div>
+
   @if ($contract->signature_data)
     <img src="{{ $contract->signature_data }}" alt="Signature">
+    <div style="margin-top:6px;font-size:11px;"><strong>{{ $contract->full_name ?: $contract->client_name }}</strong></div>
+    <div style="font-size:9px;color:#6b6065;">Signed {{ optional($contract->signed_at)->format('Y-m-d H:i:s') }} · IP {{ $contract->ip_address ?: '—' }}</div>
   @else
-    <div style="color:#b91c1c;font-weight:bold;margin-top:6px;">No signature on file — this agreement was never signed.</div>
+    <div style="color:#b91c1c;font-weight:bold;margin-top:6px;">
+      {{ $contract->client_name ?: 'First client' }} has not signed.
+    </div>
   @endif
-  <div style="margin-top:6px;font-size:11px;"><strong>{{ $contract->signerName() }}</strong></div>
+
+  @if ($contract->requires_cosigner)
+    <div style="margin-top:18px;">
+      @if ($contract->cosigner_signature_data)
+        <img src="{{ $contract->cosigner_signature_data }}" alt="Signature">
+        <div style="margin-top:6px;font-size:11px;"><strong>{{ $contract->cosigner_full_name ?: $contract->cosigner_name }}</strong></div>
+        <div style="font-size:9px;color:#6b6065;">Signed {{ optional($contract->cosigner_signed_at)->format('Y-m-d H:i:s') }} · IP {{ $contract->cosigner_ip_address ?: '—' }}</div>
+      @else
+        <div style="color:#b91c1c;font-weight:bold;">
+          {{ $contract->cosigner_name ?: 'Second client' }} has not signed.
+        </div>
+      @endif
+    </div>
+  @endif
 </div>
 
 {{-- Evidence that the signature is attributable, which is the point of keeping it. --}}

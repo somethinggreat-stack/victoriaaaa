@@ -78,7 +78,12 @@ class ServiceAgreement
 
         $lines[] = '--------------------------------------------------';
         $lines[] = '';
-        $lines[] = "This Agreement is between " . self::COMPANY . " (\"Company\") and {$name} (\"Client\").";
+        $co = trim((string) ($sale['cosigner_name'] ?? ''));
+        $lines[] = $co !== ''
+            ? 'This Agreement is between ' . self::COMPANY . " (\"Company\") and {$name} and {$co}"
+              . ' (together, "Client"). It covers both people named, and the fees below are the total'
+              . ' for the two of them — not per person. Both must sign.'
+            : 'This Agreement is between ' . self::COMPANY . " (\"Company\") and {$name} (\"Client\").";
         $lines[] = '';
 
         // ── 1. Services ──────────────────────────────────────────────────────
@@ -160,7 +165,12 @@ class ServiceAgreement
         $lines[] = '   have read, understand, and agree to be bound by this Agreement, and that my';
         $lines[] = '   electronic signature is the legal equivalent of my handwritten signature.';
         $lines[] = '';
-        $lines[] = "Signed by: {$name}";
+        if ($co !== '') {
+            $lines[] = "Signed by: {$name}";
+            $lines[] = "Signed by: {$co}";
+        } else {
+            $lines[] = "Signed by: {$name}";
+        }
         $lines[] = "Date:      {$date}";
 
         return implode("\n", $lines);

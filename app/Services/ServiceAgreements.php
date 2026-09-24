@@ -61,6 +61,9 @@ class ServiceAgreements
                 'next_url'            => $sale['next_url'] ?? null,
                 'client_name'         => $sale['client_name'] ?? null,
                 'client_phone'        => $sale['client_phone'] ?? null,
+                'requires_cosigner'   => (bool) ($sale['requires_cosigner'] ?? false),
+                'cosigner_name'       => $sale['cosigner_name'] ?? null,
+                'cosigner_email'      => $sale['cosigner_email'] ?? null,
                 'email'               => $sale['email'] ?? null,
                 'invoice_number'      => $sale['invoice_number'] ?? null,
                 'subscription_id'     => $sale['subscription_id'] ?? null,
@@ -104,6 +107,9 @@ class ServiceAgreements
                 : null,
             'recurring_count'     => $agreement->installment_count,
             'recurring_interval'  => $agreement->recurring_interval ?? 'month',
+            'cosigner_name'       => $agreement->requires_cosigner
+                ? ($agreement->cosigner_full_name ?: $agreement->cosigner_name)
+                : null,
             'signed_on'           => $agreement->signed_at ?: $agreement->created_at,
         ];
     }

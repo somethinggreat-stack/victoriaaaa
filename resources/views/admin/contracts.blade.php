@@ -74,6 +74,32 @@
       </div>
     </div>
 
+    <div style="margin-top:14px;padding:14px;border:1px solid var(--line);border-radius:10px;background:var(--bg-2);">
+      <label style="display:flex;gap:10px;align-items:flex-start;font-size:13.5px;cursor:pointer;">
+        <input type="checkbox" name="requires_cosigner" value="1" style="margin-top:3px;width:18px;height:18px;"
+               @checked(old('requires_cosigner')) onchange="document.getElementById('coFields').style.display=this.checked?'grid':'none'">
+        <span>
+          <strong>Two people are on this plan</strong> — both must sign the same agreement.
+          <span style="display:block;color:var(--ink-3);font-size:12px;margin-top:3px;">
+            One document, one price covering both. Not two separate contracts.
+          </span>
+        </span>
+      </label>
+
+      <div id="coFields" style="display:{{ old('requires_cosigner') ? 'grid' : 'none' }};grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;margin-top:14px;">
+        <div>
+          <label class="plm-label">Second person's name <span style="color:#e63179">*</span></label>
+          <input class="plm-input" type="text" name="cosigner_name" maxlength="150"
+                 placeholder="Brice Wilson" value="{{ old('cosigner_name') }}">
+        </div>
+        <div>
+          <label class="plm-label">Second person's email</label>
+          <input class="plm-input" type="email" name="cosigner_email" maxlength="150"
+                 placeholder="brice@email.com" value="{{ old('cosigner_email') }}">
+        </div>
+      </div>
+    </div>
+
     <div style="margin-top:14px;">
       <label class="plm-label">What they are paying for <span style="color:#e63179">*</span></label>
       <textarea class="plm-input" name="service_description" rows="2" maxlength="500" required
@@ -150,6 +176,8 @@
           <td>
             @if ($c->isSigned())
               <span class="badge sent">signed</span>
+            @elseif ($c->isPartiallySigned())
+              <span class="badge pending">1 of 2 signed</span>
             @else
               <span class="badge pending">awaiting</span>
             @endif

@@ -58,14 +58,17 @@ class ContractsController extends Controller
         }
 
         if ($status = $request->query('status')) {
-            $q->where('status', $status);
+            $status === 'pending'
+                ? $q->whereIn('status', ['pending', 'partial'])
+                : $q->where('status', $status);
         }
 
         if ($partner = $request->query('partner')) {
             $q->where('partner', $partner);
         }
 
-        $pendingCount = PaymentAgreement::where('status', 'pending')->count();
+        // 'partial' is a joint agreement with one of two signatures.
+        $pendingCount = PaymentAgreement::whereIn('status', ['pending', 'partial'])->count();
 
         return view('admin.contracts', [
             'rows'         => $q->latest()->paginate(25)->withQueryString(),
@@ -96,6 +99,9 @@ class ContractsController extends Controller
             // Only meaningful alongside a recurring amount; defaults to monthly.
             'recurring_interval'  => ['nullable', 'in:week,month'],
             'partner'             => ['required', 'in:victoria,burgundy'],
+            'requires_cosigner'   => ['nullable', 'boolean'],
+            'cosigner_name'       => ['nullable', 'required_if:requires_cosigner,1', 'string', 'max:150'],
+            'cosigner_email'      => ['nullable', 'email', 'max:150'],
         ], [
             'service_description.required' => 'Describe the service — this is what the client signs for.',
             'charged_today.required'       => 'Enter the amount they were charged.',
@@ -120,6 +126,9 @@ class ContractsController extends Controller
             'client_name'         => trim($validated['client_name']),
             'client_phone'        => $validated['client_phone'] ?? null,
             'email'               => $validated['email'] ?? null,
+            'requires_cosigner'   => (bool) ($validated['requires_cosigner'] ?? false),
+            'cosigner_name'       => $validated['cosigner_name'] ?? null,
+            'cosigner_email'      => $validated['cosigner_email'] ?? null,
         ]);
 
         if (! $agreement) {

@@ -12,17 +12,20 @@
   </div>
   <div style="display:flex;gap:10px;">
     <a class="adm-btn ghost" href="{{ route('admin.contracts') }}">← All contracts</a>
-    @if ($contract->isSigned())
-      <a class="adm-btn" href="{{ route('admin.contracts.pdf', $contract) }}">Download PDF</a>
-    @endif
+    <a class="adm-btn" href="{{ route('admin.contracts.pdf', $contract) }}">Download PDF</a>
   </div>
 </div>
 
-@if (! $contract->isSigned())
+@if (! $contract->fullySigned())
   <div class="adm-card" style="margin-bottom:16px; border-color:#ffd8a8; background:#fffaf2;">
-    <div class="adm-card-head"><h2>Paid, but not signed</h2></div>
+    <div class="adm-card-head"><h2>{{ $contract->isPartiallySigned() ? 'Waiting on the second signature' : 'Paid, but not signed' }}</h2></div>
     <p style="font-size:13.5px; color:var(--ink-2); margin-bottom:14px;">
+      @if ($contract->isPartiallySigned())
+        <strong>{{ $contract->awaitingSignatureFrom() }}</strong> still needs to sign. The same link below reopens the
+        agreement showing the signature already given, and asks only for the missing one.
+      @else
       This client was charged {{ $contract->priceSummary() }} but closed the page before signing.
+      @endif
       Send them this link — it reopens the same agreement, already priced from their payment.
       It is valid for 30 days; reload this page for a fresh one.
     </p>
@@ -62,17 +65,36 @@
   </div>
 </div>
 
-@if ($contract->signature_data)
+@if ($contract->signature_data || $contract->cosigner_signature_data)
   <div class="adm-card" style="margin-bottom:16px;">
-    <div class="adm-card-head"><h2>Signature</h2></div>
-    <img src="{{ $contract->signature_data }}" alt="Signature"
-         style="max-height:150px;border-bottom:2px solid var(--ink);padding-bottom:6px;">
-    <div style="margin-top:10px;font-weight:700;">{{ $contract->full_name }}</div>
-    <div class="detail-grid" style="margin-top:14px;">
-      <div class="lab">Signed at</div>  <div class="val">{{ optional($contract->signed_at)->format('Y-m-d H:i:s') }}</div>
-      <div class="lab">IP address</div> <div class="val mono">{{ $contract->ip_address ?: '—' }}</div>
-      <div class="lab">Device</div>     <div class="val" style="font-size:12px;">{{ $contract->user_agent ?: '—' }}</div>
-    </div>
+    <div class="adm-card-head"><h2>{{ $contract->requires_cosigner ? 'Signatures' : 'Signature' }}</h2></div>
+
+    @if ($contract->signature_data)
+      <img src="{{ $contract->signature_data }}" alt="Signature"
+           style="max-height:130px;border-bottom:2px solid var(--ink);padding-bottom:6px;">
+      <div style="margin-top:10px;font-weight:700;">{{ $contract->full_name }}</div>
+      <div class="detail-grid" style="margin-top:12px;">
+        <div class="lab">Signed at</div>  <div class="val">{{ optional($contract->signed_at)->format('Y-m-d H:i:s') }}</div>
+        <div class="lab">IP address</div> <div class="val mono">{{ $contract->ip_address ?: '—' }}</div>
+      </div>
+    @elseif ($contract->requires_cosigner)
+      <div style="color:#991b1b;font-weight:700;">{{ $contract->client_name ?: 'First client' }} has not signed yet.</div>
+    @endif
+
+    @if ($contract->requires_cosigner)
+      <hr style="border:0;border-top:1px solid var(--line);margin:18px 0;">
+      @if ($contract->cosigner_signature_data)
+        <img src="{{ $contract->cosigner_signature_data }}" alt="Signature"
+             style="max-height:130px;border-bottom:2px solid var(--ink);padding-bottom:6px;">
+        <div style="margin-top:10px;font-weight:700;">{{ $contract->cosigner_full_name }}</div>
+        <div class="detail-grid" style="margin-top:12px;">
+          <div class="lab">Signed at</div>  <div class="val">{{ optional($contract->cosigner_signed_at)->format('Y-m-d H:i:s') }}</div>
+          <div class="lab">IP address</div> <div class="val mono">{{ $contract->cosigner_ip_address ?: '—' }}</div>
+        </div>
+      @else
+        <div style="color:#991b1b;font-weight:700;">{{ $contract->cosigner_name ?: 'Second client' }} has not signed yet.</div>
+      @endif
+    @endif
   </div>
 @endif
 
