@@ -7,6 +7,77 @@
     <h1>Contracts</h1>
     <div class="sub">{{ $rows->total() }} total · service agreements signed after payment</div>
   </div>
+  <button type="button" class="adm-btn" onclick="document.getElementById('newAg').style.display='block';window.scrollTo(0,0);">+ Send an agreement</button>
+</div>
+
+{{-- For a client who paid somewhere this site did not process — another funnel,
+     an invoice, a transfer — or who paid before contracts existed. --}}
+<div class="adm-card" id="newAg" style="display:{{ $errors->any() ? 'block' : 'none' }}; margin-bottom:16px;">
+  <div class="adm-card-head"><h2>Send an agreement to a client who already paid</h2></div>
+  <p style="font-size:13.5px;color:var(--ink-2);margin-bottom:16px;">
+    Use this when the payment did not go through this website. You get a signing link to send them —
+    the contract will show exactly the amounts you enter here, so put in what they were actually charged.
+  </p>
+
+  @if ($errors->any())
+    <div class="flash error" style="margin-bottom:14px;">{{ $errors->first() }}</div>
+  @endif
+
+  <form method="POST" action="{{ route('admin.contracts.store') }}">
+    @csrf
+    <div style="display:grid;grid-template-columns:repeat(auto-fit,minmax(220px,1fr));gap:14px;">
+      <div>
+        <label class="plm-label">Client name <span style="color:#e63179">*</span></label>
+        <input class="plm-input" type="text" name="client_name" maxlength="150" required
+               placeholder="Brice Wilson" value="{{ old('client_name') }}">
+      </div>
+      <div>
+        <label class="plm-label">Email</label>
+        <input class="plm-input" type="email" name="email" maxlength="150"
+               placeholder="client@email.com" value="{{ old('email') }}">
+        <div style="font-size:11.5px;color:var(--ink-3);margin-top:5px;">Lets you email the link in one click.</div>
+      </div>
+      <div>
+        <label class="plm-label">Phone</label>
+        <input class="plm-input" type="text" name="client_phone" maxlength="30"
+               placeholder="(469) 555-0134" value="{{ old('client_phone') }}">
+      </div>
+      <div>
+        <label class="plm-label">Whose client <span style="color:#e63179">*</span></label>
+        <select class="plm-input" name="partner">
+          <option value="victoria" @selected(old('partner','victoria')==='victoria')>Victoria</option>
+          <option value="burgundy" @selected(old('partner')==='burgundy')>Burgundy</option>
+        </select>
+      </div>
+      <div>
+        <label class="plm-label">Amount they paid <span style="color:#e63179">*</span></label>
+        <input class="plm-input" type="number" name="charged_today" step="0.01" min="0" max="100000" required
+               placeholder="1200.00" value="{{ old('charged_today') }}">
+      </div>
+      <div>
+        <label class="plm-label">Monthly after that</label>
+        <input class="plm-input" type="number" name="recurring_amount" step="0.01" min="0" max="100000"
+               placeholder="leave blank if one-time" value="{{ old('recurring_amount') }}">
+      </div>
+      <div>
+        <label class="plm-label">For how many months</label>
+        <input class="plm-input" type="number" name="recurring_count" min="1" max="120"
+               placeholder="blank = until they cancel" value="{{ old('recurring_count') }}">
+      </div>
+    </div>
+
+    <div style="margin-top:14px;">
+      <label class="plm-label">What they are paying for <span style="color:#e63179">*</span></label>
+      <textarea class="plm-input" name="service_description" rows="2" maxlength="500" required
+                placeholder="e.g. Full-service credit restoration: 3-bureau audit, dispute rounds and ongoing guidance.">{{ old('service_description') }}</textarea>
+      <div style="font-size:11.5px;color:var(--ink-3);margin-top:5px;">This appears on the contract they sign.</div>
+    </div>
+
+    <div style="margin-top:16px;display:flex;gap:10px;">
+      <button class="adm-btn" type="submit">Create agreement &amp; get link</button>
+      <button class="adm-btn ghost" type="button" onclick="document.getElementById('newAg').style.display='none'">Cancel</button>
+    </div>
+  </form>
 </div>
 
 @if ($pendingCount > 0 && request('status') !== 'pending')
@@ -76,7 +147,13 @@
             @endif
           </td>
           <td class="nw">{{ optional($c->signed_at)->format('M j, Y') ?: '—' }}</td>
-          <td class="sub">{{ $c->source === 'payment_link' ? 'Payment link' : 'Checkout' }}</td>
+          <td class="sub">
+            @switch($c->source)
+              @case('payment_link') Payment link @break
+              @case('manual') Sent manually @break
+              @default Checkout
+            @endswitch
+          </td>
           <td class="actions">
             <a class="adm-btn ghost" href="{{ route('admin.contracts.show', $c) }}">View</a>
             @if ($c->isSigned())

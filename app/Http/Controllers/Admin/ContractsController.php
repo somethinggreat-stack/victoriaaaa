@@ -53,6 +53,56 @@ class ContractsController extends Controller
         ]);
     }
 
+    /**
+     * Raise an agreement by hand, for a client who paid somewhere this site did
+     * not process — another funnel, an invoice, a transfer — or who paid before
+     * contracts existed. Produces the same signing link as a website sale.
+     */
+    public function store(Request $request)
+    {
+        $validated = $request->validate([
+            'client_name'         => ['required', 'string', 'max:150'],
+            'email'               => ['nullable', 'email', 'max:150'],
+            'client_phone'        => ['nullable', 'string', 'max:30'],
+            'service_description' => ['required', 'string', 'min:5', 'max:500'],
+            'charged_today'       => ['required', 'numeric', 'min:0', 'max:100000'],
+            'recurring_amount'    => ['nullable', 'numeric', 'min:0', 'max:100000'],
+            'recurring_count'     => ['nullable', 'integer', 'min:1', 'max:120'],
+            'partner'             => ['required', 'in:victoria,burgundy'],
+        ], [
+            'service_description.required' => 'Describe the service — this is what the client signs for.',
+            'charged_today.required'       => 'Enter the amount they were charged.',
+        ]);
+
+        $recurring = $validated['recurring_amount'] ?? null;
+
+        $agreement = ServiceAgreements::start([
+            'source'              => 'manual',
+            'source_id'           => null,
+            'partner'             => $validated['partner'],
+            'plan_key'            => 'manual',
+            'plan_label'          => $validated['service_description'],
+            'service_description' => $validated['service_description'],
+            'charged_today'       => (float) $validated['charged_today'],
+            // Blank monthly means a one-time payment, not a zero-value plan.
+            'recurring_amount'    => ($recurring !== null && $recurring !== '' && (float) $recurring > 0)
+                ? (float) $recurring
+                : null,
+            'recurring_count'     => $validated['recurring_count'] ?? null,
+            'client_name'         => trim($validated['client_name']),
+            'client_phone'        => $validated['client_phone'] ?? null,
+            'email'               => $validated['email'] ?? null,
+        ]);
+
+        if (! $agreement) {
+            return back()->with('error', 'Could not create the agreement. Please try again.');
+        }
+
+        return redirect()
+            ->route('admin.contracts.show', $agreement)
+            ->with('success', 'Agreement created — copy the link below and send it to your client.');
+    }
+
     public function show(PaymentAgreement $contract)
     {
         return view('admin.contract-show', [

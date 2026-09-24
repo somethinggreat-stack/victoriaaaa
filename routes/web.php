@@ -401,6 +401,7 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
 
         // ─── Signed service agreements (and the ones still unsigned) ───
         Route::get('/contracts',             [ContractsController::class, 'index'])->name('contracts');
+        Route::post('/contracts',            [ContractsController::class, 'store'])->name('contracts.store');
         Route::get('/contracts/{contract}',  [ContractsController::class, 'show'])->name('contracts.show');
         Route::get('/contracts/{contract}/pdf', [ContractsController::class, 'pdf'])->name('contracts.pdf');
 

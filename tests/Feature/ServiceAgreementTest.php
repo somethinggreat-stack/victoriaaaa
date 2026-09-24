@@ -223,6 +223,90 @@ class ServiceAgreementTest extends TestCase
         $this->assertSame($a->id, $link->fresh()->payment_agreement_id);
     }
 
+    // ── Raising an agreement by hand ─────────────────────────────────────────
+
+    public function test_an_agreement_can_be_raised_for_a_client_who_paid_elsewhere(): void
+    {
+        $this->actingAs($this->admin())
+            ->post(route('admin.contracts.store'), [
+                'client_name'         => 'Brice Wilson',
+                'email'               => 'brice@example.com',
+                'service_description' => 'Full-service credit restoration for two people.',
+                'charged_today'       => '1200.00',
+                'partner'             => 'victoria',
+            ])
+            ->assertRedirect();
+
+        $a = PaymentAgreement::where('source', 'manual')->first();
+        $this->assertNotNull($a);
+        $this->assertSame('pending', $a->status);
+        $this->assertSame('Brice Wilson', $a->client_name);
+        $this->assertSame('1200.00', (string) $a->deposit_amount);
+        // Blank monthly means one-time, not a zero-value plan.
+        $this->assertNull($a->installment_amount);
+
+        $this->get(ServiceAgreements::signingUrl($a))
+            ->assertOk()
+            ->assertSee('$1,200.00')
+            ->assertSee('Full-service credit restoration for two people.')
+            ->assertSee('This is a one-time payment.');
+    }
+
+    public function test_a_manual_agreement_can_carry_a_monthly_amount(): void
+    {
+        $this->actingAs($this->admin())
+            ->post(route('admin.contracts.store'), [
+                'client_name'         => 'Mija Mcmann',
+                'service_description' => 'Credit restoration programme.',
+                'charged_today'       => '149.00',
+                'recurring_amount'    => '149.00',
+                'partner'             => 'victoria',
+            ]);
+
+        $a = PaymentAgreement::where('source', 'manual')->first();
+        $this->assertSame('149.00', (string) $a->installment_amount);
+
+        $this->get(ServiceAgreements::signingUrl($a))
+            ->assertOk()
+            ->assertSee('until you cancel');
+    }
+
+    public function test_a_manual_agreement_needs_an_amount_and_a_description(): void
+    {
+        $this->actingAs($this->admin())
+            ->post(route('admin.contracts.store'), ['client_name' => 'Brice Wilson', 'partner' => 'victoria'])
+            ->assertSessionHasErrors(['service_description', 'charged_today']);
+
+        $this->assertSame(0, PaymentAgreement::count());
+    }
+
+    public function test_a_manually_raised_agreement_signs_like_any_other(): void
+    {
+        $this->actingAs($this->admin())->post(route('admin.contracts.store'), [
+            'client_name'         => 'Brice Wilson',
+            'service_description' => 'Full-service credit restoration.',
+            'charged_today'       => '1200.00',
+            'partner'             => 'victoria',
+        ]);
+
+        $a = PaymentAgreement::where('source', 'manual')->first();
+
+        $this->post($this->signUrl($a), [
+            'full_name'      => 'Brice Wilson',
+            'signature_data' => 'data:image/png;base64,iVBORw0KGgo=',
+            'agree_terms'    => '1',
+        ])->assertOk();
+
+        $a->refresh();
+        $this->assertSame('signed', $a->status);
+        $this->assertStringContainsString('$1,200.00', $a->contract_text);
+
+        $this->actingAs($this->admin())
+            ->get(route('admin.contracts.pdf', $a))
+            ->assertOk()
+            ->assertHeader('content-type', 'application/pdf');
+    }
+
     // ── Admin ────────────────────────────────────────────────────────────────
 
     public function test_the_admin_warns_about_clients_who_paid_but_never_signed(): void
