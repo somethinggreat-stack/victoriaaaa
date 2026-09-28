@@ -17,6 +17,10 @@
   .sharebox input{width:100%;margin-bottom:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
   .sharerow{display:flex;gap:9px;flex-wrap:wrap}
   .sharerow .btn{flex:1;min-width:140px;text-align:center}
+  .signer.needs{border-color:var(--red);box-shadow:0 0 0 3px rgba(185,28,28,.12)}
+  .check.needs{outline:2px solid var(--red);outline-offset:6px;border-radius:6px}
+  .contract.needs{border-color:var(--red)}
+  #sigErr.on{font-size:13.5px;margin-top:10px;text-align:center}
 </style>
 @endpush
 
@@ -161,7 +165,7 @@
           $btnLabel = $onlyOneLeft ? 'Sign agreement' : 'Save my signature';
         @endphp
         <button type="submit" id="signBtn" class="btn wide" style="margin-top:14px"
-                data-label="{{ $btnLabel }}" disabled>
+                data-label="{{ $btnLabel }}" data-both="Sign agreement">
           {{ $btnLabel }}
         </button>
 
@@ -252,14 +256,21 @@
 
     return {
       nameInput: nameInput,
+      block: block,
       commit: function () { if (drawn) { out.value = canvas.toDataURL('image/png'); } },
+      // Half-entered: worth catching before a signature is saved with no name.
+      started: function () {
+        return drawn || (nameInput && nameInput.value.trim().length > 0);
+      },
       complete: function () {
         return drawn && nameInput && nameInput.value.trim().length >= 3;
       }
     };
   });
 
-  // Gate on actually reading the agreement.
+  // Tracks whether they scrolled the agreement through. It drives the note
+  // under the box and nothing else — it used to disable the sign button,
+  // which silently trapped people who had signed correctly.
   var contract = document.getElementById('contractBox');
   var note     = document.getElementById('scrollNote');
   var read     = false;
@@ -279,27 +290,77 @@
     return pads.some(function (p) { return p.complete(); });
   }
 
+  // The button stays clickable. Disabling it left people who had signed
+  // perfectly well tapping a dead button with nothing telling them why.
+  // Whatever is missing is now said out loud, next to the thing missing it.
+  var err = document.getElementById('sigErr');
+
+  function clearErrors() {
+    err.classList.remove('on');
+    pads.forEach(function (p) { p.block.classList.remove('needs'); });
+    document.querySelector('.check').classList.remove('needs');
+    contract.classList.remove('needs');
+  }
+
+  function fail(message, el) {
+    err.textContent = message;
+    err.classList.add('on');
+    if (el) {
+      el.classList.add('needs');
+      el.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+    btn.disabled = false;
+    btn.textContent = pads.every(function (p) { return p.complete(); }) ? bothLabel : soloLabel;
+  }
+
+  // With two pads the wording depends on how many are filled in right now,
+  // not only on who had already signed when the page loaded.
+  var soloLabel = btn.dataset.label;
+  var bothLabel = btn.dataset.both || soloLabel;
+
   function check() {
-    var agreeOk = document.getElementById('agree_terms').checked;
-    // At least one outstanding signer must be complete. The other can sign
-    // later from the same link, so a couple who are not together is fine.
-    btn.disabled = !(read && agreeOk && anyComplete());
+    btn.textContent = pads.every(function (p) { return p.complete(); })
+      ? bothLabel
+      : soloLabel;
   }
 
   pads.forEach(function (p) {
-    if (p.nameInput) { p.nameInput.addEventListener('input', check); }
+    if (p.nameInput) {
+      p.nameInput.addEventListener('input', function () { clearErrors(); check(); });
+    }
   });
-  document.getElementById('agree_terms').addEventListener('change', check);
+  document.getElementById('agree_terms').addEventListener('change', function () {
+    clearErrors(); check();
+  });
   check();
 
   form.addEventListener('submit', function (e) {
     e.preventDefault();
+    clearErrors();
 
+    // Name and signature, pointing at whichever signer is short of one.
     if (!anyComplete()) {
-      var err = document.getElementById('sigErr');
-      err.textContent = 'Please type a name and draw a signature.';
-      err.classList.add('on');
-      return;
+      var short = pads[0];
+      return fail(
+        short.nameInput && short.nameInput.value.trim().length < 3
+          ? 'Please type your full legal name, then draw your signature.'
+          : 'Please draw your signature in the box.',
+        short.block
+      );
+    }
+
+    // A half-filled second signer is a slip, not a deliberate solo signing.
+    var halves = pads.filter(function (p) { return p.started() && !p.complete(); });
+    if (halves.length) {
+      return fail(
+        'One of you has a name but no signature, or a signature but no name. '
+        + 'Finish it, or press Clear so they can sign later from the same link.',
+        halves[0].block
+      );
+    }
+
+    if (!document.getElementById('agree_terms').checked) {
+      return fail('Please tick the box to confirm you agree.', document.querySelector('.check'));
     }
 
     pads.forEach(function (p) { p.commit(); });

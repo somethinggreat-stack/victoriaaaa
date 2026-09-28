@@ -498,6 +498,20 @@ class ServiceAgreementTest extends TestCase
             ->assertSee('$1,500.00');
     }
 
+    public function test_the_sign_button_is_never_served_disabled(): void
+    {
+        // It used to ship disabled and only unlock once the contract box had
+        // been scrolled to the bottom. A couple who had signed both pads and
+        // ticked the box were left pressing a dead button with nothing on
+        // screen saying why. Nothing may gate the button server-side again.
+        foreach ([$this->pending(), $this->couple()] as $a) {
+            $html = $this->get(ServiceAgreements::signingUrl($a))->assertOk()->getContent();
+            $btn  = \Illuminate\Support\Str::between($html, '<button type="submit" id="signBtn"', '</button>');
+
+            $this->assertStringNotContainsString('disabled', $btn);
+        }
+    }
+
     public function test_a_signature_already_given_cannot_be_replaced(): void
     {
         $a = $this->couple();
