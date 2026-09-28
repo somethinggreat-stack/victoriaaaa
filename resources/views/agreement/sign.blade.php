@@ -11,6 +11,12 @@
   .pill-done{background:var(--green);color:#fff;font-size:11px;font-weight:700;padding:3px 10px;border-radius:100px;white-space:nowrap}
   .signer-doneline{font-weight:700;font-size:15px}
   .signer-done .signer-head{margin-bottom:4px}
+  .sharebox{background:var(--green-soft);border:1px solid rgba(21,128,61,.3);border-radius:var(--r-lg);padding:20px;margin-bottom:22px}
+  .sharebox h2{margin:0 0 6px;font-size:18px;color:var(--green)}
+  .sharebox p{margin:0 0 14px;font-size:14px;color:var(--ink-2)}
+  .sharebox input{width:100%;margin-bottom:10px;font-family:ui-monospace,SFMono-Regular,Menlo,monospace;font-size:12px}
+  .sharerow{display:flex;gap:9px;flex-wrap:wrap}
+  .sharerow .btn{flex:1;min-width:140px;text-align:center}
 </style>
 @endpush
 
@@ -34,6 +40,25 @@
   <div class="wrap narrow">
 
     <div id="alertBox"></div>
+
+    @if ($justSaved && $agreement->awaitingSignatureFrom())
+      @php
+        $waitingFor = $agreement->awaitingSignatureFrom();
+        $waMessage  = rawurlencode('Please sign our agreement with Victoria Love Credit here: ' . $shareUrl);
+      @endphp
+      <div class="sharebox">
+        <h2>✓ Your signature is saved</h2>
+        <p>
+          <strong>{{ $waitingFor }}</strong> still needs to sign. Send them this link — it opens
+          the same agreement with your signature already on it, and asks only for theirs.
+        </p>
+        <input type="text" id="shareLink" readonly value="{{ $shareUrl }}" onclick="this.select()">
+        <div class="sharerow">
+          <button type="button" class="btn" onclick="copyShare(this)">Copy link</button>
+          <a class="btn ghost" href="https://wa.me/?text={{ $waMessage }}" target="_blank" rel="noopener">Send on WhatsApp</a>
+        </div>
+      </div>
+    @endif
 
     {{-- The money, before the document. Read back from the sale, so it cannot
          disagree with what their statement says. --}}
@@ -128,9 +153,24 @@
           </label>
         </div>
 
-        <button type="submit" id="signBtn" class="btn wide" style="margin-top:14px" disabled>
-          Sign agreement
+        @php
+          // With two signers, one person signing is a save rather than a
+          // completion — the wording should not claim the deal is done.
+          $onlyOneLeft = ! $agreement->requires_cosigner
+              || $agreement->primarySigned() || $agreement->cosignerSigned();
+          $btnLabel = $onlyOneLeft ? 'Sign agreement' : 'Save my signature';
+        @endphp
+        <button type="submit" id="signBtn" class="btn wide" style="margin-top:14px"
+                data-label="{{ $btnLabel }}" disabled>
+          {{ $btnLabel }}
         </button>
+
+        @if (! $onlyOneLeft)
+          <p class="hint" style="text-align:center;margin-top:10px">
+            Signing alone is fine — you'll get a link to send to the other person.
+            Or you can both sign here now and finish together.
+          </p>
+        @endif
       </form>
     </div>
   </div>
@@ -155,10 +195,19 @@
 
     // Match the backing store to the CSS size so signatures are not blurry on
     // high-DPI screens, and survive a rotate.
+    var lastW = 0;
+
     function size() {
       var ratio = window.devicePixelRatio || 1;
       var rect  = canvas.getBoundingClientRect();
-      var data  = drawn ? canvas.toDataURL() : null;
+
+      // Width-only guard. Mobile browsers fire resize when the address bar
+      // hides, and re-running this on an unchanged width would clear the pad
+      // mid-signature for no reason.
+      if (Math.abs(rect.width - lastW) < 1) { return; }
+      lastW = rect.width;
+
+      var data = drawn ? canvas.toDataURL() : null;
       canvas.width  = rect.width  * ratio;
       canvas.height = rect.height * ratio;
       ctx.setTransform(ratio, 0, 0, ratio, 0, 0);
@@ -265,16 +314,26 @@
     .then(function (r) { return r.json(); })
     .then(function (res) {
       if (res.redirect) { window.location.href = res.redirect; return; }
-      btn.disabled = false; btn.textContent = 'Sign agreement';
+      btn.disabled = false; btn.textContent = btn.dataset.label;
       box.innerHTML = '<div class="alert err"><strong>Could not save your signature.</strong>' +
         '<p style="margin:4px 0 0">' + (res.message || 'Please try again.') + '</p></div>';
     })
     .catch(function () {
-      btn.disabled = false; btn.textContent = 'Sign agreement';
+      btn.disabled = false; btn.textContent = btn.dataset.label;
       box.innerHTML = '<div class="alert err"><strong>Connection problem.</strong>' +
         '<p style="margin:4px 0 0">Please check your connection and try again.</p></div>';
     });
   });
 })();
+
+function copyShare(btn) {
+  var i = document.getElementById('shareLink');
+  i.select(); i.setSelectionRange(0, 99999);
+  navigator.clipboard.writeText(i.value).then(function () {
+    var t = btn.textContent;
+    btn.textContent = 'Copied';
+    setTimeout(function () { btn.textContent = t; }, 1600);
+  });
+}
 </script>
 @endpush

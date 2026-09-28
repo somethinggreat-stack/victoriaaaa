@@ -136,7 +136,14 @@ input[type=file]::file-selector-button:hover{background:var(--wine-2)}
 
 /* signature */
 .sigwrap{border:1.5px dashed var(--line-2);border-radius:10px;background:var(--bg-3);position:relative;overflow:hidden}
-#sigPad{display:block;width:100%;height:170px;touch-action:none;cursor:crosshair}
+/* Both the id (older pages) and the class (the joint-signing partial). The
+   class was missing here, which left the canvas with no height — the resize
+   handler then read its own box and grew it every time — and no touch-action,
+   so dragging a finger scrolled the page instead of drawing. */
+#sigPad,.js-sigpad{display:block;width:100%;height:170px;touch-action:none;cursor:crosshair}
+@media(max-width:640px){
+  #sigPad,.js-sigpad{height:150px}
+}
 .sigph{position:absolute;inset:0;display:grid;place-items:center;color:var(--ink-3);font-size:13.5px;pointer-events:none}
 .sigph.hide{display:none}
 .sigbar{display:flex;justify-content:space-between;align-items:center;margin-top:9px}

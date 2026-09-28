@@ -20,7 +20,11 @@
   </div>
 
   @if ($done)
-    <div class="signer-doneline">{{ $name }}</div>
+    {{-- The heading already carries the expected name; only repeat it when the
+         name they actually typed differs from it. --}}
+    @if (trim((string) $name) !== trim((string) $label))
+      <div class="signer-doneline">{{ $name }}</div>
+    @endif
   @else
     <div class="field">
       <label for="{{ $nameField }}">Full legal name <span class="req">*</span></label>

@@ -30,6 +30,11 @@ class ServiceAgreementController extends Controller
 
         return view('agreement.sign', [
             'agreement' => $agreement,
+            // Set straight after a partial save, so the page can confirm it and
+            // hand over the link for the other person.
+            'justSaved' => $request->query('saved') === '1',
+            // Clean link to pass on — without the 'saved' banner.
+            'shareUrl'  => ServiceAgreements::signingUrl($agreement, 30),
             'brand'     => $this->brand($agreement),
             'terms'     => ServiceAgreement::build(ServiceAgreements::saleFor($agreement)),
             'postUrl'   => URL::temporarySignedRoute(
@@ -138,7 +143,10 @@ class ServiceAgreementController extends Controller
             // still outstanding and offers the link to pass on.
             'redirect' => $complete
                 ? ($agreement->next_url ?: ServiceAgreements::signingUrl($agreement, 1))
-                : ServiceAgreements::signingUrl($agreement, 30),
+                : URL::temporarySignedRoute('agreement.show', now()->addDays(30), [
+                    'agreement' => $agreement->id,
+                    'saved'     => 1,
+                  ]),
         ]);
     }
 

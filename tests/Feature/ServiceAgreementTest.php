@@ -449,6 +449,55 @@ class ServiceAgreementTest extends TestCase
         $this->assertStringContainsString('Brice Wilson', $a->contract_text);
     }
 
+    public function test_the_first_signer_is_told_the_link_now_goes_to_the_other_person(): void
+    {
+        // Mija signs on her phone and needs to hand the link to Brice. The page
+        // she lands on has to say so, and the link it offers has to open.
+        $a = $this->couple();
+
+        $res = $this->post($this->signUrl($a), [
+            'full_name'      => 'Mija McMann',
+            'signature_data' => 'data:image/png;base64,iVBORw0KGgo=',
+            'agree_terms'    => '1',
+        ])->assertOk();
+
+        $redirect = $res->json('redirect');
+        $this->assertStringContainsString('saved=1', $redirect);
+
+        $this->get($redirect)
+            ->assertOk()
+            ->assertSee('Your signature is saved')
+            ->assertSee('Brice Wilson')
+            // Still the signing page, because Brice has yet to sign on it.
+            ->assertSee('Send on WhatsApp');
+    }
+
+    public function test_the_joint_receipt_greets_both_and_bills_by_the_week(): void
+    {
+        // Two mistakes this page made in front of a paying couple: it greeted
+        // Mija alone on a document they both signed, and it called a weekly
+        // plan monthly.
+        $a = $this->couple();
+
+        $this->post($this->signUrl($a), [
+            'full_name'               => 'Mija McMann',
+            'signature_data'          => 'data:image/png;base64,iVBORw0KGgo=',
+            'cosigner_full_name'      => 'Brice Wilson',
+            'cosigner_signature_data' => 'data:image/png;base64,ZZZZZZZZ',
+            'agree_terms'             => '1',
+        ]);
+
+        $this->get(ServiceAgreements::signingUrl($a->fresh()))
+            ->assertOk()
+            ->assertSee('Signed and on file.')
+            ->assertDontSee('Signed and on file, Mija.')
+            ->assertSee('Mija McMann & Brice Wilson')
+            ->assertSee('$250.00 per week, 4 times')
+            ->assertDontSee('per month')
+            // $500 today plus 4 x $250.
+            ->assertSee('$1,500.00');
+    }
+
     public function test_a_signature_already_given_cannot_be_replaced(): void
     {
         $a = $this->couple();
