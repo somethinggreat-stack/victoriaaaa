@@ -249,7 +249,8 @@
           <label class="ob-field ob-field-wide ob-section-secure">
             <span class="ob-lab">Full SSN <em>*</em> <span class="ob-section-pad">🔒 encrypted</span></span>
             <div class="ob-input-wrap">
-              <input type="text" name="ssn" id="ob-ssn" value="{{ old('ssn') }}" required placeholder="XXX-XX-XXXX" inputmode="numeric" autocomplete="off" maxlength="11" />
+              <input type="text" id="ob-ssn" value="{{ old('ssn') }}" required placeholder="XXX-XX-XXXX" inputmode="numeric" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" data-lpignore="true" maxlength="11" />
+              <input type="hidden" name="ssn" id="ob-ssn-raw" value="{{ old('ssn') }}" />
               <button type="button" class="ob-ssn-toggle" id="ob-ssn-toggle" aria-label="Show or hide SSN">
                 <svg viewBox="0 0 24 24" width="18" height="18" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round">
                   <path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/>
@@ -475,6 +476,7 @@
   const phoneEl     = document.getElementById('ob-phone');
   const ssnEl       = document.getElementById('ob-ssn');
   const ssnToggle   = document.getElementById('ob-ssn-toggle');
+  const ssnRawEl    = document.getElementById('ob-ssn-raw');
   const dobEl       = document.getElementById('ob-dob');
   const cmPassEl    = document.getElementById('ob-cm-pass');
   const cmToggle    = document.getElementById('ob-cm-toggle');
@@ -511,28 +513,57 @@
   emailEl.addEventListener('input', () => setState(emailEl, validateEmail(emailEl.value)));
   emailEl.addEventListener('blur',  () => setState(emailEl, validateEmail(emailEl.value)));
 
-  /* ===== SSN mask: XXX-XX-XXXX with show/hide ===== */
-  let ssnVisible = false;
+  /* ===== SSN mask: XXX-XX-XXXX with show/hide =====
+     The digits are held here, never read back out of the field. The field can
+     be showing bullets, and bullets are not digits — rebuilding the number
+     from what is on screen threw away everything already typed and kept only
+     the character that had just arrived, so the field never got past one
+     digit. Each bullet now stands for the digit it is hiding. */
+  const BULLET = '•';
+  let ssnVisible = false;   // the eye, which keeps the number on screen
+  let ssnFocused = false;   // while she is typing, so she can read it back
   let ssnRaw = (ssnEl.value || '').replace(/\D+/g, '').slice(0, 9);
+
+  const ssnShown = () => ssnVisible || ssnFocused;
+
   const renderSsn = () => {
     const d = ssnRaw;
-    const masked = (i) => (ssnVisible ? d[i] : (i < d.length ? '•' : ''));
     let out = '';
     for (let i = 0; i < d.length; i++) {
       if (i === 3 || i === 5) out += '-';
-      out += masked(i);
+      out += ssnShown() ? d[i] : BULLET;
     }
     ssnEl.value = out;
+    ssnRawEl.value = ssnRaw;
+    // Typing always appends, so the caret belongs at the end after a redraw.
+    if (ssnFocused) { try { ssnEl.setSelectionRange(out.length, out.length); } catch (err) {} }
     setState(ssnEl, validateSsn());
   };
+
   const validateSsn = () => ssnRaw.length === 9;
+
+  // Walk what the field now holds: a bullet is a digit we already have, a
+  // digit is one she has just entered, a dash is ours. Works for typing,
+  // backspacing and pasting a whole number, masked or not.
+  const readSsn = (shown) => {
+    const old = ssnRaw;
+    let kept = 0, out = '';
+    for (const ch of shown) {
+      if (ch === BULLET) {
+        if (kept < old.length) { out += old[kept++]; }
+      } else if (ch >= '0' && ch <= '9') {
+        out += ch;
+      }
+    }
+    return out.slice(0, 9);
+  };
+
   ssnEl.addEventListener('input', (e) => {
-    const incoming = (e.target.value || '').replace(/\D+/g, '').slice(0, 9);
-    ssnRaw = incoming;
+    ssnRaw = readSsn(e.target.value || '');
     renderSsn();
   });
-  ssnEl.addEventListener('focus', () => { renderSsn(); });
-  ssnEl.addEventListener('blur',  () => { renderSsn(); });
+  ssnEl.addEventListener('focus', () => { ssnFocused = true;  renderSsn(); });
+  ssnEl.addEventListener('blur',  () => { ssnFocused = false; renderSsn(); });
   ssnToggle.addEventListener('click', () => {
     ssnVisible = !ssnVisible;
     ssnToggle.classList.toggle('on', ssnVisible);
@@ -608,11 +639,8 @@
   setState(phoneEl, validatePhone(phoneEl.value));
   if (dobEl && dobEl.value) setState(dobEl, validateDob(dobEl.value));
 
-  /* ===== Submit: validate, push SSN raw, lock button ===== */
+  /* ===== Submit: validate, lock button ===== */
   form.addEventListener('submit', (e) => {
-    // Push the raw SSN digits as the actual value
-    ssnEl.value = ssnRaw;
-
     // Native + custom checks (required fields, incl. required file inputs)
     let firstInvalid = null;
     form.querySelectorAll('input[required], select[required]').forEach(el => {
