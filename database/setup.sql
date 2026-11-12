@@ -564,3 +564,12 @@ SET FOREIGN_KEY_CHECKS = 1;
 --   SELECT COUNT(*) FROM `ebooks`;       -- expect 4
 --   SELECT COUNT(*) FROM `migrations`;   -- expect 14
 -- ────────────────────────────────────────────────────────────────────────────
+
+-- payment_links: partner + Burgundy client (2026_11_12_000001_add_partner_to_payment_links.php)
+-- Run once. Existing links default to 'victoria'.
+ALTER TABLE `payment_links`
+  ADD COLUMN `partner` VARCHAR(20) NOT NULL DEFAULT 'victoria' AFTER `token`,
+  ADD COLUMN `burgundy_client_id` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `partner`,
+  ADD INDEX `payment_links_partner_index` (`partner`),
+  ADD INDEX `payment_links_burgundy_client_id_index` (`burgundy_client_id`);
+

@@ -110,7 +110,7 @@ tbody tr:hover{background:var(--wine-tint)}
 .btn:disabled{opacity:.45;cursor:not-allowed}
 .btn:disabled:hover{background:var(--wine)}
 
-input[type=text],input[type=email],input[type=search],input[type=password],select,textarea{
+input[type=text],input[type=email],input[type=search],input[type=password],input[type=number],select,textarea{
   width:100%;padding:9px 11px;border:1px solid var(--line-2);border-radius:9px;font-family:inherit;font-size:13px;background:var(--bg-3);color:var(--ink)}
 input:focus,select:focus,textarea:focus{outline:0;border-color:var(--wine-2);box-shadow:0 0 0 3px var(--wine-soft)}
 label.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;letter-spacing:.06em;color:var(--ink-3);margin-bottom:5px}
