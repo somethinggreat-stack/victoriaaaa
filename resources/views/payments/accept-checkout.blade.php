@@ -447,7 +447,7 @@
               <span style="display:block;font-size:12px;font-weight:600;color:var(--ink-3);text-transform:uppercase;letter-spacing:0.14em;margin-bottom:6px">Plan</span>
               <select id="planSwitcher">
                 @foreach ($allPlans as $key => $p)
-                  <option value="{{ $key }}" @selected($key === $planKey)>{{ $p['label'] }} — ${{ rtrim(rtrim($p['amount'], '0'), '.') }}@if($p['recurring']) + ${{ rtrim(rtrim($p['recurring'], '0'), '.') }}/mo @endif</option>
+                  <option value="{{ $key }}" @selected($key === $planKey)>{{ $p['label'] }} — ${{ rtrim(rtrim($p['amount'], '0'), '.') }}@if($p['recurring']) + ${{ rtrim(rtrim($p['recurring'], '0'), '.') }}{{ match ($p['interval_days'] ?? null) { 7 => '/wk', 14 => ' every 2 wks', default => '/mo' } }} @endif</option>
                 @endforeach
               </select>
             </label>
@@ -538,7 +538,7 @@
 
             <label class="co-agree">
               <input type="checkbox" name="agree_terms" value="1" required />
-              <span>I have read and agree to the <a href="{{ route('legal.terms-of-service') }}" target="_blank" rel="noopener">Terms of Service</a> and <a href="{{ route('legal.disclaimer') }}" target="_blank" rel="noopener">Disclaimer</a>, and authorize Victorious Opportunities to charge my card for the selected plan. <strong>I understand the recurring monthly charge (if any) will begin 30 days after today.</strong></span>
+              <span>I have read and agree to the <a href="{{ route('legal.terms-of-service') }}" target="_blank" rel="noopener">Terms of Service</a> and <a href="{{ route('legal.disclaimer') }}" target="_blank" rel="noopener">Disclaimer</a>, and authorize Victorious Opportunities to charge my card for the selected plan. <strong>I understand any remaining payments will be charged automatically on the schedule shown in my order summary.</strong></span>
             </label>
 
             <label class="co-agree">
@@ -587,15 +587,19 @@
 
         @php
           $occ        = $plan['recurring_occurrences'] ?? null;
+          $days       = $plan['interval_days'] ?? null;
           $recShort   = rtrim(rtrim($plan['recurring'] ?? '0', '0'), '.');
           $depShort   = rtrim(rtrim($plan['amount'], '0'), '.');
           $planTotal  = $occ
               ? number_format((float) $plan['amount'] + ((float) $plan['recurring'] * $occ), 2)
               : null;
+          $cad        = match ($days) { 7 => ['/week', 'week', 'weeks', 'in 1 week'], 14 => [' every 2 weeks', '2-week payment', '2-week payments', 'in 2 weeks'], default => ['/month', 'month', 'months', 'in 30 days'] };
         @endphp
         <div class="checkout-summary-recurring" id="summaryRecurring" @if(!$plan['recurring']) style="display:none" @endif>
-          @if($occ)
-            <strong>Payment plan:</strong> After today's <strong>${{ $depShort }}</strong> deposit, you'll be billed <strong>${{ $recShort }}/month</strong> for <strong>{{ $occ }} {{ \Illuminate\Support\Str::plural('month', $occ) }}</strong> starting in 30 days. Total program cost: <strong>${{ $planTotal }}</strong>.
+          @if($occ && $days)
+            <strong>Total investment ${{ $planTotal }}:</strong> ${{ $depShort }} today, then <strong>${{ $recShort }}{{ $cad[0] }}</strong> for <strong>{{ $occ }} {{ $occ === 1 ? 'payment' : 'payments' }}</strong>, starting {{ $cad[3] }}.
+          @elseif($occ)
+            <strong>Payment plan:</strong> After today's <strong>${{ $depShort }}</strong> payment, you'll be billed <strong>${{ $recShort }}{{ $cad[0] }}</strong> for <strong>{{ $occ }} {{ \Illuminate\Support\Str::plural('month', $occ) }}</strong> starting {{ $cad[3] }}. Total program cost: <strong>${{ $planTotal }}</strong>.
           @else
             <strong>Monthly billing:</strong> After today's payment, you'll be billed <strong>${{ $recShort }}/month</strong> starting in 30 days. Cancel anytime.
           @endif
@@ -637,6 +641,7 @@
           'amount'                => $p['amount'],
           'recurring'             => $p['recurring'],
           'recurring_occurrences' => $p['recurring_occurrences'] ?? null,
+          'interval_days'         => $p['interval_days'] ?? null,
           'tagline'               => $p['tagline'],
           'features'              => $p['features'],
       ];
@@ -694,7 +699,13 @@
     if (p.recurring) {
       summaryRec.style.display = '';
       const occ = p.recurring_occurrences;
-      if (occ) {
+      const days = p.interval_days;
+      if (occ && days) {
+        const total = Number(p.amount) + (Number(p.recurring) * occ);
+        const per   = days === 7 ? '/week' : ' every 2 weeks';
+        const when  = days === 7 ? 'in 1 week' : 'in 2 weeks';
+        summaryRec.innerHTML = `<strong>Total investment ${money(total)}:</strong> ${moneyShort(p.amount)} today, then <strong>${moneyShort(p.recurring)}${per}</strong> for <strong>${occ} ${occ === 1 ? 'payment' : 'payments'}</strong>, starting ${when}.`;
+      } else if (occ) {
         const total = Number(p.amount) + (Number(p.recurring) * occ);
         summaryRec.innerHTML = `<strong>Payment plan:</strong> After today's <strong>${moneyShort(p.amount)}</strong> deposit, you'll be billed <strong>${moneyShort(p.recurring)}/month</strong> for <strong>${occ} ${occ === 1 ? 'month' : 'months'}</strong> starting in 30 days. Total program cost: <strong>${money(total)}</strong>.`;
       } else {

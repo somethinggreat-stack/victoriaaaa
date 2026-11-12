@@ -9,6 +9,39 @@
   </div>
 </div>
 
+@if ($awaiting->isNotEmpty())
+  <div class="adm-card" style="margin-bottom:14px; border-color:#fde1a8; background:#fffaf0;">
+    <strong style="color:#92400e;">{{ $awaiting->count() }} paid client{{ $awaiting->count() === 1 ? '' : 's' }} haven't finished onboarding.</strong>
+    <div style="font-size:13px; color:var(--ink-2); margin:3px 0 12px;">
+      They paid in the last 60 days but no onboarding form has come through, so nobody is working their file.
+      Send each one the onboarding link: <code>{{ url('/onboarding') }}</code>
+      <button type="button" class="adm-btn ghost" data-copy="{{ url('/onboarding') }}" style="margin-left:6px;padding:4px 10px;">Copy link</button>
+    </div>
+    <div class="adm-table-wrap"><table class="adm-table">
+      <thead><tr><th>Client</th><th>Plan</th><th>Paid</th><th>Contact</th></tr></thead>
+      <tbody>
+      @foreach ($awaiting as $s)
+        <tr>
+          <td><span class="nm">{{ trim($s->first_name . ' ' . $s->last_name) }}</span></td>
+          <td>{{ $s->plan_label }}</td>
+          <td>{{ optional($s->subscribed_at)->format('M j · g:ia') }} <span class="sub">({{ optional($s->subscribed_at)->diffForHumans() }})</span></td>
+          <td><span class="sub">{{ $s->email }}</span><span class="sub">{{ $s->phone }}</span></td>
+        </tr>
+      @endforeach
+      </tbody>
+    </table></div>
+  </div>
+  <script>
+  document.addEventListener('click', function (e) {
+    var b = e.target.closest('[data-copy]'); if (!b) return;
+    var old = b.textContent;
+    navigator.clipboard && navigator.clipboard.writeText(b.getAttribute('data-copy')).then(function () {
+      b.textContent = '✓ Copied'; setTimeout(function () { b.textContent = old; }, 1800);
+    });
+  });
+  </script>
+@endif
+
 @if ($apexFailed > 0 && request('apex') !== 'failed')
   <div class="adm-card" style="margin-bottom:14px; border-color:#fecaca; background:#fef4f4;">
     <div style="display:flex; align-items:center; gap:14px; flex-wrap:wrap;">

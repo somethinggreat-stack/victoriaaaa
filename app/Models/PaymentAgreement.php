@@ -120,7 +120,7 @@ class PaymentAgreement extends Model
         if ($this->installment_amount && (float) $this->installment_amount > 0) {
             $each = '$' . number_format((float) $this->installment_amount, 2);
 
-            $every = $this->recurring_interval === 'week' ? 'wk' : 'mo';
+            $every = match ($this->recurring_interval) { 'week' => 'wk', 'biweek' => '2wk', default => 'mo' };
 
             return $this->installment_count
                 ? "{$today} today, then {$each}/{$every} x {$this->installment_count}"

@@ -18,7 +18,7 @@
       </p>
       <div class="hero-ctas">
         <a href="#pricing" class="btn btn-pink">See pricing &amp; start <span class="arr">→</span></a>
-        <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost">Free 15-min phone call</a>
+        <a href="#results" class="btn btn-ghost">See real results</a>
       </div>
       <div class="hero-meta">
         <div class="avs">
@@ -107,7 +107,7 @@
     </div>
 
     <div class="pain-foot reveal">
-      <strong>Recognize even one of these?</strong> You're already in the right place. <a href="{{ route('strategy-call.show') }}" style="color:var(--pink); font-weight:600; text-decoration:underline; text-underline-offset:3px">Book your free 15-min phone call →</a>
+      <strong>Recognize even one of these?</strong> You're already in the right place. <a href="#pricing" style="color:var(--pink); font-weight:600; text-decoration:underline; text-underline-offset:3px">See pricing &amp; get started →</a>
     </div>
   </div>
 </section>
@@ -115,63 +115,91 @@
 
 <!-- ============ PRICING ============ -->
 <section id="pricing" class="pricing-section">
+  <style>
+    .price .breakdown { margin: 4px 0 20px; border-top: 1px solid rgba(20,16,14,.1); border-bottom: 1px solid rgba(20,16,14,.1); }
+    .price .breakdown .row { display:flex; justify-content:space-between; align-items:baseline; gap:12px; padding:11px 0; font-size:14px; }
+    .price .breakdown .row + .row { border-top:1px dashed rgba(20,16,14,.12); }
+    .price .breakdown .row span { opacity:.72; }
+    .price .breakdown .row strong { font-size:16px; text-align:right; }
+    .price .breakdown .row.total strong { font-size:20px; }
+    .price.feat .breakdown, .price.feat .breakdown .row + .row { border-color: rgba(255,255,255,.18); }
+    .price .for-who { font-size:12.5px; opacity:.75; margin:-8px 0 14px; font-style:italic; }
+  </style>
   <div class="container">
     <div class="section-head reveal">
       <span class="eyebrow">Choose your plan</span>
       <h2>Simple pricing. <em class="serif gradient-text">Real removals.</em></h2>
-      <p>Pick your speed — every plan runs aggressive 3-bureau disputes on your file. A free 15-min phone consult is available with any plan, but it's optional. You can start today.</p>
+      <p>No surprises. Every plan shows your <strong>total investment</strong>, what you pay <strong>to start</strong>, and what you pay <strong>after that</strong>. You can start today.</p>
     </div>
 
     <div class="pricing-grid">
-      <!-- Card 1 · Fast Dispute -->
+      <!-- Card 1 · Standard Credit Repair -->
       <div class="price reveal">
-        <div class="name">Fast Dispute</div>
-        <div class="amt">$297</div>
-        <div class="strike">one-time · results in ~2 weeks</div>
-        <p class="desc">All-in-one aggressive dispute. First results in as little as two weeks.</p>
+        <div class="name">Standard Credit Repair</div>
+        <div class="amt">$597 <span class="p">total</span></div>
+        <div class="strike">standard pace · guided support</div>
+        <div class="breakdown">
+          <div class="row total"><span>Total investment</span><strong>$597</strong></div>
+          <div class="row"><span>To start today</span><strong>$297</strong></div>
+          <div class="row"><span>Then</span><strong>$150 every 2 weeks × 2</strong></div>
+        </div>
+        <p class="for-who">For clients who want professional help at a slower, standard pace.</p>
         <ul>
-          <li>One-time — nothing recurring</li>
-          <li>Aggressive all-in-one 3-bureau dispute</li>
-          <li>First results in ~2 weeks</li>
-          <li>Priority handling on your file</li>
+          <li>Standard processing</li>
+          <li>Ongoing disputes</li>
+          <li>Progress updates</li>
+          <li>Monitoring and ongoing support</li>
+          <li>Guided next steps throughout the process</li>
         </ul>
-        <a href="{{ route('checkout.show', ['plan' => 'fast-dispute']) }}" class="btn btn-ghost">Start fast dispute <span class="arr">→</span></a>
+        <a href="{{ route('checkout.show', ['plan' => 'standard']) }}" class="btn btn-ghost">Choose Standard <span class="arr">→</span></a>
       </div>
 
-      <!-- Card 2 · Monthly (FEATURED) -->
+      <!-- Card 2 · Fast Track (FEATURED) -->
       <div class="price feat reveal reveal-d2">
         <span class="price-tag">Most Popular</span>
-        <div class="name">Monthly</div>
-        <div class="amt">$197 <span class="p">+ $100/mo</span></div>
-        <div class="strike">full 90-day plan</div>
-        <p class="desc">A steady, thorough 90-day rebuild — best when time's on your side and you're not chasing a deadline. Cancel anytime after 90.</p>
+        <div class="name">Fast Track</div>
+        <div class="amt">$1,000 <span class="p">total</span></div>
+        <div class="strike">priority option · for people in a rush</div>
+        <div class="breakdown">
+          <div class="row total"><span>Total investment</span><strong>$1,000</strong></div>
+          <div class="row"><span>To start today</span><strong>$250</strong></div>
+          <div class="row"><span>Then</span><strong>$250/week × 3</strong></div>
+        </div>
+        <p class="for-who">For clients who want priority processing and more aggressive, frequent follow-up.</p>
         <ul>
-          <li>Full 90-day credit plan</li>
-          <li>Aggressive 3-bureau disputes</li>
-          <li>Monthly progress updates</li>
-          <li>Cancel after 90 days</li>
+          <li>Priority processing</li>
+          <li>More aggressive and frequent follow-up</li>
+          <li>Priority progress updates</li>
+          <li>Ongoing priority support</li>
+          <li>Focused Fast Track service experience</li>
         </ul>
-        <a href="{{ route('checkout.show', ['plan' => 'monthly']) }}" class="btn btn-pink">Start monthly <span class="arr">→</span></a>
+        <a href="{{ route('checkout.show', ['plan' => 'fast-track']) }}" class="btn btn-pink">Choose Fast Track <span class="arr">→</span></a>
       </div>
 
-      <!-- Card 3 · Unlimited Lifetime -->
+      <!-- Card 3 · Couples Fast Track -->
       <div class="price reveal reveal-d3">
-        <div class="name">Unlimited · Lifetime</div>
-        <div class="amt">$597</div>
-        <div class="strike">one payment · for life</div>
-        <p class="desc">One payment, unlimited dispute rounds for life. Best long-term value.</p>
+        <div class="name">Couples Fast Track</div>
+        <div class="amt">$1,500 <span class="p">total</span></div>
+        <div class="strike">two people · priority service</div>
+        <div class="breakdown">
+          <div class="row total"><span>Total investment</span><strong>$1,500</strong></div>
+          <div class="row"><span>To start today</span><strong>$500</strong></div>
+          <div class="row"><span>Then</span><strong>$250/week × 4</strong></div>
+        </div>
+        <p class="for-who">For two people who both want Fast Track service with coordinated priority processing.</p>
         <ul>
-          <li>One-time $597 — lifetime access</li>
-          <li>Unlimited dispute rounds</li>
-          <li>Every negative item, every bureau</li>
-          <li>Priority support for life</li>
+          <li>Fast Track service for 2 people</li>
+          <li>Priority processing for both files</li>
+          <li>Expedited disputes</li>
+          <li>Ongoing follow-up throughout the program</li>
+          <li>Coordinated support for both clients</li>
         </ul>
-        <a href="{{ route('checkout.show', ['plan' => 'unlimited']) }}" class="btn btn-ghost">Go unlimited <span class="arr">→</span></a>
+        <a href="{{ route('checkout.show', ['plan' => 'couples-fast-track']) }}" class="btn btn-ghost">Choose Couples Fast Track <span class="arr">→</span></a>
       </div>
     </div>
 
     <div class="price-meta reveal">
-      <strong>Together?</strong> Two people, unlimited lifetime rounds for <strong>$597</strong> total — <a href="{{ route('checkout.show', ['plan' => 'couple']) }}" style="color:var(--pink);font-weight:600;text-decoration:underline;text-underline-offset:3px">start the couples plan →</a>
+      <strong>Questions before you start?</strong> Everything above is the full price &mdash; nothing hidden. <a href="{{ url('/services/credit-consultations') }}" style="color:var(--pink);font-weight:600;text-decoration:underline;text-underline-offset:3px">Learn about consultations →</a>
     </div>
   </div>
 </section>
@@ -274,7 +302,7 @@
       <div class="signature">— Victoria.</div>
 
       <div class="about-cta">
-        <a href="{{ route('strategy-call.show') }}" class="btn btn-primary">Work with me <span class="arr">→</span></a>
+        <a href="#pricing" class="btn btn-primary">Work with me <span class="arr">→</span></a>
         <a href="#results" class="btn btn-ghost">Read client stories</a>
       </div>
     </div>
@@ -452,7 +480,6 @@
 
         <div class="auth-ctas">
           <a href="#pricing" class="btn btn-pink">Start your credit repair <span class="arr">→</span></a>
-          <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost">Free 15-min phone call</a>
         </div>
       </div>
 
@@ -505,10 +532,10 @@
     <div class="faq-side reveal">
       <span class="eyebrow">Frequently asked</span>
       <h2>Got <em class="serif gradient-text">questions?</em></h2>
-      <p>Everything you need to know about working with me. Don't see your question? Just ask on the call.</p>
+      <p>Everything you need to know about working with me. Don't see your question? Send it through the contact page.</p>
       <div class="ctas">
-        <a href="{{ route('strategy-call.show') }}" class="btn btn-primary">Book free phone call <span class="arr">→</span></a>
-        <a href="{{ route('contact.show') }}" class="btn btn-ghost">Ask a question</a>
+        <a href="{{ route('contact.show') }}" class="btn btn-primary">Ask a question <span class="arr">→</span></a>
+        <a href="{{ url('/services/credit-consultations') }}" class="btn btn-ghost">About consultations</a>
       </div>
     </div>
 
@@ -530,7 +557,7 @@
 
       <div class="faq-item">
         <div class="faq-q">Can my partner and I do this together? <span class="icon">+</span></div>
-        <div class="faq-a"><div class="faq-a-inner">Yes — that's the <strong style="color:var(--ink)">Couple plan ($597)</strong>. Two people, unlimited lifetime rounds, coordinated so you both qualify for the same loan and close on your forever home together.</div></div>
+        <div class="faq-a"><div class="faq-a-inner">Yes — that's the <strong style="color:var(--ink)">Couples Fast Track ($1,500 total — $500 to start, then $250/week for 4 weeks)</strong>. Fast Track service for two people, coordinated so you both qualify for the same loan and close on your forever home together.</div></div>
       </div>
 
       <div class="faq-item">
@@ -553,10 +580,9 @@
       <div class="cta-text">
         <span class="eyebrow">Choose your plan</span>
         <h2>Find the plan that <em class="serif">fits your goal.</em></h2>
-        <p>Simple monthly pricing built around real credit transformation — pick the plan that gets you to your dream score, your dream home, your next chapter.</p>
+        <p>Clear pricing built around real credit transformation — see your total, what you pay to start, and what you pay after. Pick the plan that gets you to your dream score, your dream home, your next chapter.</p>
         <div class="ctas">
           <a href="#pricing" class="btn btn-pink">View pricing <span class="arr">→</span></a>
-          <a href="{{ route('strategy-call.show') }}" class="btn btn-ghost-light">Free 15-min phone call</a>
         </div>
         <div class="stamp">
           <img src="{{ asset('images/founderimage4.jpeg') }}" alt="Victoria Love" width="48" height="48" loading="lazy" decoding="async" />

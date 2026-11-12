@@ -253,8 +253,8 @@ a { color: inherit; text-decoration: none; }
   padding: 18px 20px;
   box-shadow: 0 8px 20px -16px rgba(20,16,14,0.18);
 }
-.adm-stat .lab { font-size: 11px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; margin-bottom: 10px; }
-.adm-stat .val { font-size: 30px; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
+.adm-stat .lab { font-size: 12.5px; letter-spacing: 0.14em; text-transform: uppercase; color: var(--ink-3); font-weight: 700; margin-bottom: 10px; }
+.adm-stat .val { font-size: 46px; line-height: 1.1; font-weight: 700; color: var(--ink); letter-spacing: -0.02em; }
 .adm-stat .delta { font-size: 11.5px; color: var(--ink-2); margin-top: 4px; }
 .adm-stat .delta strong { color: var(--pink); }
 .adm-stat.link { display: block; transition: transform .2s, box-shadow .2s, border-color .2s; cursor: pointer; }
@@ -721,6 +721,7 @@ table.adm-table .actions { white-space: nowrap; }
         <a href="{{ route('admin.payments') }}"       class="@if($current==='admin.payments') active @endif"><span class="ic">$</span> Payments</a>
         <a href="{{ route('admin.onboarding') }}"     class="@if(str_starts_with($current,'admin.onboarding')) active @endif"><span class="ic">⚑</span> Paid Credit Repair Clients</a>
         <a href="{{ route('admin.payment-links') }}"  class="@if(str_starts_with($current,'admin.payment-links')) active @endif"><span class="ic">🔗</span> Payment Links</a>
+        <a href="{{ route('admin.affiliates') }}" class="@if(str_starts_with($current,'admin.affiliates')) active @endif"><span class="ic">★</span> Affiliates</a>
         <a href="{{ route('admin.contracts') }}"  class="@if(str_starts_with($current,'admin.contracts')) active @endif"><span class="ic">✎</span> Contracts</a>
       @endunless
 

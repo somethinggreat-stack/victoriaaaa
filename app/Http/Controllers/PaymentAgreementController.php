@@ -15,6 +15,7 @@ class PaymentAgreementController extends Controller
     public const AGREEMENT_PLANS = [
         'mentorship-3pay',
         'mentorship-5pay',
+        'mentorship-2pay',
     ];
 
     public const TERMS_VERSION = 'v1';

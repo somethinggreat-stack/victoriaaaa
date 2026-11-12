@@ -3,10 +3,12 @@
 namespace App\Services;
 
 use App\Models\BurgundyClient;
+use App\Models\PaymentLink;
 use App\Models\Payment;
 use App\Models\Subscription;
 use App\Support\PartnershipPlans;
 use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Support\Facades\Schema;
 
 /**
  * Money and counts for the partnership dashboard.
@@ -96,9 +98,25 @@ class BurgundyLedger
             'failed_payments'    => $this->subscriptions()->where('status', 'past_due')->count(),
             'refund_count'       => $this->payments()->whereIn('type', ['refund', 'void'])->count(),
 
+            // One-time payment links Burgundy created. Separate from the
+            // subscription figures above so neither distorts the other.
+            'one_time_collected' => $this->oneTime('paid')->sum('amount') + 0.0,
+            'one_time_count'     => $this->oneTime('paid')->count(),
+            'one_time_waiting'   => $this->oneTime('unpaid')->count(),
+
             // Conversion through the ladder — what Victoria actually wants to know.
             'transition_rate'    => $this->rate($paid, (clone $clients)->where('source', 'legacy')->count()),
         ];
+    }
+
+    /** Burgundy's payment links in a given state (empty until the column exists). */
+    public function oneTime(string $status): Builder
+    {
+        $q = PaymentLink::query()->where('status', $status);
+
+        return Schema::hasColumn('payment_links', 'partner')
+            ? $q->where('partner', 'burgundy')
+            : $q->whereRaw('1 = 0');
     }
 
     private function rate(int $part, int $whole): float

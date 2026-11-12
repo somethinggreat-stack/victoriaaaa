@@ -35,12 +35,12 @@
           <li>Charged today: ${{ number_format((float) $agreement->deposit_amount, 2) }}</li>
           @if ($agreement->installment_amount && (float) $agreement->installment_amount > 0)
             @php
-              $every = $agreement->recurring_interval === 'week' ? 'week' : 'month';
+              $every = match ($agreement->recurring_interval) { 'week' => 'per week', 'biweek' => 'every 2 weeks', default => 'per month' };
               $tail  = $agreement->installment_count
                 ? ', ' . $agreement->installment_count . ' time' . ($agreement->installment_count == 1 ? '' : 's')
                 : ', until you cancel';
             @endphp
-            <li>Then ${{ number_format((float) $agreement->installment_amount, 2) }} per {{ $every }}{{ $tail }}</li>
+            <li>Then ${{ number_format((float) $agreement->installment_amount, 2) }} {{ $every }}{{ $tail }}</li>
             @if ($agreement->installment_count)
               <li>Total: ${{ number_format((float) $agreement->deposit_amount + ((float) $agreement->installment_amount * $agreement->installment_count), 2) }}</li>
             @endif

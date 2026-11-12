@@ -662,9 +662,19 @@
       return;
     }
 
-    // Loading state
+    // Loading state — a full-screen notice, because the real failure was people
+    // closing the tab before the upload finished.
     submitBtn.classList.add('is-loading');
     submitBtn.disabled = true;
+    const busy = document.createElement('div');
+    busy.setAttribute('role', 'alert');
+    busy.style.cssText = 'position:fixed;inset:0;z-index:9999;display:flex;align-items:center;justify-content:center;padding:24px;background:rgba(20,16,14,.72);backdrop-filter:blur(4px);';
+    busy.innerHTML = '<div style="max-width:380px;width:100%;background:#fff;border-radius:18px;padding:30px 26px;text-align:center;font-family:inherit;box-shadow:0 40px 80px -30px rgba(0,0,0,.5)">'
+      + '<div style="width:46px;height:46px;margin:0 auto 16px;border:4px solid #f3c6d9;border-top-color:#e63179;border-radius:50%;animation:obspin .8s linear infinite"></div>'
+      + '<div style="font-size:19px;font-weight:700;margin-bottom:8px;color:#14100e">Submitting your information…</div>'
+      + '<div style="font-size:14.5px;line-height:1.55;color:#555">Please keep this page open — this can take up to a minute while your documents upload securely. You\'ll move on automatically when it\'s done.</div></div>'
+      + '<style>@keyframes obspin{to{transform:rotate(360deg)}}</style>';
+    document.body.appendChild(busy);
   });
 })();
 </script>

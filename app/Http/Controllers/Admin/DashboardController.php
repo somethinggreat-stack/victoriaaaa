@@ -185,7 +185,30 @@ class DashboardController extends Controller
             // Counted across everything, not just this page, so the warning is
             // still right when a filter is applied.
             'apexFailed' => OnboardingSubmission::where('crc_status', 'failed')->count(),
+            'awaiting'   => $this->awaitingOnboarding(),
         ]);
+    }
+
+    /**
+     * People who paid for credit repair but never finished the onboarding form —
+     * nobody is working their file until they do. Matched on email (case-blind).
+     */
+    private function awaitingOnboarding(): Collection
+    {
+        $done = OnboardingSubmission::pluck('email')
+            ->map(fn ($e) => strtolower(trim((string) $e)))
+            ->flip();
+
+        return Subscription::query()
+            ->where('plan_key', 'not like', 'mentorship%')
+            ->whereNotIn('plan_key', ['starter', 'audit'])
+            ->whereNotIn('status', ['terminated', 'cancelled'])
+            ->where('subscribed_at', '>=', now()->subDays(60))
+            ->latest('subscribed_at')
+            ->limit(200)
+            ->get()
+            ->reject(fn ($s) => $done->has(strtolower(trim((string) $s->email))))
+            ->values();
     }
 
     public function onboardingShow(OnboardingSubmission $onboarding)

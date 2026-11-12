@@ -71,7 +71,7 @@
       <p class="tag">What you are paying</p>
 
       @php
-        $every = $agreement->recurring_interval === 'week' ? 'week' : 'month';
+        $every = match ($agreement->recurring_interval) { 'week' => 'week', 'biweek' => '2 weeks', default => 'month' };
         $hasRecurring = $agreement->installment_amount && (float) $agreement->installment_amount > 0;
         $howOften = 'Then every ' . $every;
         if ($agreement->installment_count) {
@@ -88,7 +88,7 @@
       @if ($hasRecurring)
         <div class="line">
           <span class="l">{{ $howOften }}</span>
-          <span class="r">${{ number_format((float) $agreement->installment_amount, 2) }}/{{ $every === 'week' ? 'wk' : 'mo' }}</span>
+          <span class="r">${{ number_format((float) $agreement->installment_amount, 2) }}/{{ ['week' => 'wk', '2 weeks' => '2wk'][$every] ?? 'mo' }}</span>
         </div>
         @if ($agreement->installment_count)
           <div class="line total">

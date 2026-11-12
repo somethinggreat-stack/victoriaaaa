@@ -22,6 +22,13 @@
         <li><span>✉️</span><a href="mailto:support@victorialovecredit.com" style="color:inherit;text-decoration:none">support@victorialovecredit.com</a></li>
         <li><span>📍</span>18034 Ventura Blvd, Encino, CA 91316</li>
       </ul>
+      <ul class="ct-hero-trust" style="margin-top:14px">
+        <li><span>📞</span><a href="tel:+14693495553" style="color:inherit;text-decoration:none">(469) 349-5553</a></li>
+        <li><span>🕙</span>Business hours: 10 AM – 5 PM Central</li>
+      </ul>
+      <p style="margin-top:18px">
+        <a href="{{ route('strategy-call.show') }}" class="btn btn-pink">Book a free 15-min phone call <span class="arr">→</span></a>
+      </p>
     </div>
   </div>
 </section>

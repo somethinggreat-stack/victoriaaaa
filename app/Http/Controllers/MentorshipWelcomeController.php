@@ -11,6 +11,7 @@ class MentorshipWelcomeController extends Controller
     public const MENTORSHIP_PLANS = [
         'mentorship-3pay',
         'mentorship-5pay',
+        'mentorship-2pay',
         'mentorship-full',
     ];
 

@@ -46,6 +46,57 @@ class AcceptJsPaymentController extends Controller
             ],
         ],
         // ───────────── Credit-repair plans (homepage pricing) ─────────────
+        // Each shows the client the whole price up front: total investment,
+        // what they pay to start, then the repeating amount. `interval_days`
+        // is the billing cadence (7 = weekly, 14 = every two weeks).
+        'standard' => [
+            'amount'                => '297.00',
+            'recurring'             => '150.00',
+            'recurring_occurrences' => 2,
+            'interval_days'         => 14,
+            'total'                 => '597.00',
+            'label'                 => 'Standard Credit Repair',
+            'tagline'               => 'Total investment $597 — $297 to start, then $150 every 2 weeks × 2.',
+            'features'  => [
+                'Standard processing',
+                'Ongoing disputes',
+                'Progress updates',
+                'Monitoring and ongoing support',
+                '$297 today + 2 × $150 every 2 weeks — $597 total',
+            ],
+        ],
+        'fast-track' => [
+            'amount'                => '250.00',
+            'recurring'             => '250.00',
+            'recurring_occurrences' => 3,
+            'interval_days'         => 7,
+            'total'                 => '1000.00',
+            'label'                 => 'Fast Track',
+            'tagline'               => 'Total investment $1,000 — $250 to start, then $250/week × 3.',
+            'features'  => [
+                'Priority processing',
+                'More aggressive and frequent follow-up',
+                'Priority progress updates',
+                'Ongoing priority support',
+                '$250 today + 3 × $250/week — $1,000 total',
+            ],
+        ],
+        'couples-fast-track' => [
+            'amount'                => '500.00',
+            'recurring'             => '250.00',
+            'recurring_occurrences' => 4,
+            'interval_days'         => 7,
+            'total'                 => '1500.00',
+            'label'                 => 'Couples Fast Track',
+            'tagline'               => 'Total investment $1,500 for two people — $500 to start, then $250/week × 4.',
+            'features'  => [
+                'Fast Track service for 2 people',
+                'Priority processing for both files',
+                'Expedited disputes',
+                'Coordinated support for both clients',
+                '$500 today + 4 × $250/week — $1,500 total',
+            ],
+        ],
         'fast-dispute' => [
             'amount'    => '297.00',
             'label'     => 'Fast Dispute',
@@ -120,7 +171,24 @@ class AcceptJsPaymentController extends Controller
             ],
         ],
 
-        // ───────────── 1:1 Mentorship payment plans ─────────────
+        // ───────────── 1:1 Mentorship ─────────────
+        // Current offer: $1,997 in full, or 2 × $1,099 (today, then 30 days).
+        'mentorship-2pay' => [
+            'amount'                => '1099.00',
+            'recurring'             => '1099.00',
+            'recurring_occurrences' => 1,
+            'label'                 => 'Mentorship — 2 Payments',
+            'tagline'               => '$1,099 today, then $1,099 in 30 days (total $2,198).',
+            'features'  => [
+                '12-week 1:1 mentorship with Victoria',
+                'Full SOP & client-template library',
+                'Software, CRM & dispute tech stack',
+                'Full access starts immediately',
+                '$1,099 today + $1,099 in 30 days',
+            ],
+        ],
+        // The 3- and 5-payment plans are no longer sold but stay defined so
+        // anyone already on one keeps a working record.
         // Each instalment plan: $500 deposit charged today, then a fixed
         // number of monthly instalments via ARB. Totals all land at $2,000.
         'mentorship-3pay' => [
@@ -152,16 +220,16 @@ class AcceptJsPaymentController extends Controller
             ],
         ],
         'mentorship-full' => [
-            'amount'    => '1697.00',
+            'amount'    => '1997.00',
             'recurring' => null,
             'label'     => 'Mentorship — Pay in Full',
-            'tagline'   => 'One-time payment of $1,697 — best value, save instantly.',
+            'tagline'   => 'One-time payment of $1,997 — best value, save $201.',
             'features'  => [
-                'Private 1:1 weekly calls with Victoria',
+                '12-week 1:1 mentorship with Victoria',
                 'Full SOP & client-template library',
                 'Software, CRM & dispute tech stack',
                 'Lifetime Skool community + lender intros',
-                'Single payment of $1,697 — zero recurring',
+                'Single payment of $1,997 — zero recurring',
             ],
         ],
     ];
@@ -227,7 +295,7 @@ class AcceptJsPaymentController extends Controller
 
         // Referral code: form input → session → null
         $referralCode = strtoupper(trim(
-            (string) ($validated['referral_code'] ?? session('referral_code', ''))
+            (string) ($validated['referral_code'] ?? session('referral_code', $request->cookie('vl_ref', '')))
         )) ?: null;
 
         $planKey         = $validated['selected_plan'];
@@ -236,6 +304,7 @@ class AcceptJsPaymentController extends Controller
         $planLabel       = $planMeta['label'];
         $recurringAmt    = $planMeta['recurring'];
         $recurringCount  = $planMeta['recurring_occurrences'] ?? null; // null → open-ended monthly
+        $intervalDays    = $planMeta['interval_days'] ?? null;          // null → monthly
 
         // Instalment mentorship plans must have a signed payment agreement in session.
         $agreementId = null;
@@ -405,6 +474,7 @@ class AcceptJsPaymentController extends Controller
                         $planLabel,
                         $recurringAmt,
                         $recurringCount,
+                        $intervalDays,
                         $apiLoginId,
                         $txKey,
                         $endpoint
@@ -440,8 +510,12 @@ class AcceptJsPaymentController extends Controller
                 $customerProfileId,
                 $customerPaymentProfileId,
                 $referralCode,
-                $agreementId
+                $agreementId,
+                $intervalDays
             );
+
+            // Credit the affiliate who sent this client (flat fee, owed straight away).
+            \App\Services\Affiliates::record($referralCode, $subscription);
 
             // ────────── Attach the signed payment agreement (instalment plans) ──────────
             if ($agreementId && $subscription) {
@@ -512,6 +586,7 @@ class AcceptJsPaymentController extends Controller
                     'charged_today'    => (float) $amount,
                     'recurring_amount' => $recurringAmt !== null ? (float) $recurringAmt : null,
                     'recurring_count'  => $recurringCount,
+                    'recurring_interval' => match ($intervalDays) { 7 => 'week', 14 => 'biweek', default => 'month' },
                     'client_name'      => trim($validated['first_name'] . ' ' . $validated['last_name']),
                     'client_phone'     => $validated['phone'] ?? null,
                     'email'            => $validated['email'],
@@ -559,6 +634,7 @@ class AcceptJsPaymentController extends Controller
         string $planLabel,
         string $recurringAmt,
         ?int $recurringOccurrences,
+        ?int $intervalDays,
         string $apiLoginId,
         string $txKey,
         string $endpoint
@@ -619,8 +695,11 @@ class AcceptJsPaymentController extends Controller
                 'subscription' => [
                     'name'            => mb_substr($planLabel, 0, 50),
                     'paymentSchedule' => [
-                        'interval'         => ['length' => '1', 'unit' => 'months'],
-                        'startDate'        => now()->addMonth()->format('Y-m-d'),
+                        // Weekly / fortnightly plans bill in days; the rest monthly.
+                        'interval'         => $intervalDays
+                            ? ['length' => (string) $intervalDays, 'unit' => 'days']
+                            : ['length' => '1', 'unit' => 'months'],
+                        'startDate'        => ($intervalDays ? now()->addDays($intervalDays) : now()->addMonth())->format('Y-m-d'),
                         'totalOccurrences' => $totalOccurrences,
                         'trialOccurrences' => '0',
                     ],
@@ -732,7 +811,8 @@ class AcceptJsPaymentController extends Controller
         ?string $customerProfileId,
         ?string $customerPaymentProfileId,
         ?string $referralCode,
-        ?int $paymentAgreementId = null
+        ?int $paymentAgreementId = null,
+        ?int $intervalDays = null
     ): ?Subscription {
         try {
             return Subscription::create([
@@ -758,7 +838,9 @@ class AcceptJsPaymentController extends Controller
                 'payment_agreement_id'        => $paymentAgreementId,
                 'status'                      => 'active',
                 'subscribed_at'               => now(),
-                'next_billing_date'           => $recurringAmt !== null ? now()->addMonth() : null,
+                'next_billing_date'           => $recurringAmt !== null
+                    ? ($intervalDays ? now()->addDays($intervalDays) : now()->addMonth())
+                    : null,
             ]);
         } catch (\Throwable $dbEx) {
             Log::error('Failed to save subscription to database', [

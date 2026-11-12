@@ -20,6 +20,11 @@
     <div class="v">${{ number_format($m['monthly_revenue'], 0) }}</div>
     <div class="n">{{ $m['active'] }} active subscription{{ $m['active'] === 1 ? '' : 's' }}</div>
   </div>
+  <a class="tile green" href="{{ route('partnership.payment-links') }}">
+    <div class="k">One-time links</div>
+    <div class="v">${{ number_format($m['one_time_collected'], 0) }}</div>
+    <div class="n">{{ $m['one_time_count'] }} paid · {{ $m['one_time_waiting'] }} waiting</div>
+  </a>
   <div class="tile red">
     <div class="k">Failed / Past Due</div>
     <div class="v">{{ $m['failed_payments'] }}</div>

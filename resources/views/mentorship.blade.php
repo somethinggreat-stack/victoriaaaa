@@ -23,7 +23,7 @@
         </div>
 
         <div class="svc-hero-stats">
-          <div class="stt"><strong>$1,697</strong><span>Pay in full · or $2,000 on a plan</span></div>
+          <div class="stt"><strong>$1,997</strong><span>Pay in full · or 2 × $1,099</span></div>
           <div class="stt"><strong>1:1</strong><span>Weekly calls with Victoria</span></div>
           <div class="stt"><strong>Limited</strong><span>Spots open each quarter</span></div>
         </div>
@@ -35,8 +35,8 @@
         <div class="fly-card">
           <div class="icn">★</div>
           <div>
-            <div class="lab">Save $303</div>
-            <div class="val">Pay in full · $1,697</div>
+            <div class="lab">Save $201</div>
+            <div class="val">Pay in full · $1,997</div>
           </div>
         </div>
       </div>
@@ -112,7 +112,7 @@
         <div class="fund-step" data-step="4">
           <span class="fund-step-tag">Step 4 · Investment</span>
           <h3>Are you ready to invest in mentorship?</h3>
-          <p class="fund-step-sub">The mentorship is <strong>$2,000</strong> — or <strong>$1,697</strong> if you pay in full.</p>
+          <p class="fund-step-sub">The 12-week 1:1 mentorship is <strong>$1,997</strong> if you pay in full — or <strong>2 × $1,099</strong> if you split it.</p>
           <div class="fund-options">
             <label><input type="radio" name="investment" value="Yes — ready to invest"      required><span><span class="opt-letter">A</span><span>Yes — ready to invest in myself</span></span></label>
             <label><input type="radio" name="investment" value="Ready, need a payment plan"        ><span><span class="opt-letter">B</span><span>Ready, but I need a payment plan</span></span></label>
@@ -183,65 +183,47 @@
 
     <div class="mentor-plans-grid reveal">
 
-      <!-- Plan 1 — Deposit + 3 -->
+      <!-- Split it up — 2 monthly payments -->
       <div class="mplan">
         <div class="mplan-head">
-          <span class="mplan-name">Deposit + 3 Payments</span>
-          <div class="mplan-deposit"><span class="amt">$500</span><span class="lab">deposit today</span></div>
+          <span class="mplan-name">Split It Up</span>
+          <div class="mplan-deposit"><span class="amt">$1,099</span><span class="lab">today</span></div>
         </div>
         <div class="mplan-then">
-          then <strong>3 payments of $500</strong><span>billed monthly</span>
+          then <strong>$1,099 in 30 days</strong><span>2 monthly payments</span>
         </div>
         <ul class="mplan-list">
-          <li>$500 deposit charged today</li>
-          <li>3 × $500 monthly thereafter</li>
-          <li>Full 1:1 mentorship access</li>
+          <li>First payment of $1,099 today</li>
+          <li>Second payment of $1,099 in 30 days</li>
+          <li>Full access starts immediately</li>
         </ul>
-        <div class="mplan-total">Total <strong>$2,000</strong></div>
-        <a href="{{ route('mentorship-agreement.show', 'mentorship-3pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
-      </div>
-
-      <!-- Plan 3 — Deposit + 5 -->
-      <div class="mplan">
-        <div class="mplan-head">
-          <span class="mplan-name">Deposit + 5 Payments</span>
-          <div class="mplan-deposit"><span class="amt">$500</span><span class="lab">deposit today</span></div>
-        </div>
-        <div class="mplan-then">
-          then <strong>5 payments of $300</strong><span>billed monthly</span>
-        </div>
-        <ul class="mplan-list">
-          <li>$500 deposit charged today</li>
-          <li>5 × $300 monthly thereafter</li>
-          <li>Full 1:1 mentorship access</li>
-        </ul>
-        <div class="mplan-total">Total <strong>$2,000</strong></div>
-        <a href="{{ route('mentorship-agreement.show', 'mentorship-5pay') }}" class="btn btn-ghost mplan-btn">Choose this plan <span class="arr">→</span></a>
+        <div class="mplan-total">Total <strong>$2,198</strong></div>
+        <a href="{{ route('mentorship-agreement.show', 'mentorship-2pay') }}" class="btn btn-ghost mplan-btn">Enroll — payment plan <span class="arr">→</span></a>
       </div>
 
       <!-- Plan 4 — Pay in full (featured) -->
       <div class="mplan is-featured">
-        <div class="mplan-flag">★ Best value · Save $303</div>
+        <div class="mplan-flag">★ Best value · Save $201</div>
         <div class="mplan-head">
           <span class="mplan-name">Pay in Full</span>
-          <div class="mplan-deposit"><span class="amt">$1,697</span><span class="lab">one-time</span></div>
+          <div class="mplan-deposit"><span class="amt">$1,997</span><span class="lab">one-time</span></div>
         </div>
         <div class="mplan-then">
           <strong>Single payment</strong><span>zero recurring</span>
         </div>
         <ul class="mplan-list">
-          <li>One payment of $1,697</li>
+          <li>One payment of $1,997</li>
           <li>No monthly billing</li>
           <li>Full 1:1 mentorship access</li>
         </ul>
-        <div class="mplan-total">Total <strong>$1,697</strong></div>
-        <a href="{{ route('checkout.show', 'mentorship-full') }}" class="btn btn-pink mplan-btn">Pay in full <span class="arr">→</span></a>
+        <div class="mplan-total">Total <strong>$1,997</strong></div>
+        <a href="{{ route('checkout.show', 'mentorship-full') }}" class="btn btn-pink mplan-btn">Enroll — pay in full <span class="arr">→</span></a>
       </div>
 
     </div>
 
     <p class="mentor-plans-fine">
-      🔒 256-bit encrypted checkout · Processed securely by Authorize.Net · Instalments billed automatically each month
+      🔒 256-bit encrypted checkout · Processed securely by Authorize.Net · Your second payment is billed automatically in 30 days
     </p>
   </div>
 </section>
@@ -435,7 +417,7 @@
         <div class="faq-item"><div class="faq-q">Do I need experience in credit repair? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">No. I'll teach you the whole game — disputes, software, sales, pricing — starting from zero. If you already have a few clients, we'll accelerate.</div></div></div>
         <div class="faq-item"><div class="faq-q">How long is the mentorship? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">The active 1:1 phase is roughly 90 days. After that you keep <strong>lifetime access</strong> to the SOPs, scripts, community, and updates — so the program grows with you.</div></div></div>
         <div class="faq-item"><div class="faq-q">How much time does it take? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">Plan on 5–7 hours a week. Most mentees do it nights and weekends while they're still working a 9–5, then transition out as the business takes over their income.</div></div></div>
-        <div class="faq-item"><div class="faq-q">What's the actual investment? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">$2,000 total. You can split it — $500 today then 3 × $500, or $500 today then 5 × $300 — or pay in full for $1,697 and save $303. Limited spots open each quarter so I can give every mentee the attention they signed up for.</div></div></div>
+        <div class="faq-item"><div class="faq-q">What's the actual investment? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">The 12-week 1:1 mentorship is $1,997 if you pay in full, or you can split it into 2 monthly payments of $1,099 — first payment today, second in 30 days. Limited spots open each quarter so I can give every mentee the attention they signed up for.</div></div></div>
         <div class="faq-item"><div class="faq-q">Is there a guarantee? <span class="icon">+</span></div><div class="faq-a"><div class="faq-a-inner">I can't legally guarantee an income number — that depends on you. What I <em>can</em> guarantee: I'll show up to every call, hand you every tool I use, and keep the door open for as long as you stay in the program.</div></div></div>
       </div>
     </div>

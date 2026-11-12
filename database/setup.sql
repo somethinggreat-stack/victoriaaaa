@@ -573,3 +573,34 @@ ALTER TABLE `payment_links`
   ADD INDEX `payment_links_partner_index` (`partner`),
   ADD INDEX `payment_links_burgundy_client_id_index` (`burgundy_client_id`);
 
+-- affiliates + affiliate_referrals (2026_11_12_000002_create_affiliates_tables.php)
+CREATE TABLE IF NOT EXISTS `affiliates` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(150) NOT NULL,
+  `email` VARCHAR(150) NULL DEFAULT NULL,
+  `phone` VARCHAR(30) NULL DEFAULT NULL,
+  `code` VARCHAR(30) NOT NULL,
+  `payout_amount` DECIMAL(10,2) NOT NULL DEFAULT 100.00,
+  `active` TINYINT(1) NOT NULL DEFAULT 1,
+  `notes` VARCHAR(500) NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  UNIQUE KEY `affiliates_code_unique` (`code`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+CREATE TABLE IF NOT EXISTS `affiliate_referrals` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `affiliate_id` BIGINT UNSIGNED NOT NULL,
+  `subscription_id` BIGINT UNSIGNED NULL DEFAULT NULL,
+  `client_name` VARCHAR(150) NULL DEFAULT NULL,
+  `client_email` VARCHAR(150) NULL DEFAULT NULL,
+  `plan_label` VARCHAR(150) NULL DEFAULT NULL,
+  `amount` DECIMAL(10,2) NOT NULL,
+  `status` VARCHAR(10) NOT NULL DEFAULT 'owed',
+  `paid_at` TIMESTAMP NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  KEY `affiliate_referrals_affiliate_id_index` (`affiliate_id`),
+  UNIQUE KEY `affiliate_referrals_subscription_id_unique` (`subscription_id`),
+  KEY `affiliate_referrals_status_index` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

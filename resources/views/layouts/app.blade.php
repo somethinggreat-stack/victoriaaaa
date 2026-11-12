@@ -4332,7 +4332,7 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
     <a href="{{ route('mentorship') }}">Mentorship</a>
     <a href="{{ route('contact.show') }}">Contact</a>
   </div>
-  <a href="{{ route('strategy-call.show') }}" class="nav-cta">Free Strategy Call <span class="arr">→</span></a>
+  <a href="{{ url('/') }}#pricing" class="nav-cta">See Pricing <span class="arr">→</span></a>
   <button class="menu-btn" id="menuBtn" aria-label="Menu"><span></span></button>
 </nav>
 <div class="nav-mobile" id="navMobile">
@@ -4342,7 +4342,7 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
   <a href="{{ url('/') }}#ebooks">Ebooks</a>
   <a href="{{ route('mentorship') }}">Mentorship</a>
   <a href="{{ route('contact.show') }}">Contact</a>
-  <a href="{{ route('strategy-call.show') }}" class="cta">Book Free Call →</a>
+  <a href="{{ url('/') }}#pricing" class="cta">See Pricing →</a>
 </div>
 
 @yield('content')
@@ -4359,7 +4359,9 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
         <address style="font-style:normal;margin-top:14px;line-height:1.55;font-size:13.5px;opacity:.9">
           18034 Ventura Blvd<br>
           Encino, CA 91316<br>
-          <a href="mailto:support@victorialovecredit.com">support@victorialovecredit.com</a>
+          <a href="tel:+14693495553">(469) 349-5553</a><br>
+          <a href="mailto:support@victorialovecredit.com">support@victorialovecredit.com</a><br>
+          Business hours: 10 AM – 5 PM Central
         </address>
       </div>
       <div class="footer-col">
@@ -4376,6 +4378,7 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
       </div>
       <div class="footer-col">
         <h5>Connect</h5>
+        <a href="tel:+14693495553">Call · (469) 349-5553</a>
         <a href="mailto:support@victorialovecredit.com">Email</a>
         <a href="https://instagram.com/iamvictoria.love" target="_blank">Instagram · @iamvictoria.love</a>
         <a href="https://tiktok.com/@iam.victorialove" target="_blank">TikTok · @iam.victorialove</a>

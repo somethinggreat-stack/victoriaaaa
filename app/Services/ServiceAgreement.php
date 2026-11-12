@@ -42,8 +42,12 @@ class ServiceAgreement
         $monthly = isset($sale['recurring_amount']) ? (float) $sale['recurring_amount'] : null;
         $count   = $sale['recurring_count'] ?? null;
         // 'week' or 'month'. Getting this wrong misstates the whole commitment.
-        $every   = ($sale['recurring_interval'] ?? 'month') === 'week' ? 'week' : 'month';
-        $plural  = $every . 's';
+        // 'biweek' is a payment every two weeks.
+        $interval = $sale['recurring_interval'] ?? 'month';
+        $interval = in_array($interval, ['week', 'biweek'], true) ? $interval : 'month';
+        $every   = $interval === 'week' ? 'week' : ($interval === 'biweek' ? '2-week period' : 'month');
+        $per     = $interval === 'biweek' ? 'every 2 weeks' : "per {$every}";
+        $plural  = $interval === 'biweek' ? '2-week periods' : $every . 's';
         $desc    = trim((string) ($sale['service_description'] ?? '')) ?: null;
 
         $date = ($sale['signed_on'] ?? null)
@@ -67,8 +71,9 @@ class ServiceAgreement
 
         if ($monthly !== null && $monthly > 0) {
             $lines[] = $count
-                ? 'Then:           ' . $money($monthly) . " per {$every} for {$count} " . ($count === 1 ? $every : $plural)
-                : 'Then:           ' . $money($monthly) . " per {$every} until you cancel";
+                ? 'Then:           ' . $money($monthly) . " {$per} for {$count} "
+                    . ($interval === 'biweek' ? ($count === 1 ? 'payment' : 'payments') : ($count === 1 ? $every : $plural))
+                : 'Then:           ' . $money($monthly) . " {$per} until you cancel";
             $lines[] = $count
                 ? 'Total:          ' . $money($today + ($monthly * $count))
                 : 'Minimum term:   None — cancel any time';
@@ -100,12 +105,13 @@ class ServiceAgreement
         $lines[] = "   Client has been charged {$money($today)} today, {$date}.";
 
         if ($monthly !== null && $monthly > 0) {
-            $starts = $every === 'week' ? 'one week' : '30 days';
+            $starts = $interval === 'week' ? 'one week' : ($interval === 'biweek' ? 'two weeks' : '30 days');
             $lines[] = $count
-                ? "   Client will then be charged {$money($monthly)} per {$every} for {$count} "
-                  . ($count === 1 ? $every : $plural) . ", beginning approximately {$starts} from today,"
+                ? "   Client will then be charged {$money($monthly)} {$per} for {$count} "
+                  . ($interval === 'biweek' ? ($count === 1 ? 'payment' : 'payments') : ($count === 1 ? $every : $plural))
+                  . ", beginning approximately {$starts} from today,"
                   . ' for a total of ' . $money($today + ($monthly * $count)) . '.'
-                : "   Client will then be charged {$money($monthly)} per {$every}, beginning approximately"
+                : "   Client will then be charged {$money($monthly)} {$per}, beginning approximately"
                   . " {$starts} from today, and continuing each {$every} until Client cancels.";
             $lines[] = '   These are the only amounts Company will charge. Any change to the fee above';
             $lines[] = '   requires Client\'s agreement in advance.';

@@ -27,6 +27,8 @@ use App\Http\Controllers\MentorshipWelcomeController;
 use App\Http\Controllers\Admin\ApexRetryController;
 use App\Http\Controllers\Admin\ContractsController;
 use App\Http\Controllers\Admin\PaymentLinksController;
+use App\Http\Controllers\Admin\AffiliatesController;
+use App\Http\Controllers\AffiliateLinkController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PayController;
 use App\Http\Controllers\PaymentAgreementController;
@@ -221,7 +223,7 @@ Route::post('/mentorship-application', [MentorshipController::class, 'submit'])-
 
 // Mentorship payment-plan contract — signed before checkout (instalment plans only)
 Route::get('/mentorship-agreement/{plan}', [PaymentAgreementController::class, 'show'])
-    ->where('plan', 'mentorship-3pay|mentorship-5pay')
+    ->where('plan', 'mentorship-3pay|mentorship-5pay|mentorship-2pay')
     ->name('mentorship-agreement.show');
 Route::post('/mentorship-agreement', [PaymentAgreementController::class, 'sign'])
     ->name('mentorship-agreement.sign');
@@ -267,10 +269,14 @@ Route::post('/lead', [LeadController::class, 'submit'])->name('lead.submit');
 
 // ============ SECURE CHECKOUT (Authorize.Net Accept.js) ============
 Route::get('/checkout/{plan?}', [AcceptJsPaymentController::class, 'showCheckout'])
-    ->where('plan', 'fast-dispute|unlimited|starter|audit|monthly|onetime|couple|vip|mentorship-3pay|mentorship-5pay|mentorship-full')
+    ->where('plan', 'fast-dispute|unlimited|starter|audit|monthly|onetime|couple|vip|standard|fast-track|couples-fast-track|mentorship-3pay|mentorship-5pay|mentorship-2pay|mentorship-full')
     ->name('checkout.show');
 Route::post('/checkout/process', [AcceptJsPaymentController::class, 'processPayment'])
     ->name('checkout.process');
+
+// Affiliate share link: remembers who sent the visitor, then lands on pricing.
+Route::get('/r/{code}', AffiliateLinkController::class)
+    ->where('code', '[A-Za-z0-9]{3,30}')->name('affiliate.link');
 
 // ============ ADMIN-GENERATED ONE-TIME PAYMENT LINKS ============
 // Victoria creates these in the dashboard; the client pays here. Payment-only —
@@ -404,6 +410,13 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
         Route::get('/payment-links',                   [PaymentLinksController::class, 'index'])->name('payment-links');
         Route::post('/payment-links',                  [PaymentLinksController::class, 'store'])->name('payment-links.store');
         Route::patch('/payment-links/{paymentLink}/void', [PaymentLinksController::class, 'void'])->name('payment-links.void');
+
+        // ─── Affiliate program ───
+        Route::get('/affiliates',                          [AffiliatesController::class, 'index'])->name('affiliates');
+        Route::post('/affiliates',                         [AffiliatesController::class, 'store'])->name('affiliates.store');
+        Route::patch('/affiliates/{affiliate}/toggle',     [AffiliatesController::class, 'toggle'])->name('affiliates.toggle');
+        Route::post('/affiliates/{affiliate}/pay-all',     [AffiliatesController::class, 'markAllPaid'])->name('affiliates.pay-all');
+        Route::post('/affiliate-referrals/{referral}/paid', [AffiliatesController::class, 'markPaid'])->name('affiliates.referral-paid');
 
         // ─── Signed service agreements (and the ones still unsigned) ───
         Route::get('/contracts',             [ContractsController::class, 'index'])->name('contracts');
