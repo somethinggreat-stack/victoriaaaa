@@ -2,6 +2,7 @@
 
 namespace App\Http\Controllers;
 
+use App\Models\BurgundyClient;
 use App\Models\PaymentLink;
 use App\Services\ServiceAgreements;
 use Illuminate\Http\Request;
@@ -203,12 +204,26 @@ class PayController extends Controller
                 ]);
             }
 
+            // Put the payment on the client's record so Burgundy sees it there.
+            if ($link->partner === 'burgundy' && $link->burgundy_client_id) {
+                try {
+                    BurgundyClient::find($link->burgundy_client_id)?->logEvent(
+                        'payment',
+                        'Paid one-time payment link: $' . number_format((float) $link->amount, 2) . '.',
+                        ['invoice' => $invoiceNumber, 'transaction' => $transId],
+                    );
+                } catch (\Throwable $e) {
+                    Log::warning('[PayLink] Could not log payment on Burgundy client', ['error' => $e->getMessage()]);
+                }
+            }
+
             // A payment link had no contract at all. Open one and send the
             // client to sign it rather than leaving them on an inline receipt.
             $agreement = ServiceAgreements::start([
                 'source'              => 'payment_link',
                 'source_id'           => $link->id,
-                'partner'             => 'victoria',
+                // Burgundy's links produce Burgundy's agreement, not Victoria's.
+                'partner'             => $link->partner === 'burgundy' ? 'burgundy' : 'victoria',
                 'plan_key'            => 'payment-link',
                 'plan_label'          => $link->service_description ?: ($link->note ?: 'Credit services'),
                 'service_description' => $link->service_description,

@@ -167,7 +167,8 @@
         <h2>Send the checkout link</h2>
         <p class="sub">$100 today, then $100/month.</p>
         <input type="text" readonly value="{{ route('burgundy.checkout.show') }}" onclick="this.select()" class="mono" style="margin-bottom:9px">
-        <p class="mut" style="font-size:11.5px;margin:0">Mark them <strong>Payment Link Sent</strong> once you've sent it.</p>
+        <p class="mut" style="font-size:11.5px;margin:0 0 10px">Mark them <strong>Payment Link Sent</strong> once you've sent it.</p>
+        <a class="btn ghost sm" href="{{ route('partnership.payment-links', ['client' => $client->id]) }}">Create a one-time payment link</a>
       </div>
     @endif
   </div>

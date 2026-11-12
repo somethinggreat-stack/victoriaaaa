@@ -202,6 +202,9 @@ label.fl{display:block;font-size:11px;font-weight:700;text-transform:uppercase;l
       <a href="{{ route('partnership.payments') }}" class="{{ request()->routeIs('partnership.payments*') ? 'active' : '' }}">
         <span class="ic">$</span> Payments
       </a>
+      <a href="{{ route('partnership.payment-links') }}" class="{{ request()->routeIs('partnership.payment-links*') ? 'active' : '' }}">
+        <span class="ic">🔗</span> Payment Links
+      </a>
       <a href="{{ route('partnership.import') }}" class="{{ request()->routeIs('partnership.import*') ? 'active' : '' }}">
         <span class="ic">↑</span> Import Clients
       </a>
