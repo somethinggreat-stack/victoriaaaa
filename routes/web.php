@@ -29,6 +29,7 @@ use App\Http\Controllers\Admin\ContractsController;
 use App\Http\Controllers\Admin\PaymentLinksController;
 use App\Http\Controllers\Admin\AffiliatesController;
 use App\Http\Controllers\AffiliateLinkController;
+use App\Http\Controllers\AffiliateApplyController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PayController;
 use App\Http\Controllers\PaymentAgreementController;
@@ -274,6 +275,10 @@ Route::get('/checkout/{plan?}', [AcceptJsPaymentController::class, 'showCheckout
 Route::post('/checkout/process', [AcceptJsPaymentController::class, 'processPayment'])
     ->name('checkout.process');
 
+// Public affiliate application + agreement.
+Route::get('/affiliate-program', [AffiliateApplyController::class, 'show'])->name('affiliate.apply');
+Route::post('/affiliate-program', [AffiliateApplyController::class, 'store'])->middleware('throttle:6,1')->name('affiliate.apply.store');
+
 // Affiliate share link: remembers who sent the visitor, then lands on pricing.
 Route::get('/r/{code}', AffiliateLinkController::class)
     ->where('code', '[A-Za-z0-9]{3,30}')->name('affiliate.link');
@@ -414,6 +419,8 @@ Route::prefix('victoria-admin')->name('admin.')->group(function () {
         // ─── Affiliate program ───
         Route::get('/affiliates',                          [AffiliatesController::class, 'index'])->name('affiliates');
         Route::post('/affiliates',                         [AffiliatesController::class, 'store'])->name('affiliates.store');
+        Route::post('/affiliate-applications/{application}/approve', [AffiliatesController::class, 'approve'])->name('affiliates.approve');
+        Route::post('/affiliate-applications/{application}/decline', [AffiliatesController::class, 'decline'])->name('affiliates.decline');
         Route::patch('/affiliates/{affiliate}/toggle',     [AffiliatesController::class, 'toggle'])->name('affiliates.toggle');
         Route::post('/affiliates/{affiliate}/pay-all',     [AffiliatesController::class, 'markAllPaid'])->name('affiliates.pay-all');
         Route::post('/affiliate-referrals/{referral}/paid', [AffiliatesController::class, 'markPaid'])->name('affiliates.referral-paid');

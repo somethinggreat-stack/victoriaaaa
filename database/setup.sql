@@ -605,3 +605,22 @@ CREATE TABLE IF NOT EXISTS `affiliate_referrals` (
   UNIQUE KEY `affiliate_referrals_subscription_id_unique` (`subscription_id`),
   KEY `affiliate_referrals_status_index` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- affiliate_applications (2026_11_13_000001_create_affiliate_applications_table.php)
+CREATE TABLE IF NOT EXISTS `affiliate_applications` (
+  `id` BIGINT UNSIGNED NOT NULL AUTO_INCREMENT PRIMARY KEY,
+  `name` VARCHAR(150) NOT NULL,
+  `email` VARCHAR(150) NOT NULL,
+  `phone` VARCHAR(30) NULL DEFAULT NULL,
+  `payout_method` VARCHAR(30) NOT NULL,
+  `payout_details` VARCHAR(200) NOT NULL,
+  `status` VARCHAR(10) NOT NULL DEFAULT 'pending',
+  `agreement_version` VARCHAR(20) NOT NULL,
+  `accepted_at` TIMESTAMP NULL DEFAULT NULL,
+  `accepted_ip` VARCHAR(45) NULL DEFAULT NULL,
+  `affiliate_id` BIGINT UNSIGNED NULL DEFAULT NULL,
+  `created_at` TIMESTAMP NULL DEFAULT NULL,
+  `updated_at` TIMESTAMP NULL DEFAULT NULL,
+  KEY `affiliate_applications_email_index` (`email`),
+  KEY `affiliate_applications_status_index` (`status`)
+) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;

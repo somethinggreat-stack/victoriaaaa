@@ -30,7 +30,7 @@
 
       <div class="svc-hero-img reveal reveal-d2">
         <span class="tag">Free · 15 min · Zoom</span>
-        <img src="https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=75" alt="Free strategy call" width="900" height="1125" fetchpriority="high" decoding="async" />
+        <img src="{{ asset('images/founderimage7.jpeg') }}" alt="Free strategy call" width="900" height="1125" fetchpriority="high" decoding="async" />
         <div class="fly-card">
           <div class="icn">→</div>
           <div>
@@ -65,7 +65,7 @@
   <div class="container">
     <div class="included-grid">
       <div class="included-img reveal">
-        <img src="https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=900&q=75" alt="Strategy call on Zoom" width="900" height="600" loading="lazy" decoding="async" />
+        <img src="{{ asset('images/founderimage6.jpeg') }}" alt="Strategy call on Zoom" width="900" height="600" loading="lazy" decoding="async" />
       </div>
       <div class="included-list reveal reveal-d2">
         <span class="eyebrow">What's included</span>
@@ -92,21 +92,21 @@
     </div>
     <div class="process-grid cols-3">
       <div class="step reveal">
-        <div class="step-img" style="background-image: url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80');">
+        <div class="step-img" style="background-image: url('{{ asset('images/founderimage1.jpeg') }}'); background-position: center 16%;">
           <span class="num"><span>1</span> Qualify</span>
           <span class="day">Today</span>
         </div>
         <div class="step-body"><h3>Tell me about your file</h3><p>60-second qualification form so I show up ready — no time wasted on small talk.</p></div>
       </div>
       <div class="step reveal reveal-d2">
-        <div class="step-img" style="background-image: url('https://images.unsplash.com/photo-1521791136064-7986c2920216?auto=format&fit=crop&w=900&q=80');">
+        <div class="step-img" style="background-image: url('{{ asset('images/founderimage4.jpeg') }}'); background-position: center 16%;">
           <span class="num"><span>2</span> Pull live</span>
           <span class="day">On call</span>
         </div>
         <div class="step-body"><h3>Pull &amp; audit live</h3><p>You bring your monitoring login, we open all 3 bureaus together, I rank the wins by score impact.</p></div>
       </div>
       <div class="step reveal reveal-d3">
-        <div class="step-img" style="background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=80');">
+        <div class="step-img" style="background-image: url('{{ asset('images/founderimage3.jpeg') }}'); background-position: center 16%;">
           <span class="num"><span>3</span> Run the plan</span>
           <span class="day">This week</span>
         </div>

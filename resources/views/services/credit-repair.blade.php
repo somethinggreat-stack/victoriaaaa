@@ -30,7 +30,7 @@
 
       <div class="svc-hero-img reveal reveal-d2">
         <span class="tag">Score · Fund · Own</span>
-        <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=75" alt="Credit repair dashboard" width="900" height="1125" fetchpriority="high" decoding="async" />
+        <img src="{{ asset('images/founderimage4.jpeg') }}" alt="Credit repair dashboard" width="900" height="1125" fetchpriority="high" decoding="async" />
         <div class="fly-card">
           <div class="icn">↑</div>
           <div>
@@ -65,7 +65,7 @@
   <div class="container">
     <div class="included-grid">
       <div class="included-img reveal">
-        <img src="https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=75" alt="Dispute letters and credit reports" width="900" height="600" loading="lazy" decoding="async" />
+        <img src="{{ asset('images/founderimage6.jpeg') }}" alt="Dispute letters and credit reports" width="900" height="600" loading="lazy" decoding="async" />
       </div>
       <div class="included-list reveal reveal-d2">
         <span class="eyebrow">What's included</span>
@@ -93,21 +93,21 @@
     </div>
     <div class="process-grid cols-3">
       <div class="step reveal">
-        <div class="step-img" style="background-image: url('https://images.unsplash.com/photo-1554224154-22dec7ec8818?auto=format&fit=crop&w=900&q=80');">
+        <div class="step-img" style="background-image: url('{{ asset('images/founderimage1.jpeg') }}'); background-position: center 16%;">
           <span class="num"><span>1</span> Audit</span>
           <span class="day">Week 1</span>
         </div>
         <div class="step-body"><h3>Pull &amp; audit your file</h3><p>3-bureau pull, line-by-line audit, every dispute candidate flagged and prioritized.</p></div>
       </div>
       <div class="step reveal reveal-d2">
-        <div class="step-img" style="background-image: url('https://images.unsplash.com/photo-1450101499163-c8848c66ca85?auto=format&fit=crop&w=900&q=80');">
+        <div class="step-img" style="background-image: url('{{ asset('images/founderimage3.jpeg') }}'); background-position: center 16%;">
           <span class="num"><span>2</span> Dispute</span>
           <span class="day">Weeks 2–10</span>
         </div>
         <div class="step-body"><h3>Round-by-round disputes</h3><p>Personalized letters across all three bureaus. Re-attack escalations on anything that doesn't fall.</p></div>
       </div>
       <div class="step reveal reveal-d3">
-        <div class="step-img" style="background-image: url('https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=80');">
+        <div class="step-img" style="background-image: url('{{ asset('images/founderimage7.jpeg') }}'); background-position: center 16%;">
           <span class="num"><span>3</span> Track &amp; lock in</span>
           <span class="day">Weeks 11–13</span>
         </div>

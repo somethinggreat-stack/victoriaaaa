@@ -30,7 +30,7 @@
 
       <div class="svc-hero-img reveal reveal-d2">
         <span class="tag">Build · Fund · Scale</span>
-        <img src="https://images.unsplash.com/photo-1554224154-22dec7ec8818?auto=format&fit=crop&w=900&q=75" alt="Business funding dashboard" width="900" height="1125" fetchpriority="high" decoding="async" />
+        <img src="{{ asset('images/founderimage1.jpeg') }}" alt="Business funding dashboard" width="900" height="1125" fetchpriority="high" decoding="async" />
 
 
           <div>
@@ -241,7 +241,7 @@
   <div class="container">
     <div class="included-grid">
       <div class="included-img reveal">
-        <img src="https://images.unsplash.com/photo-1554224155-6726b3ff858f?auto=format&fit=crop&w=900&q=75" alt="Business funding strategy" width="900" height="600" loading="lazy" decoding="async" />
+        <img src="{{ asset('images/founderimage7.jpeg') }}" alt="Business funding strategy" width="900" height="600" loading="lazy" decoding="async" />
       </div>
       <div class="included-list reveal reveal-d2">
         <span class="eyebrow">What's included</span>
@@ -268,21 +268,21 @@
     </div>
     <div class="process-grid cols-3">
       <div class="step reveal">
-        <div class="step-img" style="background-image: url('https://images.unsplash.com/photo-1556761175-5973dc0f32e7?auto=format&fit=crop&w=900&q=80');">
+        <div class="step-img" style="background-image: url('{{ asset('images/founderimage6.jpeg') }}'); background-position: center 16%;">
           <span class="num"><span>1</span> Setup</span>
           <span class="day">Weeks 1–3</span>
         </div>
         <div class="step-body"><h3>Form the entity, the right way</h3><p>LLC, EIN, D-U-N-S, business banking and address — every box lenders check before they fund.</p></div>
       </div>
       <div class="step reveal reveal-d2">
-        <div class="step-img" style="background-image: url('https://images.unsplash.com/photo-1556742031-c6961e8560b0?auto=format&fit=crop&w=900&q=80');">
+        <div class="step-img" style="background-image: url('{{ asset('images/founderimage3.jpeg') }}'); background-position: center 16%;">
           <span class="num"><span>2</span> Build</span>
           <span class="day">Weeks 4–8</span>
         </div>
         <div class="step-body"><h3>Stack tradelines fast</h3><p>Net-30 vendors first, then store cards, then real business credit cards. Reporting in the right order.</p></div>
       </div>
       <div class="step reveal reveal-d3">
-        <div class="step-img" style="background-image: url('https://images.unsplash.com/photo-1554224154-22dec7ec8818?auto=format&fit=crop&w=900&q=80');">
+        <div class="step-img" style="background-image: url('{{ asset('images/founderimage4.jpeg') }}'); background-position: center 16%;">
           <span class="num"><span>3</span> Apply</span>
           <span class="day">Weeks 9–12</span>
         </div>

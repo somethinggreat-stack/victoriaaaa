@@ -32,6 +32,34 @@
   <div class="adm-stat"><div class="lab">Already paid out</div><div class="val">${{ number_format($totals['paid'], 2) }}</div></div>
 </div>
 
+<div class="adm-card" style="margin-bottom:18px;">
+  Applicants fill out the agreement at <strong>{{ route('affiliate.apply') }}</strong>
+  <button type="button" class="adm-btn ghost" data-copy="{{ route('affiliate.apply') }}" style="margin-left:8px;padding:4px 10px;">Copy link</button>
+  <div class="sub" style="margin-top:6px;">Commission is verified after the client's cancellation period ends, then paid within 3 business days. "Owed" below means the client has paid — confirm they are still enrolled before you pay.</div>
+</div>
+
+@if ($applications->isNotEmpty())
+<div class="adm-card" style="margin-bottom:22px;border-color:#fde1a8;background:#fffaf0;">
+  <h3 style="margin:0 0 12px;">{{ $applications->count() }} application{{ $applications->count() === 1 ? '' : 's' }} waiting for approval</h3>
+  <div class="adm-table-wrap"><table class="adm-table">
+    <thead><tr><th>Applicant</th><th>Pay by</th><th>Accepted agreement</th><th></th></tr></thead>
+    <tbody>
+    @foreach ($applications as $app)
+      <tr>
+        <td><span class="nm">{{ $app->name }}</span><span class="sub">{{ $app->email }}{{ $app->phone ? ' · ' . $app->phone : '' }}</span></td>
+        <td>{{ $app->methodLabel() }}<span class="sub">{{ $app->payout_details }}</span></td>
+        <td>{{ $app->accepted_at->format('M j, Y · g:ia') }}<span class="sub">v{{ $app->agreement_version }}</span></td>
+        <td class="actions" style="white-space:nowrap;">
+          <form method="POST" action="{{ route('admin.affiliates.approve', $app) }}" style="display:inline">@csrf <button class="adm-btn" type="submit">Approve &amp; email link</button></form>
+          <form method="POST" action="{{ route('admin.affiliates.decline', $app) }}" style="display:inline" onsubmit="return confirm('Decline this application?');">@csrf <button class="adm-btn ghost" type="submit">Decline</button></form>
+        </td>
+      </tr>
+    @endforeach
+    </tbody>
+  </table></div>
+</div>
+@endif
+
 <div class="adm-card" style="margin-bottom:22px;">
   <h3 style="margin:0 0 12px;">Add an affiliate</h3>
   <form method="POST" action="{{ route('admin.affiliates.store') }}" style="display:grid;grid-template-columns:repeat(auto-fit,minmax(190px,1fr));gap:12px;align-items:end;">

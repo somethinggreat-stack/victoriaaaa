@@ -4388,6 +4388,7 @@ footer { padding: 70px 0 40px; background: var(--bg); border-top: 1px solid var(
         <a href="{{ route('legal.privacy-policy') }}">Privacy Policy</a>
         <a href="{{ route('legal.terms-of-service') }}">Terms of Service</a>
         <a href="{{ route('legal.disclaimer') }}">Disclaimer</a>
+        <a href="{{ route('affiliate.apply') }}">Affiliate Program</a>
       </div>
     </div>
     <div class="footer-bottom">

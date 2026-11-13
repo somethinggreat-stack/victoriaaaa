@@ -4,9 +4,12 @@ namespace App\Http\Controllers\Admin;
 
 use App\Http\Controllers\Controller;
 use App\Models\Affiliate;
+use App\Models\AffiliateApplication;
 use App\Models\AffiliateReferral;
 use App\Services\Affiliates;
 use Illuminate\Http\Request;
+use Illuminate\Support\Facades\Log;
+use Illuminate\Support\Facades\Mail;
 use Illuminate\Support\Facades\Schema;
 
 /** Create affiliates, see who they referred, and track what is owed vs paid. */
@@ -27,6 +30,9 @@ class AffiliatesController extends Controller
             'needsSetup' => false,
             'affiliates' => $affiliates,
             'referrals'  => AffiliateReferral::with('affiliate')->latest()->limit(100)->get(),
+            'applications' => Schema::hasTable('affiliate_applications')
+                ? AffiliateApplication::where('status', 'pending')->latest()->get()
+                : collect(),
             'totals'     => [
                 'owed'  => (float) AffiliateReferral::where('status', 'owed')->sum('amount'),
                 'paid'  => (float) AffiliateReferral::where('status', 'paid')->sum('amount'),
@@ -58,6 +64,57 @@ class AffiliatesController extends Controller
         return back()
             ->with('success', "Affiliate created. Send {$affiliate->name} their link below.")
             ->with('new_affiliate_link', $affiliate->link);
+    }
+
+    /** Approve an application: create their affiliate link and email it to them. */
+    public function approve(AffiliateApplication $application)
+    {
+        if ($application->status !== 'pending') {
+            return back();
+        }
+
+        $affiliate = Affiliate::create([
+            'name'          => $application->name,
+            'email'         => $application->email,
+            'phone'         => $application->phone,
+            'payout_amount' => '100.00',
+            'notes'         => 'Payout: ' . $application->methodLabel() . ' — ' . $application->payout_details,
+            'code'          => Affiliates::newCode($application->name),
+            'active'        => true,
+        ]);
+        $application->update(['status' => 'approved', 'affiliate_id' => $affiliate->id]);
+
+        $emailed = true;
+        try {
+            Mail::raw(
+                'Hi ' . explode(' ', $application->name)[0] . ",\n\n"
+                . "You're approved for the Victorious Opportunities Affiliate Referral Program!\n\n"
+                . "Your unique signup link: {$affiliate->link}\n\n"
+                . "Share it with anyone who needs credit repair. When a new client enrolls through your link, you earn a one-time \$100 commission, paid within 3 business days after we verify the referral.\n\n"
+                . "Please disclose that you may earn a commission whenever you share it. You can use this wording:\n"
+                . "\"I may earn \$100 from Victorious Opportunities if you sign up for an eligible credit repair service through my link.\"\n\n"
+                . "— Victoria Love\nVictorious Opportunities",
+                fn ($m) => $m->to($application->email)->subject("You're approved — your affiliate link"),
+            );
+        } catch (\Throwable $e) {
+            $emailed = false;
+            Log::warning('Affiliate approval email failed', ['error' => $e->getMessage()]);
+        }
+
+        return back()
+            ->with('success', $emailed
+                ? "{$affiliate->name} approved and emailed their link."
+                : "{$affiliate->name} approved — the email didn't send, so copy their link below and send it yourself.")
+            ->with('new_affiliate_link', $affiliate->link);
+    }
+
+    public function decline(AffiliateApplication $application)
+    {
+        if ($application->status === 'pending') {
+            $application->update(['status' => 'declined']);
+        }
+
+        return back()->with('success', 'Application declined.');
     }
 
     public function toggle(Affiliate $affiliate)
