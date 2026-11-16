@@ -86,6 +86,7 @@
         <td><span class="nm">{{ $a->name }}</span><span class="sub">{{ $a->email ?: ($a->phone ?: '—') }} · ${{ number_format((float) $a->payout_amount, 0) }}/client</span>
           @unless($a->active)<span class="badge void">off</span>@endunless</td>
         <td><button type="button" class="pl-copy-sm" data-copy="{{ $a->link }}" style="background:transparent;border:1px solid var(--line-2);padding:6px 12px;border-radius:8px;cursor:pointer;">Copy link</button>
+          <button type="button" class="pl-copy-sm" data-copy="{{ route('pay-for-client.show', $a->code) }}" title="A page where this affiliate pays a client's full fee" style="background:transparent;border:1px solid var(--line-2);padding:6px 12px;border-radius:8px;cursor:pointer;">Copy pay-for-client link</button>
           <span class="sub">{{ $a->code }}</span></td>
         <td>{{ $a->referrals_count }}</td>
         <td><strong>${{ number_format((float) $a->owed_sum, 2) }}</strong></td>

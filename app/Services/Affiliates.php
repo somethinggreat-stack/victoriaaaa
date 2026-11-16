@@ -4,6 +4,7 @@ namespace App\Services;
 
 use App\Models\Affiliate;
 use App\Models\AffiliateReferral;
+use App\Models\PaymentLink;
 use App\Models\Subscription;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Support\Facades\Schema;
@@ -53,6 +54,39 @@ class Affiliates
             );
         } catch (\Throwable $e) {
             Log::error('[Affiliate] Could not record referral', ['error' => $e->getMessage()]);
+            return null;
+        }
+    }
+
+    /**
+     * Credit the affiliate who paid a client's fee through a pay-in-full link.
+     * One referral per link, however many times this runs.
+     */
+    public static function recordForLink(PaymentLink $link): ?AffiliateReferral
+    {
+        try {
+            if (! $link->affiliate_id || $link->status !== 'paid' || ! Schema::hasColumn('affiliate_referrals', 'payment_link_id')) {
+                return null;
+            }
+
+            $affiliate = Affiliate::where('id', $link->affiliate_id)->where('active', true)->first();
+            if (! $affiliate) {
+                return null;
+            }
+
+            return AffiliateReferral::firstOrCreate(
+                ['payment_link_id' => $link->id],
+                [
+                    'affiliate_id' => $affiliate->id,
+                    'client_name'  => $link->client_name,
+                    'client_email' => $link->email,
+                    'plan_label'   => $link->service_description,
+                    'amount'       => $affiliate->payout_amount,
+                    'status'       => 'owed',
+                ],
+            );
+        } catch (\Throwable $e) {
+            Log::error('[Affiliate] Could not record pay-for-client referral', ['error' => $e->getMessage()]);
             return null;
         }
     }

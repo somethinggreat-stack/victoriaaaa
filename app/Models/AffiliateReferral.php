@@ -8,7 +8,7 @@ use Illuminate\Database\Eloquent\Relations\BelongsTo;
 class AffiliateReferral extends Model
 {
     protected $fillable = [
-        'affiliate_id', 'subscription_id', 'client_name', 'client_email',
+        'affiliate_id', 'subscription_id', 'payment_link_id', 'client_name', 'client_email',
         'plan_label', 'amount', 'status', 'paid_at',
     ];
 

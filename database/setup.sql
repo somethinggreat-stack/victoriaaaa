@@ -624,3 +624,8 @@ CREATE TABLE IF NOT EXISTS `affiliate_applications` (
   KEY `affiliate_applications_email_index` (`email`),
   KEY `affiliate_applications_status_index` (`status`)
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
+
+-- Affiliate pays a client's full fee (2026_11_16_000001_add_pay_for_client_columns.php)
+-- Run each ALTER once; an error 'Duplicate column' means it is already applied.
+ALTER TABLE `payment_links` ADD COLUMN `affiliate_id` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `burgundy_client_id`, ADD INDEX `payment_links_affiliate_id_index` (`affiliate_id`);
+ALTER TABLE `affiliate_referrals` ADD COLUMN `payment_link_id` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `subscription_id`, ADD UNIQUE KEY `affiliate_referrals_payment_link_id_unique` (`payment_link_id`);

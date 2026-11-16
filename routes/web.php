@@ -30,6 +30,7 @@ use App\Http\Controllers\Admin\PaymentLinksController;
 use App\Http\Controllers\Admin\AffiliatesController;
 use App\Http\Controllers\AffiliateLinkController;
 use App\Http\Controllers\AffiliateApplyController;
+use App\Http\Controllers\PayForClientController;
 use App\Http\Controllers\OnboardingController;
 use App\Http\Controllers\PayController;
 use App\Http\Controllers\PaymentAgreementController;
@@ -290,6 +291,14 @@ Route::get('/pay/{token}', [PayController::class, 'show'])
     ->where('token', 'pl_[A-Za-z0-9]{10,60}')
     ->name('pay.show');
 Route::post('/pay/process', [PayController::class, 'process'])->name('pay.process');
+
+// An affiliate pays a client's whole fee up front (private link Victoria gives them).
+Route::get('/pay-for-client/{code}', [PayForClientController::class, 'show'])
+    ->where('code', '[A-Za-z0-9]{3,30}')->name('pay-for-client.show');
+Route::post('/pay-for-client/{code}', [PayForClientController::class, 'store'])
+    ->where('code', '[A-Za-z0-9]{3,30}')->middleware('throttle:20,1')->name('pay-for-client.store');
+Route::get('/pay-for-client/done/{agreement}', [PayForClientController::class, 'done'])
+    ->middleware('signed')->name('pay-for-client.done');
 
 // ============ TEMPORARY one-off private payment links (NOT linked anywhere) ============
 // Reached only by their obscure token URL; remove these once the clients have paid.

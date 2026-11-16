@@ -48,6 +48,24 @@ class PayController extends Controller
         ]);
     }
 
+    /** Email the client the link to sign their contract (then onboarding). */
+    private function sendClientTheirContract(PaymentLink $link, $agreement): void
+    {
+        try {
+            $first = explode(' ', trim($link->client_name))[0];
+            \Illuminate\Support\Facades\Mail::raw(
+                "Hi {$first},\n\n"
+                . "Your credit repair service has been paid for. The next step takes about a minute: sign your service agreement, then fill out your onboarding form so we can start on your file.\n\n"
+                . "Sign your agreement: " . ServiceAgreements::signingUrl($agreement, 30) . "\n\n"
+                . "Questions? Call or text (469) 349-5553 (Mon–Fri, 10 AM – 5 PM Central).\n\n"
+                . "— Victoria Love\nVictorious Opportunities",
+                fn ($m) => $m->to($link->email)->subject('Your credit repair is paid for — sign your agreement'),
+            );
+        } catch (\Throwable $e) {
+            Log::warning('[PayLink] Could not email the client their contract', ['error' => $e->getMessage()]);
+        }
+    }
+
     public function process(Request $request)
     {
         $validated = $request->validate([
@@ -217,6 +235,10 @@ class PayController extends Controller
                 }
             }
 
+            // An affiliate paying a client's fee up front: the contract and
+            // onboarding belong to the CLIENT, not to the person holding the card.
+            $forClient = (bool) $link->affiliate_id && $link->email;
+
             // A payment link had no contract at all. Open one and send the
             // client to sign it rather than leaving them on an inline receipt.
             $agreement = ServiceAgreements::start([
@@ -230,17 +252,31 @@ class PayController extends Controller
                 'charged_today'       => (float) $link->amount,
                 'recurring_amount'    => null,
                 'client_name'         => $link->client_name,
-                'client_phone'        => $validated['phone'] ?? null,
-                'email'               => $validated['email'],
+                'client_phone'        => $forClient ? null : ($validated['phone'] ?? null),
+                'email'               => $forClient ? $link->email : $validated['email'],
                 'invoice_number'      => $invoiceNumber,
+                'next_url'            => $forClient ? url('/onboarding') : null,
             ]);
+
+            $redirect = $agreement ? ServiceAgreements::signingUrl($agreement) : null;
+
+            if ($forClient) {
+                \App\Services\Affiliates::recordForLink($link->fresh());
+
+                if ($agreement) {
+                    $this->sendClientTheirContract($link, $agreement);
+                    $redirect = \Illuminate\Support\Facades\URL::temporarySignedRoute(
+                        'pay-for-client.done', now()->addDays(2), ['agreement' => $agreement->id],
+                    );
+                }
+            }
 
             return response()->json([
                 'success'     => true,
                 'message'     => 'Payment successful.',
                 'invoice'     => $invoiceNumber,
                 'transaction' => $transId,
-                'redirect'    => $agreement ? ServiceAgreements::signingUrl($agreement) : null,
+                'redirect'    => $redirect,
             ]);
 
         } catch (\Throwable $e) {

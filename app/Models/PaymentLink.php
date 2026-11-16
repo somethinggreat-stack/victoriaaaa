@@ -9,7 +9,7 @@ class PaymentLink extends Model
     protected $fillable = [
         'token', 'client_name', 'email', 'amount', 'note', 'service_description', 'status',
         'invoice_number', 'transaction_id', 'auth_code', 'payer_email', 'paid_at',
-        'payment_agreement_id', 'partner', 'burgundy_client_id',
+        'payment_agreement_id', 'partner', 'burgundy_client_id', 'affiliate_id',
     ];
 
     protected $casts = [
