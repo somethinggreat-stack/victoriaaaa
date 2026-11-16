@@ -626,6 +626,6 @@ CREATE TABLE IF NOT EXISTS `affiliate_applications` (
 ) ENGINE=InnoDB DEFAULT CHARSET=utf8mb4 COLLATE=utf8mb4_unicode_ci;
 
 -- Affiliate pays a client's full fee (2026_11_16_000001_add_pay_for_client_columns.php)
--- Run each ALTER once; an error 'Duplicate column' means it is already applied.
-ALTER TABLE `payment_links` ADD COLUMN `affiliate_id` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `burgundy_client_id`, ADD INDEX `payment_links_affiliate_id_index` (`affiliate_id`);
-ALTER TABLE `affiliate_referrals` ADD COLUMN `payment_link_id` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `subscription_id`, ADD UNIQUE KEY `affiliate_referrals_payment_link_id_unique` (`payment_link_id`);
+-- ALREADY APPLIED on production (16 Nov 2026) — left commented so this file re-runs cleanly.
+-- ALTER TABLE `payment_links` ADD COLUMN `affiliate_id` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `burgundy_client_id`, ADD INDEX `payment_links_affiliate_id_index` (`affiliate_id`);
+-- ALTER TABLE `affiliate_referrals` ADD COLUMN `payment_link_id` BIGINT UNSIGNED NULL DEFAULT NULL AFTER `subscription_id`, ADD UNIQUE KEY `affiliate_referrals_payment_link_id_unique` (`payment_link_id`);

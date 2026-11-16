@@ -1,3 +1,19 @@
+# Victorious Opportunities — credit repair funnel
+
+Laravel site for Victoria Love: homepage + pricing, Authorize.Net checkout, signed service
+agreements, onboarding, affiliates, mentorship, ebooks, and two dashboards.
+
+- **Victoria admin:** `/victoria-admin` (payments, clients, payment links, affiliates, contracts, onboarding).
+- **Partnership dashboard (Burgundy):** `/partnership`.
+- **What changed and when:** see [docs/CHANGELOG.md](docs/CHANGELOG.md).
+- **Tests:** `php artisan test` (SQLite in-memory).
+- **Database changes on production:** the host has no terminal and does not run migrations. Every
+  schema change is mirrored as SQL in `database/setup.sql` and run by hand in phpMyAdmin — run only
+  the new statements (an "already applied" statement is commented out so the file can be re-run).
+- **Deploy:** push to `main`.
+
+---
+
 <p align="center"><a href="https://laravel.com" target="_blank"><img src="https://raw.githubusercontent.com/laravel/art/master/logo-lockup/5%20SVG/2%20CMYK/1%20Full%20Color/laravel-logolockup-cmyk-red.svg" width="400" alt="Laravel Logo"></a></p>
 
 <p align="center">
