@@ -219,6 +219,9 @@ Route::prefix('legal')->name('legal.')->group(function () {
     Route::view('/disclaimer',        'legal.disclaimer')->name('disclaimer');
 });
 
+// Black Friday sale landing page — buys through the normal checkout.
+Route::view('/black-friday', 'black-friday')->name('black-friday');
+
 // Mentorship — dedicated landing page for the 1:1 program
 Route::view('/mentorship', 'mentorship')->name('mentorship');
 Route::post('/mentorship-application', [MentorshipController::class, 'submit'])->name('mentorship.submit');
@@ -271,7 +274,7 @@ Route::post('/lead', [LeadController::class, 'submit'])->name('lead.submit');
 
 // ============ SECURE CHECKOUT (Authorize.Net Accept.js) ============
 Route::get('/checkout/{plan?}', [AcceptJsPaymentController::class, 'showCheckout'])
-    ->where('plan', 'fast-dispute|unlimited|starter|audit|monthly|onetime|couple|vip|standard|fast-track|couples-fast-track|mentorship-3pay|mentorship-5pay|mentorship-2pay|mentorship-full')
+    ->where('plan', 'black-friday-couples|black-friday|fast-dispute|unlimited|starter|audit|monthly|onetime|couple|vip|standard|fast-track|couples-fast-track|mentorship-3pay|mentorship-5pay|mentorship-2pay|mentorship-full')
     ->name('checkout.show');
 Route::post('/checkout/process', [AcceptJsPaymentController::class, 'processPayment'])
     ->name('checkout.process');

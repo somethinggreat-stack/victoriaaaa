@@ -570,7 +570,7 @@
       <aside class="checkout-summary reveal reveal-d2" id="planSummary">
         <div class="checkout-summary-head">
           <span class="eyebrow">Your plan</span>
-          <a href="{{ url('/#pricing') }}" class="change-link">Change</a>
+          <a href="{{ $changePlanUrl }}" class="change-link">Change</a>
         </div>
 
         <div class="checkout-summary-plan">

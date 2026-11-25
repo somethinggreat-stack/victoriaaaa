@@ -4,6 +4,14 @@ Newest first. Every item is committed to `main`. "DB" means a SQL change that mu
 by hand in phpMyAdmin (the host has no terminal and does not run migrations); all such SQL
 lives in `database/setup.sql`.
 
+## 25 Nov 2026 — Black Friday sale page (open now)
+- **Sale page** `/black-friday`: $99 individual, $199 couples, 3 months of credit repair, one payment.
+  Buyers go through the normal checkout → service agreement (states the 3 months) → onboarding.
+- Sale plans are hidden from the regular checkout's plan switcher. No affiliate fee on sale plans.
+- Couples: the onboarding success screen links to a second form for the partner.
+- Optional: save her flyer as `public/images/black-friday-flyer.jpg` to show it in the page hero.
+- **The sale has no automatic end date** — remove or switch off the plans when it is over.
+
 ## 16 Nov 2026 — Affiliates can pay a client's full fee (c9bf21a)
 - **Pay-for-client page** `/pay-for-client/{code}`: an affiliate (e.g. Mija) picks Standard $597,
   Fast Track $1,000 or Couples Fast Track $1,500, types the client's name + email, pays once at the

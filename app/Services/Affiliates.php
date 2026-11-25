@@ -18,8 +18,8 @@ use Illuminate\Support\Str;
  */
 class Affiliates
 {
-    /** Plans an affiliate is NOT paid for (entry-level / mentorship products). */
-    private const EXCLUDED_PREFIXES = ['mentorship', 'starter', 'audit'];
+    /** Plans an affiliate is NOT paid for (entry-level, mentorship and sale-priced products). */
+    private const EXCLUDED_PREFIXES = ['mentorship', 'starter', 'audit', 'black-friday'];
 
     public static function record(?string $code, ?Subscription $subscription): ?AffiliateReferral
     {

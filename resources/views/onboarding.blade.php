@@ -123,6 +123,11 @@
           </ol>
         </div>
 
+        @if (str_contains((string) session('acceptjs_plan_key'), 'couple'))
+          <p class="lede"><strong>Couples plan:</strong> the second person needs their own form too.
+            <a href="{{ route('onboarding.show') }}" style="color:var(--pink);font-weight:600;text-decoration:underline">Fill in the second person's form</a></p>
+        @endif
+
         <div class="ob-success-ctas">
           <a href="{{ url('/') }}" class="btn btn-pink">Back to home <span class="arr">→</span></a>
           <a href="{{ route('contact.show') }}" class="btn btn-ghost">Contact support</a>

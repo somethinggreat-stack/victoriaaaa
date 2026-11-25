@@ -97,6 +97,33 @@ class AcceptJsPaymentController extends Controller
                 '$500 today + 4 × $250/week — $1,500 total',
             ],
         ],
+        // ───────────── Black Friday sale (/black-friday) ─────────────
+        // One payment covers the whole 3 months — nothing recurs.
+        'black-friday' => [
+            'amount'    => '99.00',
+            'recurring' => null,
+            'label'     => 'Black Friday Comeback Plan',
+            'tagline'   => '3 months of credit repair for one person — $99 total service price.',
+            'service_description' => 'Company will provide three (3) months of credit repair service to Client: reviewing Client\'s credit reports, identifying items Client believes to be inaccurate, incomplete or unverifiable, preparing and submitting disputes on Client\'s behalf, and providing credit guidance during those three months.',
+            'features'  => [
+                '3 months of credit repair',
+                'For one person',
+                'One payment of $99 — nothing recurring',
+            ],
+        ],
+        'black-friday-couples' => [
+            'amount'    => '199.00',
+            'recurring' => null,
+            'label'     => 'Black Friday Couples Comeback',
+            'tagline'   => '3 months of credit repair for two people — $199 total service price.',
+            'service_description' => 'Company will provide three (3) months of credit repair service for two people, Client and one partner: reviewing each person\'s credit reports, identifying items they believe to be inaccurate, incomplete or unverifiable, preparing and submitting disputes on their behalf, and providing credit guidance during those three months. The fee is the total for both people.',
+            'features'  => [
+                '3 months of credit repair',
+                'For two people',
+                'One payment of $199 — nothing recurring',
+                'Each person completes their own onboarding form',
+            ],
+        ],
         'fast-dispute' => [
             'amount'    => '297.00',
             'label'     => 'Fast Dispute',
@@ -253,10 +280,19 @@ class AcceptJsPaymentController extends Controller
             'referral_code'  => session('referral_code'),
         ]);
 
+        // Sale prices are only offered to someone who arrived on a sale link:
+        // the plan switcher never shows them beside the regular plans.
+        $isSale = str_starts_with($planKey, 'black-friday');
+
         return view('payments.accept-checkout', [
             'planKey'   => $planKey,
             'plan'      => self::PLANS[$planKey],
-            'allPlans'  => self::PLANS,
+            'allPlans'  => array_filter(
+                self::PLANS,
+                fn (string $key) => str_starts_with($key, 'black-friday') === $isSale,
+                ARRAY_FILTER_USE_KEY,
+            ),
+            'changePlanUrl' => $isSale ? route('black-friday') : url('/#pricing'),
             'clientKey' => config('services.authorize_net.client_key'),
             'apiLogin'  => config('services.authorize_net.api_login_id'),
             'environment' => config('services.authorize_net.environment'),
@@ -583,6 +619,7 @@ class AcceptJsPaymentController extends Controller
                     'partner'          => 'victoria',
                     'plan_key'         => $planKey,
                     'plan_label'       => $planLabel,
+                    'service_description' => $planMeta['service_description'] ?? null,
                     'charged_today'    => (float) $amount,
                     'recurring_amount' => $recurringAmt !== null ? (float) $recurringAmt : null,
                     'recurring_count'  => $recurringCount,
