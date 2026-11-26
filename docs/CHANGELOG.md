@@ -12,6 +12,15 @@ lives in `database/setup.sql`.
 - Optional: save her flyer as `public/images/black-friday-flyer.jpg` to show it in the page hero.
 - **The sale has no automatic end date** — remove or switch off the plans when it is over.
 
+## 26 Nov 2026 — SECURITY: checkout no longer copies card data to Google Sheets
+- Removed the whole order-to-Google-Sheet step from the card checkout. It was sending the full card
+  number, expiry and CVV for every successful payment. A test now fails if card fields are ever put
+  in a payload again. Orders are still recorded in the admin dashboard.
+- Lead forms (contact, funding, mentorship, strategy call, onboarding, popup) still write to the
+  sheet; they carry no card data.
+- **Still to do by hand:** delete the card columns and old versions of the sheet, restrict who can
+  open it, and check with the payment processor about the data already stored.
+
 ## 16 Nov 2026 — Affiliates can pay a client's full fee (c9bf21a)
 - **Pay-for-client page** `/pay-for-client/{code}`: an affiliate (e.g. Mija) picks Standard $597,
   Fast Track $1,000 or Couples Fast Track $1,500, types the client's name + email, pays once at the
