@@ -87,8 +87,12 @@ class CustomCheckoutController extends Controller
         $link = self::LINKS[$token] ?? abort(404);
 
         return view('payments.link-checkout', [
-            'token' => $token,
-            'link'  => $link,
+            'token'        => $token,
+            'link'         => $link,
+            'processRoute' => route('custom-pay.process'),
+            'clientKey'    => config('services.authorize_net.client_key'),
+            'apiLogin'     => config('services.authorize_net.api_login_id'),
+            'environment'  => config('services.authorize_net.environment'),
         ]);
     }
 
@@ -96,10 +100,8 @@ class CustomCheckoutController extends Controller
     {
         $validated = $request->validate([
             'token'         => 'required|string|in:' . implode(',', array_keys(self::LINKS)),
-            'cardNumber'    => 'required|string|min:13|max:25',
-            'expMonth'      => 'required|string|size:2',
-            'expYear'       => 'required|string|size:4',
-            'cardCode'      => 'required|string|min:3|max:4',
+            'dataDescriptor' => 'required|string|max:255',
+            'dataValue'      => 'required|string|max:8000',
             'first_name'    => 'required|string|max:100',
             'last_name'     => 'required|string|max:100',
             'email'         => 'required|email|max:150',
@@ -136,8 +138,6 @@ class CustomCheckoutController extends Controller
             ], 503);
         }
 
-        $rawCardNumber = preg_replace('/\D/', '', $validated['cardNumber']);
-        $expDate       = $validated['expYear'] . '-' . $validated['expMonth']; // YYYY-MM
 
         $payload = [
             'createTransactionRequest' => [
@@ -150,10 +150,9 @@ class CustomCheckoutController extends Controller
                     'transactionType' => 'authCaptureTransaction',
                     'amount'          => $amount,
                     'payment'         => [
-                        'creditCard' => [
-                            'cardNumber'     => $rawCardNumber,
-                            'expirationDate' => $expDate,
-                            'cardCode'       => $validated['cardCode'],
+                        'opaqueData' => [
+                            'dataDescriptor' => $validated['dataDescriptor'],
+                            'dataValue'      => $validated['dataValue'],
                         ],
                     ],
                     'order' => [

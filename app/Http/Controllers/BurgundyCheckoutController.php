@@ -43,16 +43,17 @@ class BurgundyCheckoutController extends Controller
             'monthly'    => (string) $plan['monthly'],
             'planLabel'  => (string) $plan['label'],
             'postUrl'    => route('burgundy.checkout.process', ['tier' => $tier]),
+            'clientKey'  => config('services.authorize_net.client_key'),
+            'apiLogin'   => config('services.authorize_net.api_login_id'),
+            'environment' => config('services.authorize_net.environment'),
         ]);
     }
 
     public function process(Request $request, BurgundyClientMatcher $matcher, string $tier = 'legacy')
     {
         $validated = $request->validate([
-            'cardNumber'    => 'required|string|min:13|max:25',
-            'expMonth'      => 'required|string|size:2',
-            'expYear'       => 'required|string|size:4',
-            'cardCode'      => 'required|string|min:3|max:4',
+            'dataDescriptor' => 'required|string|max:255',
+            'dataValue'      => 'required|string|max:8000',
             'first_name'    => 'required|string|max:100',
             'last_name'     => 'required|string|max:100',
             'email'         => 'required|email|max:150',
@@ -94,8 +95,6 @@ class BurgundyCheckoutController extends Controller
             ], 503);
         }
 
-        $rawCardNumber = preg_replace('/\D/', '', $validated['cardNumber']);
-        $expDate       = $validated['expYear'] . '-' . $validated['expMonth']; // YYYY-MM
 
         $payload = [
             'createTransactionRequest' => [
@@ -105,10 +104,9 @@ class BurgundyCheckoutController extends Controller
                     'transactionType' => 'authCaptureTransaction',
                     'amount'          => $enrollment,
                     'payment'         => [
-                        'creditCard' => [
-                            'cardNumber'     => $rawCardNumber,
-                            'expirationDate' => $expDate,
-                            'cardCode'       => $validated['cardCode'],
+                        'opaqueData' => [
+                            'dataDescriptor' => $validated['dataDescriptor'],
+                            'dataValue'      => $validated['dataValue'],
                         ],
                     ],
                     'order' => [

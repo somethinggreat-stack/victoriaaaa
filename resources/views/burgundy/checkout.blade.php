@@ -96,12 +96,12 @@
         </div>
         <div class="field full">
           <label for="cardNumber">Card number <span class="req">*</span></label>
-          <input type="text" id="cardNumber" name="cardNumber" required inputmode="numeric" placeholder="1234 5678 9012 3456" autocomplete="cc-number" maxlength="23">
+          <input type="text" id="cardNumber" required inputmode="numeric" placeholder="1234 5678 9012 3456" autocomplete="cc-number" maxlength="23">
           <div class="err-msg"></div>
         </div>
         <div class="field col-4 m-4">
           <label for="expMonth">Exp. month <span class="req">*</span></label>
-          <select id="expMonth" name="expMonth" required autocomplete="cc-exp-month">
+          <select id="expMonth" required autocomplete="cc-exp-month">
             <option value="">MM</option>
             @for($i = 1; $i <= 12; $i++)
               <option value="{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}">{{ str_pad($i, 2, '0', STR_PAD_LEFT) }}</option>
@@ -111,7 +111,7 @@
         </div>
         <div class="field col-4 m-4">
           <label for="expYear">Exp. year <span class="req">*</span></label>
-          <select id="expYear" name="expYear" required autocomplete="cc-exp-year">
+          <select id="expYear" required autocomplete="cc-exp-year">
             <option value="">YYYY</option>
             @for($y = (int) date('Y'); $y <= (int) date('Y') + 14; $y++)
               <option value="{{ $y }}">{{ $y }}</option>
@@ -121,7 +121,7 @@
         </div>
         <div class="field col-4 m-4">
           <label for="cardCode">CVV <span class="req">*</span></label>
-          <input type="text" id="cardCode" name="cardCode" required inputmode="numeric" maxlength="4" placeholder="123" autocomplete="cc-csc">
+          <input type="text" id="cardCode" required inputmode="numeric" maxlength="4" placeholder="123" autocomplete="cc-csc">
           <div class="err-msg"></div>
         </div>
       </div>
@@ -156,11 +156,29 @@
 @endsection
 
 @push('scripts')
+<script src="{{ $environment === 'sandbox' ? 'https://jstest.authorize.net/v1/Accept.js' : 'https://js.authorize.net/v1/Accept.js' }}" charset="utf-8"></script>
 <script>
 (function () {
+  var AUTH = { apiLoginID: {!! json_encode($apiLogin ?? '') !!}, clientKey: {!! json_encode($clientKey ?? '') !!} };
   var form = document.getElementById('payForm');
   var btn  = document.getElementById('payBtn');
   var box  = document.getElementById('alertBox');
+
+  // Hands the card straight to Authorize.Net from the browser; the card
+  // itself never reaches our server, only a one-time token (opaqueData).
+  function dispatchAccept(cardData) {
+    return new Promise(function (resolve, reject) {
+      Accept.dispatchData({ authData: { clientKey: AUTH.clientKey, apiLoginID: AUTH.apiLoginID }, cardData: cardData }, function (response) {
+        if (!response || response.messages.resultCode === 'Error') {
+          var msg = (response && response.messages && response.messages.message && response.messages.message[0] && response.messages.message[0].text)
+            || 'Card could not be validated. Please check your card details.';
+          reject(new Error(msg));
+          return;
+        }
+        resolve(response.opaqueData);
+      });
+    });
+  }
 
   // Card number: group in fours as they type.
   var cn = document.getElementById('cardNumber');
@@ -204,14 +222,25 @@
     btn.disabled = true;
     btn.textContent = 'Processing…';
 
-    var data = new FormData(form);
-    data.set('cardNumber', data.get('cardNumber').replace(/\s/g, ''));
-    data.set('state', (data.get('state') || '').toUpperCase());
+    var cardData = {
+      cardNumber: document.getElementById('cardNumber').value.replace(/\s/g, ''),
+      month:      document.getElementById('expMonth').value,
+      year:       document.getElementById('expYear').value,
+      cardCode:   document.getElementById('cardCode').value,
+      fullName:   (document.getElementById('cardName').value || '').trim(),
+    };
 
-    fetch(form.action, {
-      method: 'POST',
-      headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
-      body: data
+    dispatchAccept(cardData).then(function (opaqueData) {
+      var data = new FormData(form);
+      data.set('state', (data.get('state') || '').toUpperCase());
+      data.set('dataDescriptor', opaqueData.dataDescriptor);
+      data.set('dataValue', opaqueData.dataValue);
+
+      return fetch(form.action, {
+        method: 'POST',
+        headers: { 'X-Requested-With': 'XMLHttpRequest', 'Accept': 'application/json' },
+        body: data
+      });
     })
     .then(function (r) { return r.json().then(function (j) { return { ok: r.ok, status: r.status, body: j }; }); })
     .then(function (res) {
@@ -235,11 +264,11 @@
       alertBox('err', 'We could not process that payment.',
         '<p style="margin:4px 0 0">' + ((res.body && res.body.message) || 'Please check your card details and try again.') + '</p>');
     })
-    .catch(function () {
+    .catch(function (err) {
       btn.disabled = false;
       btn.textContent = 'Pay ${{ number_format((float) $enrollment, 2) }} & continue';
-      alertBox('err', 'Connection problem.',
-        '<p style="margin:4px 0 0">Your card was not charged. Please check your connection and try again.</p>');
+      alertBox('err', 'We could not process that payment.',
+        '<p style="margin:4px 0 0">' + ((err && err.message) || 'Your card was not charged. Please check your connection and try again.') + '</p>');
     });
   });
 })();

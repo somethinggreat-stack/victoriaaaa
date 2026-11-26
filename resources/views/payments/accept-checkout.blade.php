@@ -631,7 +631,7 @@
   </div>
 </section>
 
-<!-- Card data collected server-side (direct card API) — Accept.js not used -->
+<script src="{{ $environment === 'sandbox' ? 'https://jstest.authorize.net/v1/Accept.js' : 'https://js.authorize.net/v1/Accept.js' }}" charset="utf-8"></script>
 
 @php
   $plansForJs = [];
@@ -839,46 +839,63 @@
     payBtn.classList.add('is-loading');
     payBtn.disabled = true;
 
-    // Direct card API — split MM/YY and send raw card fields to the server,
-    // which charges Authorize.Net with the creditCard payload.
     const [mm, yy] = cardExpEl.value.split('/').map(s => (s || '').trim());
     const expMonth = mm.padStart(2, '0');
     const expYear  = yy.length === 2 ? '20' + yy : yy;
 
-    const fd = new FormData(form);
-    fd.set('cardNumber', cardNumRaw);
-    fd.set('expMonth', expMonth);
-    fd.set('expYear', expYear);
-    fd.set('cardCode', cardCvcEl.value.trim());
-    // Ensure unchecked checkboxes still send a value (Laravel needs them present for `required|accepted`)
-    ['agree_terms','agree_privacy','marketing_opt_in'].forEach(name => {
-      const el = form.querySelector(`input[name="${name}"]`);
-      if (el && !el.checked) fd.set(name, '0');
-    });
+    const resetBtn = () => { payBtn.classList.remove('is-loading'); payBtn.disabled = false; };
 
-    fetch('{{ route('checkout.process') }}', {
-      method: 'POST',
-      headers: {
-        'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
-        'X-Requested-With': 'XMLHttpRequest',
-        'Accept': 'application/json',
+    // Hands the card straight to Authorize.Net from the browser and gets back
+    // a one-time token. The card itself never reaches our server.
+    Accept.dispatchData({
+      authData: { clientKey: AUTH.clientKey, apiLoginID: AUTH.apiLoginID },
+      cardData: {
+        cardNumber: cardNumRaw,
+        month: expMonth,
+        year: expYear,
+        cardCode: cardCvcEl.value.trim(),
+        fullName: (form.querySelector('input[name="cardName"]').value || '').trim(),
       },
-      body: fd,
-    })
-    .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, body: j })))
-    .then(({ ok, body }) => {
-      if (ok && body.success && body.redirect) {
-        window.location.href = body.redirect;
+    }, function (response) {
+      if (!response || response.messages.resultCode === 'Error') {
+        const msg = (response && response.messages && response.messages.message && response.messages.message[0] && response.messages.message[0].text)
+          || 'Card could not be validated. Please check your card details.';
+        showAlert(msg);
+        resetBtn();
         return;
       }
-      showAlert(body.message || 'Payment could not be completed. Please try a different card or contact support.');
-      payBtn.classList.remove('is-loading');
-      payBtn.disabled = false;
-    })
-    .catch(() => {
-      showAlert('A network error stopped your payment. Please try again.');
-      payBtn.classList.remove('is-loading');
-      payBtn.disabled = false;
+
+      const fd = new FormData(form);
+      fd.set('dataDescriptor', response.opaqueData.dataDescriptor);
+      fd.set('dataValue', response.opaqueData.dataValue);
+      // Ensure unchecked checkboxes still send a value (Laravel needs them present for `required|accepted`)
+      ['agree_terms','agree_privacy','marketing_opt_in'].forEach(name => {
+        const el = form.querySelector(`input[name="${name}"]`);
+        if (el && !el.checked) fd.set(name, '0');
+      });
+
+      fetch('{{ route('checkout.process') }}', {
+        method: 'POST',
+        headers: {
+          'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content,
+          'X-Requested-With': 'XMLHttpRequest',
+          'Accept': 'application/json',
+        },
+        body: fd,
+      })
+      .then(r => r.json().then(j => ({ ok: r.ok, status: r.status, body: j })))
+      .then(({ ok, body }) => {
+        if (ok && body.success && body.redirect) {
+          window.location.href = body.redirect;
+          return;
+        }
+        showAlert(body.message || 'Payment could not be completed. Please try a different card or contact support.');
+        resetBtn();
+      })
+      .catch(() => {
+        showAlert('A network error stopped your payment. Please try again.');
+        resetBtn();
+      });
     });
   });
 })();

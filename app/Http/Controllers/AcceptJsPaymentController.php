@@ -304,15 +304,13 @@ class AcceptJsPaymentController extends Controller
         Log::info('Direct card payment request started', [
             'ip'                => $request->ip(),
             'session_id'        => session()->getId(),
-            'request_has_card'  => $request->filled('cardNumber'),
+            'request_has_card'  => $request->filled('dataValue'),
             'selected_plan_raw' => $request->input('selected_plan'),
         ]);
 
         $validated = $request->validate([
-            'cardNumber'       => 'required|string|min:13|max:25',
-            'expMonth'         => 'required|string|size:2',
-            'expYear'          => 'required|string|size:4',
-            'cardCode'         => 'required|string|min:3|max:4',
+            'dataDescriptor'   => 'required|string|max:255',
+            'dataValue'        => 'required|string|max:8000',
             'first_name'       => 'required|string|max:100',
             'last_name'        => 'required|string|max:100',
             'email'            => 'required|email|max:150',
@@ -386,8 +384,6 @@ class AcceptJsPaymentController extends Controller
         }
 
         // Card collected server-side (direct card API) — never tokenized in the browser.
-        $rawCardNumber = preg_replace('/\D/', '', $validated['cardNumber']);
-        $expDate       = $validated['expYear'] . '-' . $validated['expMonth']; // YYYY-MM
 
         $payload = [
             'createTransactionRequest' => [
@@ -400,10 +396,9 @@ class AcceptJsPaymentController extends Controller
                     'transactionType' => 'authCaptureTransaction',
                     'amount'          => $amount,
                     'payment'         => [
-                        'creditCard' => [
-                            'cardNumber'     => $rawCardNumber,
-                            'expirationDate' => $expDate,
-                            'cardCode'       => $validated['cardCode'],
+                        'opaqueData' => [
+                            'dataDescriptor' => $validated['dataDescriptor'],
+                            'dataValue'      => $validated['dataValue'],
                         ],
                     ],
                     'order' => [

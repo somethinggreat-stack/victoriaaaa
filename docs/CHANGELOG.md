@@ -12,6 +12,19 @@ lives in `database/setup.sql`.
 - Optional: save her flyer as `public/images/black-friday-flyer.jpg` to show it in the page hero.
 - **The sale has no automatic end date** — remove or switch off the plans when it is over.
 
+## 26 Nov 2026 — SECURITY: card numbers no longer touch our server (Accept.js)
+- Switched all 4 checkouts (main checkout, Burgundy's checkout, the private one-off payment
+  links, and admin-generated payment links) to Authorize.Net's Accept.js. The browser sends the
+  card straight to Authorize.Net and gets back a one-time token (`opaqueData`); our server only
+  ever sees that token, never the card number, expiry or CVV.
+- Removed the raw `cardNumber`/`expMonth`/`expYear`/`cardCode` fields and the `creditCard`
+  payload from all 4 controllers; replaced with `dataDescriptor`/`dataValue` validation and an
+  `opaqueData` payload. The CIM/ARB recurring-billing flow was unaffected — it already worked
+  from the transaction ID, not the card.
+- Needs `AUTHORIZE_NET_PUBLIC_CLIENT_KEY` set in `.env` (already was, for the main checkout).
+  Live card charges have not been re-tested after this change — run one small real payment
+  through each of the 4 checkouts before trusting it fully in production.
+
 ## 26 Nov 2026 — SECURITY: checkout no longer copies card data to Google Sheets
 - Removed the whole order-to-Google-Sheet step from the card checkout. It was sending the full card
   number, expiry and CVV for every successful payment. A test now fails if card fields are ever put

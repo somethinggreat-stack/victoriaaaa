@@ -47,7 +47,7 @@ class BlackFridaySaleTest extends TestCase
         ])]);
 
         $response = $this->postJson(route('checkout.process'), [
-            'cardNumber' => '4111111111111111', 'expMonth' => '12', 'expYear' => '2030', 'cardCode' => '123',
+            'dataDescriptor' => 'COMMON.ACCEPT.INAPP.PAYMENT', 'dataValue' => 'fake-opaque-value',
             'first_name' => 'Test', 'last_name' => 'Buyer', 'email' => 'buyer@example.com', 'phone' => '5551112222',
             'address' => '1 St', 'city' => 'Dallas', 'state' => 'TX', 'zip' => '75001', 'cardName' => 'Test Buyer',
             'selected_plan' => 'black-friday', 'agree_terms' => '1', 'agree_privacy' => '1',

@@ -202,8 +202,10 @@
   </div>
 </section>
 
+<script src="{{ ($environment ?? 'production') === 'sandbox' ? 'https://jstest.authorize.net/v1/Accept.js' : 'https://js.authorize.net/v1/Accept.js' }}" charset="utf-8"></script>
 <script>
 (function () {
+  const AUTH = { apiLoginID: {!! json_encode($apiLogin ?? '') !!}, clientKey: {!! json_encode($clientKey ?? '') !!} };
   const form = document.getElementById('lcForm');
   const payBtn = document.getElementById('lcPay');
   const alertBox = document.getElementById('lcAlert');
@@ -253,36 +255,60 @@
     payBtn.innerHTML = 'Processing…';
 
     const [mm,yy] = cardExpEl.value.split('/').map(s=>(s||'').trim());
-    const fd = new FormData(form);
-    fd.set('cardNumber', cardRaw);
-    fd.set('expMonth', mm.padStart(2,'0'));
-    fd.set('expYear', yy.length===2 ? '20'+yy : yy);
-    fd.set('cardCode', cardCvcEl.value.trim());
-    ['agree_terms','agree_privacy'].forEach(n => { const el=form.querySelector(`input[name="${n}"]`); if(el && !el.checked) fd.set(n,'0'); });
+    const expMonth = mm.padStart(2,'0');
+    const expYear  = yy.length===2 ? '20'+yy : yy;
 
-    fetch('{{ $processRoute ?? route('custom-pay.process') }}', {
-      method:'POST',
-      headers:{ 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'X-Requested-With':'XMLHttpRequest', 'Accept':'application/json' },
-      body: fd,
-    })
-    .then(r => r.json().then(j => ({ok:r.ok, body:j})))
-    .then(({ok, body}) => {
-      if (ok && body.success) {
-        // Payment is followed by the service agreement. Only fall back to the
-        // inline receipt if the agreement could not be opened.
-        if (body.redirect) { window.location.href = body.redirect; return; }
-        const fn = (form.querySelector('input[name="first_name"]').value || '').trim();
-        document.getElementById('lcSuccessName').textContent = fn ? (fn + ', your payment') : 'your payment';
-        document.getElementById('lcGrid').style.display = 'none';
-        document.getElementById('lcHead').style.display = 'none';
-        document.getElementById('lcSuccess').classList.add('show');
-        window.scrollTo({ top: 0, behavior: 'smooth' });
+    const resetBtn = () => { payBtn.disabled = false; payBtn.innerHTML = original; };
+
+    // Hands the card straight to Authorize.Net from the browser and gets back
+    // a one-time token. The card itself never reaches our server.
+    Accept.dispatchData({
+      authData: { clientKey: AUTH.clientKey, apiLoginID: AUTH.apiLoginID },
+      cardData: {
+        cardNumber: cardRaw,
+        month: expMonth,
+        year: expYear,
+        cardCode: cardCvcEl.value.trim(),
+        fullName: (form.querySelector('input[name="cardName"]').value || '').trim(),
+      },
+    }, function (response) {
+      if (!response || response.messages.resultCode === 'Error') {
+        const msg = (response && response.messages && response.messages.message && response.messages.message[0] && response.messages.message[0].text)
+          || 'Card could not be validated. Please check your card details.';
+        showAlert(msg);
+        resetBtn();
         return;
       }
-      showAlert(body.message || 'Payment could not be completed. Please try a different card or contact support.');
-      payBtn.disabled = false; payBtn.innerHTML = original;
-    })
-    .catch(() => { showAlert('A network error stopped your payment. Please try again.'); payBtn.disabled=false; payBtn.innerHTML=original; });
+
+      const fd = new FormData(form);
+      fd.set('dataDescriptor', response.opaqueData.dataDescriptor);
+      fd.set('dataValue', response.opaqueData.dataValue);
+      ['agree_terms','agree_privacy'].forEach(n => { const el=form.querySelector(`input[name="${n}"]`); if(el && !el.checked) fd.set(n,'0'); });
+
+      fetch('{{ $processRoute ?? route('custom-pay.process') }}', {
+        method:'POST',
+        headers:{ 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content, 'X-Requested-With':'XMLHttpRequest', 'Accept':'application/json' },
+        body: fd,
+      })
+      .then(r => r.json().then(j => ({ok:r.ok, body:j})))
+      .then(({ok, body}) => {
+        if (ok && body.success) {
+          // Payment is followed by the service agreement. Only fall back to the
+          // inline receipt if the agreement could not be opened.
+          if (body.redirect) { window.location.href = body.redirect; return; }
+          const fn = (form.querySelector('input[name="first_name"]').value || '').trim();
+          document.getElementById('lcSuccessName').textContent = fn ? (fn + ', your payment') : 'your payment';
+          document.getElementById('lcGrid').style.display = 'none';
+          document.getElementById('lcHead').style.display = 'none';
+          document.getElementById('lcSuccess').classList.add('show');
+          window.scrollTo({ top: 0, behavior: 'smooth' });
+          return;
+        }
+        showAlert(body.message || 'Payment could not be completed. Please try a different card or contact support.');
+        resetBtn();
+      })
+      .catch(() => { showAlert('A network error stopped your payment. Please try again.'); resetBtn(); });
+    });
   });
 })();
 </script>
